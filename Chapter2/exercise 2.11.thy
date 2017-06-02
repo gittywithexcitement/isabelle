@@ -38,11 +38,12 @@ value "createPolyExpression [4,2,-1] 0"
   (* Define a function evalPoly that evaluates a polynomial at the given value. *)
   (* Evaluate a polynomial, given its coefficients and x. The coefficients are assumed to start at
   x^0, be in order, and contiguous *)
-(* fun evalPoly :: "int list \<Rightarrow> int \<Rightarrow> int" where
-  "evalPoly coeffs v = eval (createPolyExpression coeffs 0) v"
+fun evalPoly :: "int list \<Rightarrow> int \<Rightarrow> int" where
+  "evalPoly [] _ = 0"|
+  "evalPoly (c#coeffs) v = c + v * (evalPoly coeffs v)"
   
 value "evalPoly [4,2,-1,3] 1"  
-value "evalPoly [4,2,-1,3] 3" *)
+value "evalPoly [4,2,-1,3] 3" 
   
   (* Takes the reversed coefficient list. I.e. [-1, 2, 4] represents 4+2x-x^2   *)
 fun hornerHelper :: "int list \<Rightarrow> int \<Rightarrow> int" where
@@ -213,7 +214,7 @@ fun coeffs :: "exp \<Rightarrow> int list" where
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
-theorem ceoffs_preserves_eval[simp]: "evalPolyHorner(coeffs expr) x = eval expr x"
+theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
      apply(auto)
   done
