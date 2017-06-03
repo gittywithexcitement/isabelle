@@ -62,10 +62,7 @@ fun simplifyNonrecursive :: "exp \<Rightarrow> exp" where
   "simplifyNonrecursive (Add (Const l) (Const r)) = Const (l + r)"|
   "simplifyNonrecursive (Mult (Const l) (Const r)) = Const (l * r)"|  
   "simplifyNonrecursive x = x"
-  
-  
-  (* declare [[ smt_timeout = 30 ]] *)
-  
+    
 lemma simplifyNonrecursive_preserves_eval[simp]: "eval (simplifyNonrecursive expr) x = eval expr x"
   apply(induction expr rule: simplifyNonrecursive.induct) apply(auto)
   done 
@@ -87,10 +84,7 @@ fun simplify :: "exp \<Rightarrow> exp" where
   
 value "simplify (Add (Mult (Const 4) (Const 1)) (Add (Mult (Add (Const 0) (Const 2)) Var) (Mult (Const (- 1)) (Mult Var Var))))"
   
-  (*       apply(induction n arbitrary: t)
-   apply(simp_all add: algebra_simps) *)  
-  
-lemma simplify_preserves: "eval (simplify expr) x = eval expr x"
+lemma simplify_preserves[simp]: "eval (simplify expr) x = eval expr x"
   apply(induction expr rule: simplify.induct) apply(auto) 
   done    
     
@@ -109,17 +103,38 @@ fun coeffsOld :: "exp \<Rightarrow> int list" where
 value "coeffsOld (createPolyExpression [4,2,-1] 0)"
 value "coeffsOld (createPolyExpression [4,2,-1,3] 0)"
   
+  (* TODO implement using zip and map   *)
 fun addCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
   "addCoeffs [] r = r" |
   "addCoeffs l [] = l" |
   "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs"
   
-lemma 
-  "evalPolyHorner(coeffs expr) x = eval expr x"
-         hornerHelper (rev (addCoeffs (coeffs expr1) (coeffs expr2))) x = eval expr1 x + eval expr2 x
+(* (addCoeffs (a # coeffs1) coeffs2) = add a to ...   *)
+  
+(* "evalPoly (addCoeffs (a # coeffs1) coeffs2) x = a + (evalPoly coeffs2 x + x * evalPoly coeffs1 x)"   *)
+  
+  (*       apply(induction n arbitrary: t)
+   apply(simp_all add: algebra_simps) *)    
 
   
-  (* left, right, prefix (a list of some 0s)   *)
+declare [[ smt_timeout = 120 ]]  
+
+lemma addCoeffs_eval[simp]:
+  "evalPoly(addCoeffs coeffs1 coeffs2) x = evalPoly coeffs1 x + evalPoly coeffs2 x"
+  (* nitpick [show_all] *)  
+  apply(induction coeffs1 arbitrary: coeffs2 (*x *))
+   apply(simp_all add: algebra_simps)
+    (* apply(simp add: addCoeffs.elims addCoeffs.simps(2) evalPoly.elims int_distrib(2) list.distinct(1) list.inject null_rec(1) null_rec(2) right_diff_distrib') *)
+
+    (* apply(simp add: addCoeffs.elims addCoeffs.simps evalPoly.elims) *)
+(* evalPoly (addCoeffs (a # coeffs1) coeffs2) x = a + (evalPoly coeffs2 x + x * evalPoly coeffs1 x)     *)
+    
+  (* by (smt addCoeffs.elims addCoeffs.simps(2) evalPoly.elims int_distrib(2) list.distinct(1) list.inject null_rec(1) null_rec(2) right_diff_distrib')  *)
+
+    done
+
+    
+    (* left, right, prefix (a list of some 0s)   *)
 fun multCoeffsHelper :: "int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list" where
   "multCoeffsHelper [] _  _ = []" |
   "multCoeffsHelper _  [] _ = []" |
@@ -140,12 +155,14 @@ fun coeffs :: "exp \<Rightarrow> int list" where
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
+  (* evalPoly (addCoeffs (coeffs expr1) (coeffs expr2)) x = eval expr1 x + eval expr2 x *)
+  
 theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
-     apply(auto)
+  apply(auto)
   done
-  
-  (* 
+    
+    (* 
 I have not been able to complete the proof portion of exercise 2.11.
 Since I can't prove my sort is well-behaved, I think I would not be able to prove that
 \<forall> expr x. evalPoly (coeffs expr) x = eval expr x
@@ -153,6 +170,6 @@ Since I can't prove my sort is well-behaved, I think I would not be able to prov
 Instead I will do my own modified proof:
 eval (createPolyExpression coeffs headPower) x = evalPoly coeffs x
  *)
-  
-  
+    
+    
 end
