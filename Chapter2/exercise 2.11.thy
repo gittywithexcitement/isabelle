@@ -118,12 +118,67 @@ lemma addCoeffs_eval[simp]:
   apply(induction coeffs1 rule: addCoeffs.induct) (* adding arbitrary: coeffs2 breaks it *)
     apply(simp_all add: algebra_simps)
   by (metis addCoeffs.elims neq_Nil_conv)
-    (* apply(induction coeffs1 arbitrary: coeffs2) apply(auto)  
-      was stuck at:
-      evalPoly (addCoeffs (a # coeffs1) coeffs2) x 
-      = a + (evalPoly coeffs2 x + x * evalPoly coeffs1 x)     *)
     
-    (* left, right, prefix (a list of some 0s)   *)
+lemma
+  shows "length(addCoeffs xs ys) = max (length xs) (length ys)"
+proof(induction xs arbitrary: ys)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+  then show ?case 
+  proof -
+    have "\<forall>is. is = [] \<or> (\<exists>i isa. is = (i::int) # isa)"
+      by (meson list.exhaust)
+    then obtain ii :: "int list \<Rightarrow> int" and iis :: "int list \<Rightarrow> int list" where
+      f1: "\<forall>is. is = [] \<or> is = ii is # iis is"
+      by (metis (no_types))
+    have f2: "\<forall>i is ia isa. addCoeffs (i # is) (ia # isa) = (ia + i) # addCoeffs is isa"
+      by force
+    have f3: "ii ys + x = x + ii ys"
+      by linarith
+    then have f4: "addCoeffs [x] (ii ys # iis ys) = (x + ii ys) # addCoeffs [] (iis ys)"
+      using f2 by presburger
+    have f5: "\<forall>is. length (addCoeffs xs is) = max (length xs) (length is)"
+      using local.Cons by blast
+    have f6: "length ([]::int list) + Suc 0 = Suc 0"
+      by auto
+    have "\<forall>n na nb. max (n::nat) na + nb = max (n + nb) (na + nb)"
+      by (metis nat_add_max_left)
+    then have f7: "ys = ii ys # iis ys \<and> xs = ii xs # iis xs \<and> addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<longrightarrow> length (addCoeffs (x # xs) ys) = max (length (x # xs)) (length ys)"
+      using f5 f3 f2 by (metis (no_types) list.size(4))
+    have f8: "ys = [] \<or> ys = ii ys # iis ys"
+      using f1 by metis
+    have f9: "addCoeffs (x # xs) (ii ys # iis ys) = (x + ii ys) # addCoeffs xs (iis ys)"
+      using f3 f2 by presburger
+    { assume "length (addCoeffs (x # xs) ys) \<noteq> max (length (x # xs)) (length ys)"
+      { assume "addCoeffs (x # xs) ys \<noteq> []"
+        moreover
+        { assume "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> length (addCoeffs (x # xs) ys) \<noteq> max (length (x # xs)) (length ys)"
+          moreover
+          { assume "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> length (addCoeffs (x # xs) ys) \<noteq> max (0 + (length ([]::int list) + Suc 0)) (length (iis ys) + (length ([]::int list) + Suc 0))"
+            moreover
+            { assume "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> max 0 (length (iis ys)) + (length ([]::int list) + Suc 0) \<noteq> length (addCoeffs [] (iis ys)) + Suc 0"
+              moreover
+              { assume "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> max 0 (length (iis ys)) \<noteq> length (addCoeffs xs (iis ys))"
+                then have "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> xs \<noteq> []"
+                  by fastforce }
+              ultimately have "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> xs \<noteq> []"
+                by simp }
+            ultimately have "addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> xs \<noteq> [] \<or> addCoeffs (x # xs) ys = ii (addCoeffs (x # xs) ys) # iis (addCoeffs (x # xs) ys) \<and> ys \<noteq> ii ys # iis ys"
+              using f4 by fastforce }
+          ultimately have ?thesis
+            using f7 f6 f1 by (metis (full_types) addCoeffs.simps(2) list.size(3) list.size(4) max_0R) }
+        ultimately have ?thesis
+          using f1 by blast }
+      then have ?thesis
+        using f9 f8 by fastforce }
+    then show ?thesis
+      by metis
+  qed
+qed
+  
+  (* left, right, prefix (a list of some 0s)   *)
 fun multCoeffsHelper :: "int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list" where
   "multCoeffsHelper [] _  _ = []" |
   "multCoeffsHelper _  [] _ = []" |
@@ -139,7 +194,7 @@ lemma multCoeffsHelper_01:
   "evalPoly (multCoeffsHelper [] coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 [] [])"
   apply(induction coeffs2) by auto
     
-(* lemma multCoeffsHelper_commutative[simp]:  
+    (* lemma multCoeffsHelper_commutative[simp]:  
   "evalPoly (multCoeffsHelper coeffs1 coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 coeffs1 [])" 
   apply(induction coeffs1 (* arbitrary: coeffs2 *)) using multCoeffsHelper_01 apply auto[1] 
     
@@ -174,21 +229,21 @@ fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
 lemma multCoeffs_v2_01[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
   apply(induction coeffs2) by auto
-       
-(* lemma multCoeffs_v2_commutative[simp]:  
+    
+    (* lemma multCoeffs_v2_commutative[simp]:  
   "evalPoly (multCoeffs_v2 coeffs1 coeffs2) = evalPoly (multCoeffs_v2 coeffs2 coeffs1)" 
   (* apply(induction coeffs1)     *)
   apply(induction coeffs1 arbitrary: coeffs2)
   using multCoeffs_v2_01 apply auto[1] 
     done *)
-
+    
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
   "coeffs (Const i) = [i]"|
   "coeffs (Add l r) = addCoeffs (coeffs l) (coeffs r)" |
   "coeffs (Mult l r) = multCoeffs_v2 (coeffs l) (coeffs r)"
   (* "coeffs (Mult l r) = multCoeffs (coeffs l) (coeffs r)" *)
-
+  
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
@@ -211,92 +266,88 @@ proof -
     by (simp add: assms) 
 qed
   
+lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
+  apply(induction xs) apply(auto) done
+    
+    
+    
+    
 lemma
-  shows "map (op * 0) (xs :: int list) = replicate (length xs) 0"
-proof(induction xs)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons x xs)
-  (* assume "\<And>x xs. map (op * 0) xs = replicate (length xs) 0" *)
-  have "map (op * 0) (x # xs) = (0*x) # map (op * 0) (xs)" by simp
-  hence "(0*x) # map (op * 0) (xs) = 0 # map (op * 0) (xs)" by simp
-  then show "map (op * 0) (x # xs) = replicate (length (x # xs)) 0" by (simp add: Cons.IH)
-qed
-  
-  
-lemma
-  assumes "length xs \<le> length ys"  
+  fixes xs :: "int list" and ys :: "int list"
+  assumes "length xs \<le> length ys"
   shows "addCoeffs (map (op * 0) xs) ys = ys"
-proof(induction xs)
+proof(induction xs) (* induction on ys does not work *)
   case Nil
   then show ?case by simp
 next
   case (Cons x xs)
-  assume "\<And>a xs. addCoeffs (map (op * 0) xs) ys = ys"
-  have "addCoeffs (map (op * 0) (x # xs)) (y#ys) = y # addCoeffs (map (op * 0) xs) ys"
-    by simp
-      (* TODO WIP use lemma to show map (op * 0) xs is replicate *)
-
-  then show ?case by (* sledgehammer *)
-(* then show "addCoeffs (map (op * 0) (a # xs)) ys = ys" by sledgehammer *)
-      (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
+    (* 1. \<And>a xs. addCoeffs (map (op * 0) xs) ys = ys 
+             \<Longrightarrow> addCoeffs (map (op * 0) (a # xs)) ys = ys *)
+  nitpick (* finds a counterexample! because a#xs is now longer by 1 *)
+  fix y ys1 assume "y#ys1 = ys"
+  have "addCoeffs (map (op * 0) (x # xs)) (y#ys1) = y # addCoeffs (map (op * 0) xs) ys1" by simp 
+  fix zs :: "int list" assume "length zs = length ys"
+  have "addCoeffs (map (op * 0) (x#xs)) zs = addCoeffs (map (op * 0) xs) zs" try
+      (* have "addCoeffs (map (op * 0) (a # xs) = addCoeffs (map (op * 0) xs" by *)
       
-qed
-  
-  
-(* lemma addCoeffs_0_id: "length xs = length ys \<Longrightarrow> addCoeffs (map (op * 0) xs) ys = ys"
-  apply(induction xs) apply(auto) *) 
- 
-  
-(*   lemma multCoeffs_v2_01[simp]:
-  "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
-  apply(induction coeffs2) by auto *)
-  
-  
+      (* have "y # addCoeffs (map (op * 0) xs) ys1 = y # ys1" Cant easily prove *)
+      (* hence "y # addCoeffs (map (op * 0) xs) ys = y # ys" using Cons.IH by blast *)
+      (* have "y # addCoeffs (map (op * 0) xs) ys = y # addCoeffs (replicate (length xs) 0) ys" by simp *)
+      (* hence "addCoeffs (map (op * 0) (x # xs)) (y#ys) = y # addCoeffs (replicate (length xs) 0) ys" by simp *)
+      (* TODO WIP use lemma to show map (op * 0) xs is replicate *)
+      
+      (* then show ?case by sledgehammer *)
+      
+      (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
+  qed
+    
 lemma
   assumes "evalPoly (coeffs expr2) x = eval expr2 x"
   shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"  
 proof -
   fix cs
-  (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
-  (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
-  (* have "(0*hd cs) # (addCoeffs (map (\<lambda>x. 0*x) cs) (multCoeffs_v2 [1] cs)) = multCoeffs_v2 [0, 1] cs" by auto *)
+    (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
+    (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
+    (* have "(0*hd cs) # (addCoeffs (map (\<lambda>x. 0*x) cs) (multCoeffs_v2 [1] cs)) = multCoeffs_v2 [0, 1] cs" by auto *)
   fix c
-  have "(0*c) # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) = multCoeffs_v2 [0, 1] (c#cs)"
+    (* have "(0*c) # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) = multCoeffs_v2 [0, 1] (c#cs)" *)
+  have "multCoeffs_v2 [0, 1] (c#cs) = 0 # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs)))"
     by simp
-(* "multCoeffs_v2 (l#ls) (r#rs) = 
+      
+      (* TODO WIP. use lemma above to simplify  addCoeffs (map (op * 0) cs) xs = xs*)
+      
+      (* "multCoeffs_v2 (l#ls) (r#rs) = 
     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs)
       in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
-
-    
-    
-(*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
+      
+      
+      
+      (*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
-  qed
-    
+qed
+  
 value "multCoeffs_v2 [0, 1] [3,4,5]"
-    
-    
-    
-(* lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
+  
+  
+  
+  (* lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
   "evalPoly (coeffs expr1) x = eval expr1 x \<Longrightarrow>
    evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow>
     evalPoly (multCoeffs_v2 (coeffs expr1) (coeffs expr2)) x = eval expr1 x * eval expr2 x"
   apply(induction expr1) apply(auto)
     done *)
- (* apply(induction expr1 arbitrary:expr2) apply(auto) *)
-    
+  (* apply(induction expr1 arbitrary:expr2) apply(auto) *)
+  
   (* apply(induction arbitrary:expr1 expr2 rule:multCoeffs_v2.induct) apply(auto) *)
- (* apply(induction arbitrary: expr2 rule:multCoeffs_v2.induct) apply(auto) *)
- (* apply(induction arbitrary: expr1 rule:multCoeffs_v2.induct) apply(auto) *)
-
-
-      (* Needs multCoeffs_v2_eval_distributive     *)
+  (* apply(induction arbitrary: expr2 rule:multCoeffs_v2.induct) apply(auto) *)
+  (* apply(induction arbitrary: expr1 rule:multCoeffs_v2.induct) apply(auto) *)
+  
+  
+  (* Needs multCoeffs_v2_eval_distributive     *)
 theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
-     apply(auto)
+  apply(auto)
   done 
     
     (* 
