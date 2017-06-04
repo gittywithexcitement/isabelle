@@ -139,13 +139,13 @@ lemma multCoeffsHelper_01:
   "evalPoly (multCoeffsHelper [] coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 [] [])"
   apply(induction coeffs2) by auto
     
-lemma multCoeffsHelper_commutative[simp]:  
+(* lemma multCoeffsHelper_commutative[simp]:  
   "evalPoly (multCoeffsHelper coeffs1 coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 coeffs1 [])" 
   apply(induction coeffs1 (* arbitrary: coeffs2 *)) using multCoeffsHelper_01 apply auto[1] 
     
   apply(induction coeffs1 rule:multCoeffsHelper.induct) apply(auto)
    apply(simp_all add: algebra_simps)
-  done
+  done *)
     
 fun multCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs l r = multCoeffsHelper l r []"
@@ -164,7 +164,7 @@ fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
   "multCoeffs_v2 _  [] = []" |  
   "multCoeffs_v2 [l] rs = map (\<lambda>x. l*x) rs"| (* helper for proofs. Not sure if it's useful *)
   "multCoeffs_v2 (l#ls) (r#rs) = 
-    (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
+    (let l_times_rs = (map (op * l) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs)
       in (l*r) # addCoeffs l_times_rs ls_times_rrs)"
   (* (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
@@ -192,10 +192,6 @@ fun coeffs :: "exp \<Rightarrow> int list" where
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
-(* lemma multCoeffs_v2_eval_distributive_01[simp]:
-  "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"
-  apply(induction expr2) apply(auto) *)
-  
 lemma evalPoly_multiplication:"m * (evalPoly cs x) = evalPoly (map (\<lambda>x. m*x) cs) x"
   apply(induction cs) apply(auto)[1] apply(simp add: algebra_simps)
   done
@@ -215,31 +211,38 @@ proof -
     by (simp add: assms) 
 qed
     
-lemma multCoeffs_v2_eval_distributive_02[simp]: 
-  "(*\<And>xa.*)evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow> 
-    evalPoly (multCoeffs_v2 [xa] (coeffs expr2)) x = xa * eval expr2 x"
-  (* apply(simp add: multCoeffs_v2_def) *)
-  
-  apply(induction expr2) apply(auto)
-     (* apply(induction expr2 arbitrary:xa x) apply(auto) *)
+lemma
+  assumes "evalPoly (coeffs expr2) x = eval expr2 x"
+  shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"  
+proof -
+  fix cs
+  (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
+  (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
+  (* have "(0*hd cs) # (addCoeffs (map (\<lambda>x. 0*x) cs) (multCoeffs_v2 [1] cs)) = multCoeffs_v2 [0, 1] cs" by auto *)
+  fix c
+  have "(0*c) # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) = multCoeffs_v2 [0, 1] (c#cs)"
+    by simp
+(* "multCoeffs_v2 (l#ls) (r#rs) = 
+    (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
+         ls_times_rrs = multCoeffs_v2 ls (r#rs)
+      in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
 
-  (* using multCoeffs_v2.simps *)
-  (* apply(simp add:multCoeffs_v2.elims) *)
-  (* apply(auto elim:multCoeffs_v2.elims) *)
     
-  (* not helpful; circular *)
-  (* apply(induction arbitrary:xa expr2 x rule:multCoeffs_v2.induct) apply(auto) *)
-
-
-  (* apply(induction expr2) apply(auto) *)
- (* apply(induction rule:multCoeffs_v2.induct) apply(auto) apply(simp_all add: algebra_simps) *)
-
-lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
+    
+(*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
+         ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
+  qed
+    
+value "multCoeffs_v2 [0, 1] [3,4,5]"
+    
+    
+    
+(* lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
   "evalPoly (coeffs expr1) x = eval expr1 x \<Longrightarrow>
    evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow>
     evalPoly (multCoeffs_v2 (coeffs expr1) (coeffs expr2)) x = eval expr1 x * eval expr2 x"
   apply(induction expr1) apply(auto)
-    done
+    done *)
  (* apply(induction expr1 arbitrary:expr2) apply(auto) *)
     
   (* apply(induction arbitrary:expr1 expr2 rule:multCoeffs_v2.induct) apply(auto) *)
@@ -261,6 +264,5 @@ Since I can't prove my sort is well-behaved, I think I would not be able to prov
 Instead I will do my own modified proof:
 eval (createPolyExpression coeffs headPower) x = evalPoly coeffs x
  *)
-    
     
 end
