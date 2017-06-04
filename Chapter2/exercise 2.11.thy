@@ -137,15 +137,7 @@ fun multCoeffsHelper :: "int list \<Rightarrow> int list \<Rightarrow> int list 
   
 lemma multCoeffsHelper_01:
   "evalPoly (multCoeffsHelper [] coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 [] [])"
-  apply(induction coeffs2) apply(auto)
-  done
-    
-    (* lemma multCoeffsHelper_02:    
-    "evalPoly (multCoeffsHelper (a # coeffs1) coeffs2 []) =
-       evalPoly (multCoeffsHelper coeffs2 (a # coeffs1) [])"
-  (* apply(induction coeffs2) apply(auto) *)
-  apply(induction coeffs2 rule: multCoeffsHelper.induct) apply(auto) *)
-    
+  apply(induction coeffs2) by auto
     
 lemma multCoeffsHelper_commutative[simp]:  
   "evalPoly (multCoeffsHelper coeffs1 coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 coeffs1 [])" 
@@ -154,51 +146,6 @@ lemma multCoeffsHelper_commutative[simp]:
   apply(induction coeffs1 rule:multCoeffsHelper.induct) apply(auto)
    apply(simp_all add: algebra_simps)
   done
-    
-    
-    (* This line was a no-op: *)
-    (* apply(induction coeffs1 arbitrary:coeffs2 rule:multCoeffsHelper.induct) apply(auto) *)
-    
-    (* apply(induction coeffs1 (* arbitrary: coeffs2 *) rule: multCoeffsHelper.induct)  *)
-    
-    
-    (* apply(induction coeffs1 arbitrary: coeffs2 rule: multCoeffsHelper.induct) apply(simp_all add: algebra_simps)   *)
-    
-    (* apply(induction coeffs1 coeffs2 rule: multCoeffsHelper.induct) apply(simp_all add: algebra_simps)  *)
-    
-    (* apply(induction coeffs1  rule: multCoeffsHelper.induct) apply(simp_all add: algebra_simps)   *)
-    
-    
-    (* lemma multCoeffsHelper_commutative[simp]:  
-  "multCoeffsHelper coeffs1 coeffs2 [] = multCoeffsHelper coeffs2 coeffs1 []" *)
-    (* apply(induction coeffs1 arbitrary: coeffs2) apply(simp_all add: algebra_simps) apply (metis multCoeffsHelper.simps(1) multCoeffsHelper.simps(2) neq_Nil_conv) *)
-    
-    (*   apply(induction coeffs1 arbitrary: coeffs2 rule: multCoeffsHelper.induct)
-    apply(simp_all add: algebra_simps)  *)
-    
-    (* apply(induction coeffs1 coeffs2 rule: multCoeffsHelper.induct)
-    apply(simp_all add: algebra_simps) *)
-    
-    (* apply(induction coeffs1  rule: multCoeffsHelper.induct)
-    apply(simp_all add: algebra_simps)  *)
-    
-    
-    (* lemma multCoeffsHelper_eval[simp]:  
-  "evalPoly (multCoeffsHelper coeffs1 coeffs2 []) x =
-       evalPoly coeffs1 x * evalPoly coeffs2 x"  *)
-    
-    (* apply(induction coeffs1 arbitrary: coeffs2) apply(simp_all add: algebra_simps)    *)
-    (* Stuck at:
-evalPoly (multCoeffsHelper (a # coeffs1) coeffs2 []) x =
-       a * evalPoly coeffs2 x + x * (evalPoly coeffs1 x * evalPoly coeffs2 x)     *)
-    
-    (* apply(induction coeffs1 arbitrary: coeffs2) apply(simp_all add: algebra_simps) *)
-    (* apply(induction coeffs1 ) apply(simp_all add: algebra_simps)     *)
-    
-    
-    (* apply(induction coeffs1 arbitrary: coeffs2 rule: multCoeffsHelper.induct) apply(simp_all add: algebra_simps)   *)
-    (* apply(induction coeffs1 rule: multCoeffsHelper.induct) apply(auto) apply(simp_all add: algebra_simps) *)
-    
     
 fun multCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs l r = multCoeffsHelper l r []"
@@ -215,6 +162,7 @@ fun multCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
 fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs_v2 [] _  = []" |
   "multCoeffs_v2 _  [] = []" |  
+  "multCoeffs_v2 [l] rs = map (\<lambda>x. l*x) rs"| (* helper for proofs. Not sure if it's useful *)
   "multCoeffs_v2 (l#ls) (r#rs) = 
     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs)
@@ -226,48 +174,84 @@ fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
 lemma multCoeffs_v2_01[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
   apply(induction coeffs2) by auto
-    
-    (* lemma multCoeffs_v2_02: 
-  "\<And>a coeffs2 (*coeffs1*).
-       (\<And>coeffs2. evalPoly (multCoeffs_v2 coeffs1 coeffs2) = evalPoly (multCoeffs_v2 coeffs2 coeffs1)) \<Longrightarrow>
-       evalPoly (multCoeffs_v2 (a # coeffs1) coeffs2) = evalPoly (multCoeffs_v2 coeffs2 (a # coeffs1))"    
-  apply(induction coeffs1 rule:multCoeffs_v2.induct) 
-    apply(simp_all add: algebra_simps)  *)
-    
-lemma multCoeffs_v2_commutative[simp]:  
+       
+(* lemma multCoeffs_v2_commutative[simp]:  
   "evalPoly (multCoeffs_v2 coeffs1 coeffs2) = evalPoly (multCoeffs_v2 coeffs2 coeffs1)" 
   (* apply(induction coeffs1)     *)
   apply(induction coeffs1 arbitrary: coeffs2)
   using multCoeffs_v2_01 apply auto[1] 
-    
-    (* apply(induction coeffs1 rule:multCoeffs_v2.induct) apply(auto)  *)
-    
-    (* lemma multCoeffs_v2_eval[simp]:  
-  "evalPoly (multCoeffs_v2 coeffs1 coeffs2) x =
-       evalPoly coeffs1 x * evalPoly coeffs2 x" *)
-    
-    (* apply(induction coeffs1 arbitrary: coeffs2 rule: multCoeffs_v2.induct) apply(simp_all add: algebra_simps)     *)
-    (* apply(induction coeffs1 rule: multCoeffs_v2.induct) apply(simp_all add: algebra_simps) apply (metis evalPoly.elims list.discI multCoeffs_v2.elims)  *)
-    
-    
-    (* apply(induction coeffs1) apply(simp_all add: algebra_simps)   *)
-    (* apply(induction coeffs1 arbitrary:coeffs2) apply(simp_all add: algebra_simps) *)
-    
+    done *)
+
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
   "coeffs (Const i) = [i]"|
   "coeffs (Add l r) = addCoeffs (coeffs l) (coeffs r)" |
-  "coeffs (Mult l r) = multCoeffs (coeffs l) (coeffs r)"
-  
+  "coeffs (Mult l r) = multCoeffs_v2 (coeffs l) (coeffs r)"
+  (* "coeffs (Mult l r) = multCoeffs (coeffs l) (coeffs r)" *)
+
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
-  (* evalPoly (addCoeffs (coeffs expr1) (coeffs expr2)) x = eval expr1 x + eval expr2 x *)
+(* lemma multCoeffs_v2_eval_distributive_01[simp]:
+  "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"
+  apply(induction expr2) apply(auto) *)
   
+lemma evalPoly_multiplication:"m * (evalPoly cs x) = evalPoly (map (\<lambda>x. m*x) cs) x"
+  apply(induction cs) apply(auto)[1] apply(simp add: algebra_simps)
+  done
+    
+lemma 
+  assumes "evalPoly (coeffs expr) x = eval expr x"
+  shows "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
+proof -
+  have "evalPoly (map (\<lambda>x. m*x) (coeffs expr)) x = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x"
+    by (metis evalPoly.elims list.simps(8) multCoeffs_v2.simps(2) multCoeffs_v2.simps(3))
+  fix cs
+  have "m * (evalPoly cs x) = evalPoly (map (\<lambda>x. m*x) cs) x"
+    by (simp add: evalPoly_multiplication)
+  hence "m * (evalPoly (coeffs expr) x) = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x"
+    by (simp add: \<open>evalPoly (map (op * m) (coeffs expr)) x = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x\<close> evalPoly_multiplication) 
+  thus "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
+    by (simp add: assms) 
+qed
+    
+lemma multCoeffs_v2_eval_distributive_02[simp]: 
+  "(*\<And>xa.*)evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow> 
+    evalPoly (multCoeffs_v2 [xa] (coeffs expr2)) x = xa * eval expr2 x"
+  (* apply(simp add: multCoeffs_v2_def) *)
+  
+  apply(induction expr2) apply(auto)
+     (* apply(induction expr2 arbitrary:xa x) apply(auto) *)
+
+  (* using multCoeffs_v2.simps *)
+  (* apply(simp add:multCoeffs_v2.elims) *)
+  (* apply(auto elim:multCoeffs_v2.elims) *)
+    
+  (* not helpful; circular *)
+  (* apply(induction arbitrary:xa expr2 x rule:multCoeffs_v2.induct) apply(auto) *)
+
+
+  (* apply(induction expr2) apply(auto) *)
+ (* apply(induction rule:multCoeffs_v2.induct) apply(auto) apply(simp_all add: algebra_simps) *)
+
+lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
+  "evalPoly (coeffs expr1) x = eval expr1 x \<Longrightarrow>
+   evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow>
+    evalPoly (multCoeffs_v2 (coeffs expr1) (coeffs expr2)) x = eval expr1 x * eval expr2 x"
+  apply(induction expr1) apply(auto)
+    done
+ (* apply(induction expr1 arbitrary:expr2) apply(auto) *)
+    
+  (* apply(induction arbitrary:expr1 expr2 rule:multCoeffs_v2.induct) apply(auto) *)
+ (* apply(induction arbitrary: expr2 rule:multCoeffs_v2.induct) apply(auto) *)
+ (* apply(induction arbitrary: expr1 rule:multCoeffs_v2.induct) apply(auto) *)
+
+
+      (* Needs multCoeffs_v2_eval_distributive     *)
 theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
-  apply(auto)
-  done
+     apply(auto)
+  done 
     
     (* 
 I have not been able to complete the proof portion of exercise 2.11.
