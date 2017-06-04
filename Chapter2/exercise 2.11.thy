@@ -210,7 +210,50 @@ proof -
   thus "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
     by (simp add: assms) 
 qed
-    
+  
+lemma
+  shows "map (op * 0) (xs :: int list) = replicate (length xs) 0"
+proof(induction xs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+  (* assume "\<And>x xs. map (op * 0) xs = replicate (length xs) 0" *)
+  have "map (op * 0) (x # xs) = (0*x) # map (op * 0) (xs)" by simp
+  hence "(0*x) # map (op * 0) (xs) = 0 # map (op * 0) (xs)" by simp
+  then show "map (op * 0) (x # xs) = replicate (length (x # xs)) 0" by (simp add: Cons.IH)
+qed
+  
+  
+lemma
+  assumes "length xs \<le> length ys"  
+  shows "addCoeffs (map (op * 0) xs) ys = ys"
+proof(induction xs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+  assume "\<And>a xs. addCoeffs (map (op * 0) xs) ys = ys"
+  have "addCoeffs (map (op * 0) (x # xs)) (y#ys) = y # addCoeffs (map (op * 0) xs) ys"
+    by simp
+      (* TODO WIP use lemma to show map (op * 0) xs is replicate *)
+
+  then show ?case by (* sledgehammer *)
+(* then show "addCoeffs (map (op * 0) (a # xs)) ys = ys" by sledgehammer *)
+      (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
+      
+qed
+  
+  
+(* lemma addCoeffs_0_id: "length xs = length ys \<Longrightarrow> addCoeffs (map (op * 0) xs) ys = ys"
+  apply(induction xs) apply(auto) *) 
+ 
+  
+(*   lemma multCoeffs_v2_01[simp]:
+  "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
+  apply(induction coeffs2) by auto *)
+  
+  
 lemma
   assumes "evalPoly (coeffs expr2) x = eval expr2 x"
   shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"  
