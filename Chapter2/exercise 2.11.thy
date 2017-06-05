@@ -223,8 +223,11 @@ lemma multCoeffs_v2_emptylist_commutative[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
   apply(induction coeffs2) by auto
     
-(*  lemma multCoeffs_v2_commutative[simp]:  
-  "evalPoly (multCoeffs_v2 coeffs1 coeffs2) = evalPoly (multCoeffs_v2 coeffs2 coeffs1)" *) 
+fun zipWith :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a list \<Rightarrow> 'b list \<Rightarrow> 'c list" where
+  "zipWith _ [] _ = []"|
+  "zipWith _ _  [] = []"|
+  "zipWith f (x#xs) (y#ys) = (f x y) # zipWith f xs ys"
+
     
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
