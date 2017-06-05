@@ -315,17 +315,34 @@ qed *)
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
   
+lemma evalPoly_multCoeffs_equiv_times: 
+  "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"  
+proof(cases l)
+  case Var
+  then show ?thesis sorry
+next
+  case (Const x2)
+  then show ?thesis sorry
+next
+  case (Add x31 x32)
+  then show ?thesis sorry
+next
+  case (Mult x41 x42)
+  then show ?thesis sorry
+qed
+  
 lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
   fixes l :: exp and r :: exp and x :: int
   assumes "evalPoly (coeffs l) x = eval l x"
     and "evalPoly (coeffs r) x = eval r x"
   shows "evalPoly (coeffs (Mult l r)) x = eval (Mult l r) x"
 proof -
+  have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
   have "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x"
     by simp
-  have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
-  have "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x" sorry
- thus ?thesis by (simp add: assms(1) assms(2))      
+  have "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"
+    by (simp add: evalPoly_multCoeffs_equiv_times)
+  thus ?thesis by (simp add: assms(1) assms(2))      
 qed
   
 theorem "evalPoly(coeffs expr) x = eval expr x"
