@@ -248,10 +248,10 @@ lemma multCoeffs_v2_emptylist_commutative[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
   apply(induction coeffs2) by auto
     
-fun zipWith :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a list \<Rightarrow> 'b list \<Rightarrow> 'c list" where
+(* fun zipWith :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a list \<Rightarrow> 'b list \<Rightarrow> 'c list" where
   "zipWith _ [] _ = []"|
   "zipWith _ _  [] = []"|
-  "zipWith f (x#xs) (y#ys) = (f x y) # zipWith f xs ys"
+  "zipWith f (x#xs) (y#ys) = (f x y) # zipWith f xs ys" *)
 
   (* 3rd arg is (power + 1) *)
 (* fun multCoeffs_v3_helper :: "int list \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where
@@ -293,39 +293,7 @@ qed
   
 lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
   apply(induction xs) apply(auto) done
-       
-(* lemma
-  fixes xs :: "int list" and ys :: "int list"
-  assumes "length xs \<le> length ys"
-  shows "addCoeffs (map (op * 0) xs) ys = ys"
-proof(induction xs) (* induction on ys does not work *)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons x xs)
-    (* 1. \<And>a xs. addCoeffs (map (op * 0) xs) ys = ys 
-             \<Longrightarrow> addCoeffs (map (op * 0) (a # xs)) ys = ys *)
-  nitpick (* finds a counterexample! because a#xs is now longer by 1 *)
-  fix y ys1 assume "y#ys1 = ys"
-  have "addCoeffs (map (op * 0) (x # xs)) (y#ys1) = y # addCoeffs (map (op * 0) xs) ys1" by simp 
-  fix zs :: "int list" assume "length zs = length ys"
-  have "addCoeffs (map (op * 0) (x#xs)) zs = addCoeffs (map (op * 0) xs) zs" try
-      (* have "addCoeffs (map (op * 0) (a # xs) = addCoeffs (map (op * 0) xs" by *)
-      
-      (* have "y # addCoeffs (map (op * 0) xs) ys1 = y # ys1" Cant easily prove *)
-      (* hence "y # addCoeffs (map (op * 0) xs) ys = y # ys" using Cons.IH by blast *)
-      (* have "y # addCoeffs (map (op * 0) xs) ys = y # addCoeffs (replicate (length xs) 0) ys" by simp *)
-      (* hence "addCoeffs (map (op * 0) (x # xs)) (y#ys) = y # addCoeffs (replicate (length xs) 0) ys" by simp *)
-      (* TODO WIP use lemma to show map (op * 0) xs is replicate *)
-      
-      (* then show ?case by sledgehammer *)
-      
-      (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
-  qed *)
     
-(* evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * (evalPoly (coeffs expr) x) *)
-    
-
 lemma multCoeffs_v2_01[simp]:
   "evalPoly (multCoeffs_v2 [0, 1] cs) x = x * evalPoly cs x"
 proof(induction cs)
@@ -338,40 +306,12 @@ next
     by simp
   also have "... = evalPoly (0 # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) x" by simp
   also have "... = evalPoly (0 # addCoeffs (replicate (length cs) 0) (multCoeffs_v2 [1] (c#cs))) x" by simp
-
-
-      
-      (* "multCoeffs_v2 (l#ls) (r#rs) =  *)
-    (* (let l_times_rs = (map (op * l) rs); *)
-         (* ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
-      (* in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
-
-
-  then show ?case sorry
-qed
-  
-  (* also have "... = evalPoly (0 # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] cs)) x" try *)
-    (* also have "... = evalPoly (0 # addCoeffs (replicate (length cs) 0) (multCoeffs_v2 [1] cs)) x" *)
-
-
-  
-       (* (let l_times_rs = (map (op * l) rs); *)
-         (* ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
-      (* in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
-   
-  (* fix cs *)
-    (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
-    (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
-    (* have "(0*hd cs) # (addCoeffs (map (\<lambda>x. 0*x) cs) (multCoeffs_v2 [1] cs)) = multCoeffs_v2 [0, 1] cs" by auto *)
-  (* fix c *)
-    (* have "(0*c) # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) = multCoeffs_v2 [0, 1] (c#cs)" *)
-
-  (* have "multCoeffs_v2 [0, 1] (c#cs) = 0 # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs)))"
-    by simp *)
-      
-      (* TODO WIP. use lemma above to simplify  addCoeffs (map (op * 0) cs) xs = xs*)
-      
-    show ?thesis sorry
+  also have "... = evalPoly (0 # (multCoeffs_v2 [1] (c#cs))) x" 
+    by (metis addCoeffs_zeros length_map length_tl list.sel(3) multCoeffs_v2.simps(3))
+  also have "... = evalPoly (0 # c # cs) x"
+    by (metis evalPoly.simps(2) evalPoly_multiplication multCoeffs_v2.simps(3) mult_cancel_right2)
+  also have "... = x * evalPoly (c # cs) x" by simp
+  finally show ?case by simp
 qed
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
