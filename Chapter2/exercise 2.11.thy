@@ -272,7 +272,7 @@ fun coeffs :: "exp \<Rightarrow> int list" where
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
-lemma evalPoly_multiplication:"m * (evalPoly cs x) = evalPoly (map (\<lambda>x. m*x) cs) x"
+lemma evalPoly_multiplication[simp]:"evalPoly (map (\<lambda>x. m*x) cs) x = m * (evalPoly cs x)"
   apply(induction cs) apply(auto)[1] apply(simp add: algebra_simps)
   done
     
@@ -331,8 +331,18 @@ proof(induction l)
       
   then show ?case by simp
 next
-  case (Const x)
-  then show ?case sorry
+  case (Const i)
+  have "evalPoly (multCoeffs_v2 (coeffs (Const i)) (coeffs r)) x 
+      = evalPoly (multCoeffs_v2 [i] (coeffs r)) x" by simp
+  also have "... = evalPoly (map (op * i) (coeffs r)) x"
+    by (metis evalPoly.elims length_0_conv length_map multCoeffs_v2.simps(2) multCoeffs_v2.simps(3))
+  finally have "... = i * evalPoly (coeffs r) x" by (simp)
+      
+  have "evalPoly (coeffs (Const i)) x * evalPoly (coeffs r) x 
+      = evalPoly [i] x * evalPoly (coeffs r) x" by simp
+  also have "... = i * evalPoly (coeffs r) x" by simp
+  then show ?case 
+    by (simp add: \<open>evalPoly (multCoeffs_v2 [i] (coeffs r)) x = evalPoly (map (op * i) (coeffs r)) x\<close>)
 next
   case (Add l1 l2)
   then show ?case sorry
