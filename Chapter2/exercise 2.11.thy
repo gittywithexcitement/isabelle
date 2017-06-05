@@ -108,11 +108,7 @@ fun addCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
   "addCoeffs [] r = r" |
   "addCoeffs l [] = l" |
   "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs"
-  
-  (*       apply(induction n arbitrary: t)
-   apply(simp_all add: algebra_simps) *)    
-  (* declare [[ smt_timeout = 120 ]] *)
-  
+    
 lemma addCoeffs_eval[simp]:
   "evalPoly(addCoeffs coeffs1 coeffs2) x = evalPoly coeffs1 x + evalPoly coeffs2 x"
   apply(induction coeffs1 rule: addCoeffs.induct) (* adding arbitrary: coeffs2 breaks it *)
@@ -176,6 +172,37 @@ next
     then show ?thesis
       by metis
   qed
+qed
+  
+(* declare [[smt_timeout=60]]
+declare [[smt_random_seed = 1]] *)
+lemma
+  shows "addCoeffs xs ys = addCoeffs ys xs"
+proof(induction xs arbitrary: ys)
+  case Nil
+  then show ?case by (metis addCoeffs.simps(1) addCoeffs.simps(2) list.exhaust)
+next
+  case (Cons x xs)
+    (* \<And>a xs ys. (\<And>ys. addCoeffs xs ys = addCoeffs ys xs) 
+    \<Longrightarrow> addCoeffs (a # xs) ys = addCoeffs ys (a # xs) *)
+  fix y ys1 
+  assume "y#ys1 = ys"
+  hence "addCoeffs (x # xs) ys = addCoeffs (x # xs) (y#ys1)" by simp
+  have "addCoeffs (x # xs) (y#ys1) = addCoeffs (y#ys1) (x#xs)" by (simp add: Cons.IH)
+  hence "addCoeffs (x # xs) ys = addCoeffs (y#ys1) (x#xs)"
+    by (simp add: \<open>addCoeffs (x # xs) ys = addCoeffs (x # xs) (y # ys1)\<close>)
+  hence "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
+    by (simp add: \<open>y # ys1 = ys\<close>)
+      
+  then show ?case sorry
+(*   then show "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
+    by (simp add: \<open>y # ys1 = ys\<close>) *)
+      (* why am I not done now? *)
+(*   hence "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
+    by (simp add: \<open>y # ys1 = ys\<close>) *)
+
+(*   then show ?case
+    by (smt addCoeffs.elims list.distinct(1) list.sel(1) list.sel(3)) (*slow*) *)
 qed
   
   (* left, right, prefix (a list of some 0s)   *)
@@ -270,7 +297,7 @@ lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replica
   apply(induction xs) apply(auto) done
     
     
-    
+TODO flip xs and ys, and pr    
     
 lemma
   fixes xs :: "int list" and ys :: "int list"
