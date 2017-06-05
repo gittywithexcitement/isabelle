@@ -287,10 +287,12 @@ next
       (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
   qed *)
     
-(* lemma
-  assumes "evalPoly (coeffs expr2) x = eval expr2 x"
-  shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"  
+lemma multCoeffs_v2_01[simp]:
+  assumes "evalPoly (coeffs expr) x = eval expr x"
+  shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = x * eval expr x"  
 proof -
+  show ?thesis sorry
+  
   fix cs
     (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
     (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
