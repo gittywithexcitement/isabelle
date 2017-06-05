@@ -115,7 +115,7 @@ lemma addCoeffs_eval[simp]:
     apply(simp_all add: algebra_simps)
   by (metis addCoeffs.elims neq_Nil_conv)
     
-lemma
+lemma length_addCoeffs:
   shows "length(addCoeffs xs ys) = max (length xs) (length ys)"
 proof(induction xs arbitrary: ys)
   case Nil
@@ -174,7 +174,7 @@ next
   qed
 qed
   
-lemma
+lemma addCoeffs_commutative[simp]:
   shows "addCoeffs xs ys = addCoeffs ys xs"
 proof(induction xs arbitrary: ys)
   case Nil
@@ -240,7 +240,7 @@ lemma evalPoly_multiplication:"m * (evalPoly cs x) = evalPoly (map (\<lambda>x. 
   apply(induction cs) apply(auto)[1] apply(simp add: algebra_simps)
   done
     
-lemma 
+lemma multCoeffs_v2_arg_length_1[simp]:
   assumes "evalPoly (coeffs expr) x = eval expr x"
   shows "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
 proof -
