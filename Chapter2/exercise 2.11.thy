@@ -174,8 +174,6 @@ next
   qed
 qed
   
-(* declare [[smt_timeout=60]]
-declare [[smt_random_seed = 1]] *)
 lemma
   shows "addCoeffs xs ys = addCoeffs ys xs"
 proof(induction xs arbitrary: ys)
@@ -183,26 +181,14 @@ proof(induction xs arbitrary: ys)
   then show ?case by (metis addCoeffs.simps(1) addCoeffs.simps(2) list.exhaust)
 next
   case (Cons x xs)
-    (* \<And>a xs ys. (\<And>ys. addCoeffs xs ys = addCoeffs ys xs) 
-    \<Longrightarrow> addCoeffs (a # xs) ys = addCoeffs ys (a # xs) *)
-  fix y ys1 
-  assume 0: "y#ys1 = ys"
-  hence 1: "addCoeffs (x # xs) ys = addCoeffs (x # xs) (y#ys1)" by simp
-  have "addCoeffs (x # xs) (y#ys1) = addCoeffs (y#ys1) (x#xs)" by (simp add: Cons.IH)
-  hence "addCoeffs (x # xs) ys = addCoeffs (y#ys1) (x#xs)"
-    by (simp add: 1)
-  hence "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
-    by (simp add: 0)
-      
-  then show ?case sorry
-(*   then show "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
-    by (simp add: \<open>y # ys1 = ys\<close>) *)
-      (* why am I not done now? *)
-(*   hence "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
-    by (simp add: \<open>y # ys1 = ys\<close>) *)
-
-(*   then show ?case
-    by (smt addCoeffs.elims list.distinct(1) list.sel(1) list.sel(3)) (*slow*) *)
+  show ?case      
+  proof(cases ys)
+    case Nil
+    then show ?thesis by simp
+  next
+    case (Cons yh yts)
+    then show ?thesis by (simp add: Cons.IH)
+  qed
 qed
   
   (* left, right, prefix (a list of some 0s)   *)
