@@ -186,13 +186,13 @@ next
     (* \<And>a xs ys. (\<And>ys. addCoeffs xs ys = addCoeffs ys xs) 
     \<Longrightarrow> addCoeffs (a # xs) ys = addCoeffs ys (a # xs) *)
   fix y ys1 
-  assume "y#ys1 = ys"
-  hence "addCoeffs (x # xs) ys = addCoeffs (x # xs) (y#ys1)" by simp
+  assume 0: "y#ys1 = ys"
+  hence 1: "addCoeffs (x # xs) ys = addCoeffs (x # xs) (y#ys1)" by simp
   have "addCoeffs (x # xs) (y#ys1) = addCoeffs (y#ys1) (x#xs)" by (simp add: Cons.IH)
   hence "addCoeffs (x # xs) ys = addCoeffs (y#ys1) (x#xs)"
-    by (simp add: \<open>addCoeffs (x # xs) ys = addCoeffs (x # xs) (y # ys1)\<close>)
+    by (simp add: 1)
   hence "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
-    by (simp add: \<open>y # ys1 = ys\<close>)
+    by (simp add: 0)
       
   then show ?case sorry
 (*   then show "addCoeffs (x # xs) ys = addCoeffs ys (x#xs)"
