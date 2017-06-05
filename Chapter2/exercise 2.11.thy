@@ -219,7 +219,7 @@ fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
          ls_times_rs = multCoeffs_v2 ls rs
       in (hd l_times_rs) # addCoeffs (tl l_times_rs) ls_times_rs)" *)
   
-lemma multCoeffs_v2_01[simp]:
+lemma multCoeffs_v2_emptylist_commutative[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
   apply(induction coeffs2) by auto
     
@@ -286,21 +286,21 @@ next
       
       (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
   qed *)
-    
+
 lemma multCoeffs_v2_01[simp]:
-  assumes "evalPoly (coeffs expr) x = eval expr x"
-  shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = x * eval expr x"  
+  "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = x * evalPoly (coeffs expr) x"
 proof -
   show ?thesis sorry
   
-  fix cs
+  (* fix cs *)
     (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
     (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
     (* have "(0*hd cs) # (addCoeffs (map (\<lambda>x. 0*x) cs) (multCoeffs_v2 [1] cs)) = multCoeffs_v2 [0, 1] cs" by auto *)
-  fix c
+  (* fix c *)
     (* have "(0*c) # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) = multCoeffs_v2 [0, 1] (c#cs)" *)
-  have "multCoeffs_v2 [0, 1] (c#cs) = 0 # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs)))"
-    by simp
+
+  (* have "multCoeffs_v2 [0, 1] (c#cs) = 0 # (addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs)))"
+    by simp *)
       
       (* TODO WIP. use lemma above to simplify  addCoeffs (map (op * 0) cs) xs = xs*)
       
@@ -313,26 +313,35 @@ proof -
       
       (*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
-qed *)
+qed
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
   
 lemma evalPoly_multCoeffs_equiv_times: 
-  "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"  
-proof(cases l)
+  "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x" 
+proof(induction l)
   case Var
-  then show ?thesis sorry
+  have "evalPoly (multCoeffs_v2 (coeffs Var) (coeffs r)) x = evalPoly (multCoeffs_v2 [0,1] (coeffs r)) x" 
+    by simp
+  have "evalPoly (multCoeffs_v2 [0,1] (coeffs r)) x = x * evalPoly (coeffs r) x" by simp
+
+  have "evalPoly (coeffs Var) x = evalPoly [0,1] x" by simp
+  hence "evalPoly (coeffs Var) x * evalPoly (coeffs r) x = evalPoly [0,1] x * evalPoly (coeffs r) x" 
+    by simp
+  also have "... = x * evalPoly (coeffs r) x" by simp
+      
+  then show ?case by simp
 next
-  case (Const x2)
-  then show ?thesis sorry
+  case (Const x)
+  then show ?case sorry
 next
-  case (Add x31 x32)
-  then show ?thesis sorry
+  case (Add l1 l2)
+  then show ?case sorry
 next
-  case (Mult x41 x42)
-  then show ?thesis sorry
+  case (Mult l1 l2)
+  then show ?case sorry
 qed
-  
+
 lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
   fixes l :: exp and r :: exp and x :: int
   assumes "evalPoly (coeffs l) x = eval l x"
