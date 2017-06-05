@@ -210,7 +210,7 @@ fun multCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
 fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs_v2 [] _  = []" |
   "multCoeffs_v2 _  [] = []" |  
-  "multCoeffs_v2 [l] rs = map (\<lambda>x. l*x) rs"| (* helper for proofs. Not sure if it's useful *)
+  "multCoeffs_v2 [l] rs = map (\<lambda>x. l*x) rs"| (* TODO remove? helper for proofs. Not sure if it's useful *)
   "multCoeffs_v2 (l#ls) (r#rs) = 
     (let l_times_rs = (map (op * l) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs)
@@ -258,10 +258,7 @@ qed
 lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
   apply(induction xs) apply(auto) done
     
-    
-TODO flip xs and ys, and pr    
-    
-lemma
+(* lemma
   fixes xs :: "int list" and ys :: "int list"
   assumes "length xs \<le> length ys"
   shows "addCoeffs (map (op * 0) xs) ys = ys"
@@ -288,9 +285,9 @@ next
       (* then show ?case by sledgehammer *)
       
       (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
-  qed
+  qed *)
     
-lemma
+(* lemma
   assumes "evalPoly (coeffs expr2) x = eval expr2 x"
   shows "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr2)) x = x * eval expr2 x"  
 proof -
@@ -314,30 +311,42 @@ proof -
       
       (*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
-qed
+qed *)
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
   
+lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
+  fixes l :: exp and r :: exp and x :: int
+  assumes "evalPoly (coeffs l) x = eval l x"
+    and "evalPoly (coeffs r) x = eval r x"
+  shows "evalPoly (coeffs (Mult l r)) x = eval (Mult l r) x"
+proof -
+  have "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x"
+    by simp
+  have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
+  have "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x" sorry
+ thus ?thesis by (simp add: assms(1) assms(2))      
+qed
   
-  
-  (* lemma multCoeffs_v2_eval_distributive: (* \<And>expr1 expr2. *)
-  "evalPoly (coeffs expr1) x = eval expr1 x \<Longrightarrow>
-   evalPoly (coeffs expr2) x = eval expr2 x \<Longrightarrow>
-    evalPoly (multCoeffs_v2 (coeffs expr1) (coeffs expr2)) x = eval expr1 x * eval expr2 x"
-  apply(induction expr1) apply(auto)
-    done *)
-  (* apply(induction expr1 arbitrary:expr2) apply(auto) *)
-  
-  (* apply(induction arbitrary:expr1 expr2 rule:multCoeffs_v2.induct) apply(auto) *)
-  (* apply(induction arbitrary: expr2 rule:multCoeffs_v2.induct) apply(auto) *)
-  (* apply(induction arbitrary: expr1 rule:multCoeffs_v2.induct) apply(auto) *)
-  
-  
-  (* Needs multCoeffs_v2_eval_distributive     *)
-theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
+theorem "evalPoly(coeffs expr) x = eval expr x"
+proof(induction expr arbitrary: x)
+  case Var
+  then show ?case by simp
+next
+  case (Const x)
+  then show ?case by simp
+next
+  case (Add l r)
+  then show ?case by simp
+next
+  case (Mult l r)
+  then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by simp
+qed  
+    
+(* theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
   apply(auto)
-  done 
+  done *) 
     
     (* 
 I have not been able to complete the proof portion of exercise 2.11.
