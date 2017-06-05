@@ -115,6 +115,31 @@ lemma addCoeffs_eval[simp]:
     apply(simp_all add: algebra_simps)
   by (metis addCoeffs.elims neq_Nil_conv)
     
+lemma addCoeffs_zeros[simp]:
+  shows "addCoeffs (replicate (length cs - 1) 0) cs = cs"
+proof(induction cs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons c cs)
+  have "addCoeffs (replicate (length (c # cs) - 1) 0) (c # cs) 
+      = addCoeffs (replicate (length cs) 0) (c # cs)" 
+    by simp
+  also have "... = addCoeffs (0 # replicate (length cs - 1) 0) (c # cs)"
+  proof(induction cs)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a cs)
+    then show ?case by simp
+  qed
+  also have "... = c # addCoeffs (replicate (length cs - 1) 0) cs" by simp
+  also have "... = c # cs"
+    using Cons.IH by auto
+  finally show ?case by simp
+qed
+  
+    
 lemma length_addCoeffs:
   shows "length(addCoeffs xs ys) = max (length xs) (length ys)"
 proof(induction xs arbitrary: ys)
@@ -302,12 +327,29 @@ next
     
 
 lemma multCoeffs_v2_01[simp]:
-  "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = x * evalPoly (coeffs expr) x"
-proof -
-  fix cs assume "cs = coeffs expr"
+  "evalPoly (multCoeffs_v2 [0, 1] cs) x = x * evalPoly cs x"
+proof(induction cs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons c cs)
+  have "evalPoly (multCoeffs_v2 [0, 1] (c#cs)) x 
+      = evalPoly ((0*c) # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) x" 
+    by simp
+  also have "... = evalPoly (0 # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] (c#cs))) x" by simp
+  also have "... = evalPoly (0 # addCoeffs (replicate (length cs) 0) (multCoeffs_v2 [1] (c#cs))) x" by simp
+
+
+      
+      (* "multCoeffs_v2 (l#ls) (r#rs) =  *)
+    (* (let l_times_rs = (map (op * l) rs); *)
+         (* ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
+      (* in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
+
+
+  then show ?case sorry
+qed
   
-  hence "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = evalPoly (multCoeffs_v2 [0, 1] cs) x" by simp
-  also have "... = evalPoly ((0*hd cs) # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] cs)) x" 
   (* also have "... = evalPoly (0 # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] cs)) x" try *)
     (* also have "... = evalPoly (0 # addCoeffs (replicate (length cs) 0) (multCoeffs_v2 [1] cs)) x" *)
 
