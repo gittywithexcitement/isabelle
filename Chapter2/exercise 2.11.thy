@@ -228,6 +228,14 @@ fun zipWith :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a list \<R
   "zipWith _ _  [] = []"|
   "zipWith f (x#xs) (y#ys) = (f x y) # zipWith f xs ys"
 
+  (* 3rd arg is (power + 1) *)
+(* fun multCoeffs_v3_helper :: "int list \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where
+  "multCoeffs_v3_helper [] _  _ = []" |
+  "multCoeffs_v3_helper _  [] _ = []" | 
+  "multCoeffs_v3_helper xs ys _ = []"
+  
+fun multCoeffs_v3 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
+  "multCoeffs_v3 xs ys = multCoeffs_v3_helper xs ys 1" *)
     
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
@@ -260,7 +268,7 @@ qed
   
 lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
   apply(induction xs) apply(auto) done
-    
+       
 (* lemma
   fixes xs :: "int list" and ys :: "int list"
   assumes "length xs \<le> length ys"
@@ -289,12 +297,26 @@ next
       
       (* "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs" *)
   qed *)
+    
+(* evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * (evalPoly (coeffs expr) x) *)
+    
 
 lemma multCoeffs_v2_01[simp]:
   "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = x * evalPoly (coeffs expr) x"
 proof -
-  show ?thesis sorry
+  fix cs assume "cs = coeffs expr"
   
+  hence "evalPoly (multCoeffs_v2 [0, 1] (coeffs expr)) x = evalPoly (multCoeffs_v2 [0, 1] cs) x" by simp
+  also have "... = evalPoly ((0*hd cs) # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] cs)) x" 
+  (* also have "... = evalPoly (0 # addCoeffs (map (op * 0) cs) (multCoeffs_v2 [1] cs)) x" try *)
+    (* also have "... = evalPoly (0 # addCoeffs (replicate (length cs) 0) (multCoeffs_v2 [1] cs)) x" *)
+
+
+  
+       (* (let l_times_rs = (map (op * l) rs); *)
+         (* ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
+      (* in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
+   
   (* fix cs *)
     (* have "0 # (multCoeffs_v2 [1] cs) = multCoeffs_v2 [0, 1] cs" *)
     (* have "0 # cs = multCoeffs_v2 [0, 1] cs" *)
@@ -307,15 +329,7 @@ proof -
       
       (* TODO WIP. use lemma above to simplify  addCoeffs (map (op * 0) cs) xs = xs*)
       
-      (* "multCoeffs_v2 (l#ls) (r#rs) = 
-    (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
-         ls_times_rrs = multCoeffs_v2 ls (r#rs)
-      in (l*r) # addCoeffs l_times_rs ls_times_rrs)" *)
-      
-      
-      
-      (*     (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
-         ls_times_rrs = multCoeffs_v2 ls (r#rs) *)
+    show ?thesis sorry
 qed
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
@@ -326,7 +340,7 @@ proof(induction l)
   case Var
   have "evalPoly (multCoeffs_v2 (coeffs Var) (coeffs r)) x = evalPoly (multCoeffs_v2 [0,1] (coeffs r)) x" 
     by simp
-  have "evalPoly (multCoeffs_v2 [0,1] (coeffs r)) x = x * evalPoly (coeffs r) x" by simp
+  have "evalPoly (multCoeffs_v2 [0, 1] (coeffs r)) x = x * evalPoly (coeffs r) x" by simp
 
   have "evalPoly (coeffs Var) x = evalPoly [0,1] x" by simp
   hence "evalPoly (coeffs Var) x * evalPoly (coeffs r) x = evalPoly [0,1] x * evalPoly (coeffs r) x" 
