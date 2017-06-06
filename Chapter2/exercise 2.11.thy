@@ -334,7 +334,7 @@ next
   case (Const i)
   have "evalPoly (multCoeffs_v2 (coeffs (Const i)) (coeffs r)) x 
       = evalPoly (multCoeffs_v2 [i] (coeffs r)) x" by simp
-  also have "... = evalPoly (map (op * i) (coeffs r)) x"
+  also have left:"... = evalPoly (map (op * i) (coeffs r)) x"
     by (metis evalPoly.elims length_0_conv length_map multCoeffs_v2.simps(2) multCoeffs_v2.simps(3))
   finally have "... = i * evalPoly (coeffs r) x" by (simp)
       
@@ -342,9 +342,16 @@ next
       = evalPoly [i] x * evalPoly (coeffs r) x" by simp
   also have "... = i * evalPoly (coeffs r) x" by simp
   then show ?case 
-    by (simp add: \<open>evalPoly (multCoeffs_v2 [i] (coeffs r)) x = evalPoly (map (op * i) (coeffs r)) x\<close>)
+    by (simp add: left)
 next
   case (Add l1 l2)
+ (* 1. \<And>l1 l2. evalPoly (multCoeffs_v2 (coeffs l1) (coeffs r)) x = evalPoly (coeffs l1) x * evalPoly (coeffs r) x \<Longrightarrow> *)
+             (* evalPoly (multCoeffs_v2 (coeffs l2) (coeffs r)) x = evalPoly (coeffs l2) x * evalPoly (coeffs r) x \<Longrightarrow> *)
+             (* evalPoly (multCoeffs_v2 (coeffs (Add l1 l2)) (coeffs r)) x = evalPoly (coeffs (Add l1 l2)) x * evalPoly (coeffs r) x     *)
+  have "evalPoly (multCoeffs_v2 (coeffs (Add l1 l2)) (coeffs r)) x = 
+        evalPoly (multCoeffs_v2 (addCoeffs (coeffs l1) (coeffs l2)) (coeffs r)) x" by simp
+  (* TODO HERE *)
+    (* addCoeffs (coeffs l) (coeffs r) *)
   then show ?case sorry
 next
   case (Mult l1 l2)
