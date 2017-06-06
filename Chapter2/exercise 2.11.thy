@@ -261,77 +261,59 @@ fun multCoeffs_v3 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
     
 (* Multiply each value in coefficient list by s
 equivalent to map (op * s), but supposedly easier to prove things. *)    
-fun multCoeffs_by_scalar :: "int list \<Rightarrow> int \<Rightarrow> int list" where  
-  "multCoeffs_by_scalar [] _  = []" |
-  "multCoeffs_by_scalar (x#xs) s  = x*s # multCoeffs_by_scalar xs s"
+fun multCoeffs_by_scalar :: "int \<Rightarrow> int list \<Rightarrow> int list" where  
+  "multCoeffs_by_scalar _ [] = []" |
+  "multCoeffs_by_scalar s (x#xs) = x*s # multCoeffs_by_scalar s xs"
+  
+lemma multCoeffs_by_scalar_0[simp]: 
+  shows "multCoeffs_by_scalar 0 cs = replicate (length cs) 0"
+proof(induction cs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons c cs)
+  then show ?case by simp
+qed
   
 lemma multCoeffs_by_scalar_1[simp]:
-  shows "multCoeffs_by_scalar cs 1 = cs"
+  shows "multCoeffs_by_scalar 1 cs = cs"
 proof(induction cs)
   case Nil
   then show ?case by simp
 next
-  case (Cons a cs)
+  case (Cons c cs)
   then show ?case by simp
 qed
-    
-(* Multiply a coefficient list by s*x^p
-args: coefficients, s, p *)
-fun multCoeffs_by_var :: "int \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where  
- "multCoeffs_by_var _ [] _ = []" |
-  "multCoeffs_by_var s coeffs 0 = multCoeffs_by_scalar coeffs s" |
-  "multCoeffs_by_var s coeffs (Suc p) = 0 # multCoeffs_by_var s coeffs p"  
-    
-fun multCoeffs_v4_helper :: "int list \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where  
-  "multCoeffs_v4_helper [] _  p = []" |
-  "multCoeffs_v4_helper _  [] p = []" |  
-  "multCoeffs_v4_helper (l#ls) rs p = 
-    (let mult_l = multCoeffs_by_var l rs p;
-         rest = multCoeffs_v4_helper ls rs (Suc p)
-      in addCoeffs mult_l rest)"    
   
 fun multCoeffs_v4 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
-  "multCoeffs_v4 ls rs = multCoeffs_v4_helper ls rs 0"
-  
-lemma multCoeffs_by_var0[simp]: 
-  shows "multCoeffs_by_var 0 cs p = replicate (length cs) 0"
-proof(induction cs)
+  "multCoeffs_v4 [] _  = []" |
+  "multCoeffs_v4 _  [] = []" |    
+  "multCoeffs_v4 (l#ls) rs = 
+    (let mult_l = multCoeffs_by_scalar l rs;
+         rest = multCoeffs_v4 ls (0 # rs)
+      in addCoeffs mult_l rest)"    
+
+lemma multCoeffs_v4_by_list0[simp]:
+  shows"multCoeffs_v4 [0] cr = replicate (length cr) 0"
+proof(induction cr)
   case Nil
   then show ?case by simp
 next
-  case (Cons a cs)
-  then show ?case sorry
+  case (Cons c cr)
+  then show ?case by simp
 qed
- 
-lemma multCoeffs_by_var1[simp]:
-  assumes "p = 0 \<or> (length cs) > 0"
-  shows "multCoeffs_by_var 1 cs p = replicate p 0 @ cs"
-proof(induction p)
-  case 0
-  have "multCoeffs_by_var 1 cs 0 =  multCoeffs_by_scalar cs 1"
-  proof(induction cs)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons c cs)
-    show ?case by simp 
-  qed
+
+lemma multCoeffs_v4_by_list1[simp]:
+  shows"multCoeffs_v4 [1] cr = cr"
+proof(induction cr)
+  case Nil
   then show ?case by simp
 next
-  case (Suc p)
-    (* TODO proof by cases on the assumption *)
-  then show ?case try
+  case (Cons c cr)
+  then show ?case by simp
 qed
-    
   
-(* multCoeffs_v4_helper [1] cr 1  *)
-lemma multCoeffs_v4_helper_by_list1:
-  assumes "length cr > 0"
-  shows"multCoeffs_v4_helper [1] cr pow = (replicate pow 0) @ cr"
-(* proof(cases rule: multCoeffs_v4_helper.cases) *)
- (* proof(induction rule: multCoeffs_v4_helper.induct)  *)
-proof -
-  have "multCoeffs_v4_helper [1] cr pow  
+(*   have "multCoeffs_v4_helper [1] cr pow  
      = addCoeffs (multCoeffs_by_var 1 cr pow) (multCoeffs_v4_helper [] cr (Suc pow))"
   proof -
     obtain ii :: "nat \<Rightarrow> int list \<Rightarrow> int" and iis :: "nat \<Rightarrow> int list \<Rightarrow> int list" where
@@ -345,16 +327,9 @@ proof -
   qed
   also have "... = addCoeffs (multCoeffs_by_var 1 cr pow) []" 
     by simp
-  also have "... = multCoeffs_by_var 1 cr pow" by simp
-qed
-  
- 
- 
-    
- 
-  
-  
-value "multCoeffs_v4 [1,2] [3,4]"  
+  also have "... = multCoeffs_by_var 1 cr pow" by simp *)
+
+value "multCoeffs_v4 [1,2] [3,4]"
     
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
