@@ -94,14 +94,14 @@ e.g. (Mult (Const 0) Var) *)
     (* TODO/done sort the adds by number of nested multiplies *)
     (* TODO/done I think coeffs needs to do algebraic simplification of constants *)
     (* TODO insert 0 coefficients (probably best done while in exp list form, after sorting.) *)
-fun coeffsOld :: "exp \<Rightarrow> int list" where
+(* fun coeffsOld :: "exp \<Rightarrow> int list" where
   "coeffsOld (Const i) = [i]"|
   "coeffsOld (Add l r) = coeffsOld l @ coeffsOld r"|
   "coeffsOld (Mult l r) = coeffsOld l @ coeffsOld r"|
-  "coeffsOld Var = []"
+  "coeffsOld Var = []" 
   
 value "coeffsOld (createPolyExpression [4,2,-1] 0)"
-value "coeffsOld (createPolyExpression [4,2,-1,3] 0)"
+value "coeffsOld (createPolyExpression [4,2,-1,3] 0)" *)
   
   (* TODO implement using zip and map   *)
 fun addCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
@@ -228,10 +228,10 @@ fun multCoeffsHelper :: "int list \<Rightarrow> int list \<Rightarrow> int list 
 lemma multCoeffsHelper_01:
   "evalPoly (multCoeffsHelper [] coeffs2 []) = evalPoly (multCoeffsHelper coeffs2 [] [])"
   apply(induction coeffs2) by auto
-
+ 
 fun multCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs l r = multCoeffsHelper l r []"
-
+ 
 fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs_v2 [] _  = []" |
   "multCoeffs_v2 _  [] = []" |  
@@ -240,9 +240,6 @@ fun multCoeffs_v2 :: "int list \<Rightarrow> int list \<Rightarrow> int list" wh
     (let l_times_rs = (map (op * l) rs);
          ls_times_rrs = multCoeffs_v2 ls (r#rs)
       in (l*r) # addCoeffs l_times_rs ls_times_rrs)"
-  (* (let l_times_rs = (map (\<lambda>ri. l*ri) rs);
-         ls_times_rs = multCoeffs_v2 ls rs
-      in (hd l_times_rs) # addCoeffs (tl l_times_rs) ls_times_rs)" *)
   
 lemma multCoeffs_v2_emptylist_commutative[simp]:
   "evalPoly (multCoeffs_v2 [] coeffs2) = evalPoly (multCoeffs_v2 coeffs2 [])"  
@@ -252,7 +249,7 @@ lemma multCoeffs_v2_emptylist_commutative[simp]:
   "zipWith _ [] _ = []"|
   "zipWith _ _  [] = []"|
   "zipWith f (x#xs) (y#ys) = (f x y) # zipWith f xs ys" *)
-
+ 
   (* 3rd arg is (power + 1) *)
 (* fun multCoeffs_v3_helper :: "int list \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where
   "multCoeffs_v3_helper [] _  _ = []" |
@@ -262,21 +259,117 @@ lemma multCoeffs_v2_emptylist_commutative[simp]:
 fun multCoeffs_v3 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs_v3 xs ys = multCoeffs_v3_helper xs ys 1" *)
     
+(* Multiply each value in coefficient list by s
+equivalent to map (op * s), but supposedly easier to prove things. *)    
+fun multCoeffs_by_scalar :: "int list \<Rightarrow> int \<Rightarrow> int list" where  
+  "multCoeffs_by_scalar [] _  = []" |
+  "multCoeffs_by_scalar (x#xs) s  = x*s # multCoeffs_by_scalar xs s"
+  
+lemma multCoeffs_by_scalar_1[simp]:
+  shows "multCoeffs_by_scalar cs 1 = cs"
+proof(induction cs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a cs)
+  then show ?case by simp
+qed
+    
+(* Multiply a coefficient list by s*x^p
+args: coefficients, s, p *)
+fun multCoeffs_by_var :: "int \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where  
+ "multCoeffs_by_var _ [] _ = []" |
+  "multCoeffs_by_var s coeffs 0 = multCoeffs_by_scalar coeffs s" |
+  "multCoeffs_by_var s coeffs (Suc p) = 0 # multCoeffs_by_var s coeffs p"  
+    
+fun multCoeffs_v4_helper :: "int list \<Rightarrow> int list \<Rightarrow> nat \<Rightarrow> int list" where  
+  "multCoeffs_v4_helper [] _  p = []" |
+  "multCoeffs_v4_helper _  [] p = []" |  
+  "multCoeffs_v4_helper (l#ls) rs p = 
+    (let mult_l = multCoeffs_by_var l rs p;
+         rest = multCoeffs_v4_helper ls rs (Suc p)
+      in addCoeffs mult_l rest)"    
+  
+fun multCoeffs_v4 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
+  "multCoeffs_v4 ls rs = multCoeffs_v4_helper ls rs 0"
+  
+lemma multCoeffs_by_var0[simp]: 
+  shows "multCoeffs_by_var 0 cs p = replicate (length cs) 0"
+proof(induction cs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a cs)
+  then show ?case sorry
+qed
+ 
+lemma multCoeffs_by_var1[simp]:
+  assumes "p = 0 \<or> (length cs) > 0"
+  shows "multCoeffs_by_var 1 cs p = replicate p 0 @ cs"
+proof(induction p)
+  case 0
+  have "multCoeffs_by_var 1 cs 0 =  multCoeffs_by_scalar cs 1"
+  proof(induction cs)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons c cs)
+    show ?case by simp 
+  qed
+  then show ?case by simp
+next
+  case (Suc p)
+    (* TODO proof by cases on the assumption *)
+  then show ?case try
+qed
+    
+  
+(* multCoeffs_v4_helper [1] cr 1  *)
+lemma multCoeffs_v4_helper_by_list1:
+  assumes "length cr > 0"
+  shows"multCoeffs_v4_helper [1] cr pow = (replicate pow 0) @ cr"
+(* proof(cases rule: multCoeffs_v4_helper.cases) *)
+ (* proof(induction rule: multCoeffs_v4_helper.induct)  *)
+proof -
+  have "multCoeffs_v4_helper [1] cr pow  
+     = addCoeffs (multCoeffs_by_var 1 cr pow) (multCoeffs_v4_helper [] cr (Suc pow))"
+  proof -
+    obtain ii :: "nat \<Rightarrow> int list \<Rightarrow> int" and iis :: "nat \<Rightarrow> int list \<Rightarrow> int list" where
+      "\<forall>x0 x1. (\<exists>v2 v3. x1 = v2 # v3 \<and> length v3 = x0) = (x1 = ii x0 x1 # iis x0 x1 \<and> length (iis x0 x1) = x0)"
+      by moura
+    then obtain nn :: "nat \<Rightarrow> nat" where
+      "cr = ii (nn (length cr)) cr # iis (nn (length cr)) cr \<and> length (iis (nn (length cr)) cr) = nn (length cr)"
+      by (meson assms gr0_implies_Suc length_Suc_conv)
+    then show ?thesis
+      by (metis (no_types) multCoeffs_v4_helper.simps(3))
+  qed
+  also have "... = addCoeffs (multCoeffs_by_var 1 cr pow) []" 
+    by simp
+  also have "... = multCoeffs_by_var 1 cr pow" by simp
+qed
+  
+ 
+ 
+    
+ 
+  
+  
+value "multCoeffs_v4 [1,2] [3,4]"  
+    
 fun coeffs :: "exp \<Rightarrow> int list" where
   "coeffs Var = [0, 1]"  |
   "coeffs (Const i) = [i]"|
   "coeffs (Add l r) = addCoeffs (coeffs l) (coeffs r)" |
-  "coeffs (Mult l r) = multCoeffs_v2 (coeffs l) (coeffs r)"
-  (* "coeffs (Mult l r) = multCoeffs (coeffs l) (coeffs r)" *)
+  "coeffs (Mult l r) = multCoeffs_v4 (coeffs l) (coeffs r)"
   
 value "coeffs (createPolyExpression [4,2,-1] 0)"
 value "coeffs (Mult (createPolyExpression [1,2,3] 0) (createPolyExpression [4,5] 0))"
   
-lemma evalPoly_multiplication[simp]:"evalPoly (map (\<lambda>x. m*x) cs) x = m * (evalPoly cs x)"
+(* lemma evalPoly_multiplication[simp]:"evalPoly (map (\<lambda>x. m*x) cs) x = m * (evalPoly cs x)"
   apply(induction cs) apply(auto)[1] apply(simp add: algebra_simps)
-  done
+  done *)
     
-lemma multCoeffs_v2_arg_length_1[simp]:
+(* lemma multCoeffs_v2_arg_length_1[simp]:
   assumes "evalPoly (coeffs expr) x = eval expr x"
   shows "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
 proof -
@@ -284,17 +377,17 @@ proof -
     by (metis evalPoly.elims list.simps(8) multCoeffs_v2.simps(2) multCoeffs_v2.simps(3))
   fix cs
   have "m * (evalPoly cs x) = evalPoly (map (\<lambda>x. m*x) cs) x"
-    by (simp add: evalPoly_multiplication)
+    by (simp)
   hence "m * (evalPoly (coeffs expr) x) = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x"
-    by (simp add: \<open>evalPoly (map (op * m) (coeffs expr)) x = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x\<close> evalPoly_multiplication) 
+    by (metis \<open>evalPoly (map (op * m) (coeffs expr)) x = evalPoly (multCoeffs_v2 [m] (coeffs expr)) x\<close> evalPoly_multiplication) 
   thus "evalPoly (multCoeffs_v2 [m] (coeffs expr)) x = m * eval expr x"
     by (simp add: assms) 
-qed
+qed *)
   
-lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
-  apply(induction xs) apply(auto) done
+(* lemma map_times0_equiv_replicate[simp]: "map (op * 0) (xs :: int list) = replicate (length xs) 0"
+  apply(induction xs) apply(auto) done *)
     
-lemma multCoeffs_v2_01[simp]:
+(* lemma multCoeffs_v2_01[simp]:
   "evalPoly (multCoeffs_v2 [0, 1] cs) x = x * evalPoly cs x"
 proof(induction cs)
   case Nil
@@ -312,18 +405,22 @@ next
     by (metis evalPoly.simps(2) evalPoly_multiplication multCoeffs_v2.simps(3) mult_cancel_right2)
   also have "... = x * evalPoly (c # cs) x" by simp
   finally show ?case by simp
-qed
+qed *)
   
 value "multCoeffs_v2 [0, 1] [3,4,5]"
   
-lemma evalPoly_multCoeffs_equiv_times: 
-  "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x" 
+(* lemma evalPoly_multCoeffs_equiv_times: 
+  assumes "evalPoly (coeffs l) x = eval l x" 
+    and "evalPoly (coeffs r) x = eval r x"
+    and "eval (Mult l r) x = eval l x * eval r x"
+    and "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x"
+  shows "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"
 proof(induction l)
   case Var
   have "evalPoly (multCoeffs_v2 (coeffs Var) (coeffs r)) x = evalPoly (multCoeffs_v2 [0,1] (coeffs r)) x" 
     by simp
   have "evalPoly (multCoeffs_v2 [0, 1] (coeffs r)) x = x * evalPoly (coeffs r) x" by simp
-
+ 
   have "evalPoly (coeffs Var) x = evalPoly [0,1] x" by simp
   hence "evalPoly (coeffs Var) x * evalPoly (coeffs r) x = evalPoly [0,1] x * evalPoly (coeffs r) x" 
     by simp
@@ -345,31 +442,82 @@ next
     by (simp add: left)
 next
   case (Add l1 l2)
- (* 1. \<And>l1 l2. evalPoly (multCoeffs_v2 (coeffs l1) (coeffs r)) x = evalPoly (coeffs l1) x * evalPoly (coeffs r) x \<Longrightarrow> *)
-             (* evalPoly (multCoeffs_v2 (coeffs l2) (coeffs r)) x = evalPoly (coeffs l2) x * evalPoly (coeffs r) x \<Longrightarrow> *)
-             (* evalPoly (multCoeffs_v2 (coeffs (Add l1 l2)) (coeffs r)) x = evalPoly (coeffs (Add l1 l2)) x * evalPoly (coeffs r) x     *)
+ (* 1. \<And>l1 l2. 
+  evalPoly (multCoeffs_v2 (coeffs l1) (coeffs r)) x = evalPoly (coeffs l1) x * evalPoly (coeffs r) x \<Longrightarrow> *)
+    (* evalPoly (multCoeffs_v2 (coeffs l2) (coeffs r)) x = evalPoly (coeffs l2) x * evalPoly (coeffs r) x \<Longrightarrow> *)
+    (* prove:
+        evalPoly (multCoeffs_v2 (coeffs (Add l1 l2)) (coeffs r)) x 
+      = evalPoly (coeffs (Add l1 l2)) x * evalPoly (coeffs r) x     *)
   have "evalPoly (multCoeffs_v2 (coeffs (Add l1 l2)) (coeffs r)) x = 
         evalPoly (multCoeffs_v2 (addCoeffs (coeffs l1) (coeffs l2)) (coeffs r)) x" by simp
   (* TODO HERE *)
-    (* addCoeffs (coeffs l) (coeffs r) *)
+  (* addCoeffs (coeffs l) (coeffs r) *)
+  then show ?case try
+next
+  case (Mult l1 l2)
+  then show ?case sorry
+qed *)
+  
+  
+lemma evalPoly_multCoeffs_v4_equiv_times[simp]: 
+  assumes "evalPoly (coeffs l) x = eval l x" 
+    and "evalPoly (coeffs r) x = eval r x"
+    and "eval (Mult l r) x = eval l x * eval r x"
+    and "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v4 (coeffs l) (coeffs r)) x"
+  shows "evalPoly (multCoeffs_v4 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"  
+proof(induction l)
+  case Var
+(* evalPoly (multCoeffs_v4 (coeffs Var) (coeffs r)) x = evalPoly (coeffs Var) x * evalPoly (coeffs r) x *)
+  fix cr assume "cr = coeffs r"
+  hence "evalPoly (multCoeffs_v4 (coeffs Var) (coeffs r)) x = evalPoly (multCoeffs_v4 (coeffs Var) cr) x " 
+    by simp
+  also have "... = evalPoly (multCoeffs_v4 [0,1] cr) x" 
+    by simp
+  (* also *) finally have "... = evalPoly (multCoeffs_by_var 1 cr 1) x"
+  proof -
+    have "multCoeffs_v4 [0,1] cr = multCoeffs_v4_helper [0,1] cr 0" by simp
+    also have "... = addCoeffs(multCoeffs_by_var 0 cr 0) (multCoeffs_v4_helper [1] cr 1)" 
+      by (metis One_nat_def addCoeffs.simps(1) list.exhaust multCoeffs_by_var.simps(1) multCoeffs_v4_helper.simps(2) multCoeffs_v4_helper.simps(3))
+    also have "... = addCoeffs (replicate (length cr) 0) (multCoeffs_v4_helper [1] cr 1)" 
+      by simp
+    also have "... = multCoeffs_v4_helper [1] cr 1"
+    proof -
+      have "length (multCoeffs_v4_helper [1] cr 1) = 1 + length cr" 
+      proof -
+        show ?thesis sorry
+      qed
+      show ?thesis sorry
+    qed
+    show ?thesis sorry
+  qed
+    (* finally *) 
+  show ?case sorry
+next
+  case (Const x)
+  then show ?case sorry
+next
+  case (Add l1 l2)
   then show ?case sorry
 next
   case (Mult l1 l2)
   then show ?case sorry
 qed
-
+ 
 lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
   fixes l :: exp and r :: exp and x :: int
   assumes "evalPoly (coeffs l) x = eval l x"
     and "evalPoly (coeffs r) x = eval r x"
   shows "evalPoly (coeffs (Mult l r)) x = eval (Mult l r) x"
 proof -
-  have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
-  have "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x"
+  have "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v4 (coeffs l) (coeffs r)) x"
     by simp
-  have "evalPoly (multCoeffs_v2 (coeffs l) (coeffs r)) x = evalPoly (coeffs l) x * evalPoly (coeffs r) x"
-    by (simp add: evalPoly_multCoeffs_equiv_times)
-  thus ?thesis by (simp add: assms(1) assms(2))      
+  also have left:"... = evalPoly (coeffs l) x * evalPoly (coeffs r) x"
+    using "5.eval.simps"(4) assms(1) assms(2) calculation evalPoly_multCoeffs_v4_equiv_times 
+    by blast
+      
+  have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
+  thus ?thesis 
+    by (simp add: left assms(1) assms(2))
 qed
   
 theorem "evalPoly(coeffs expr) x = eval expr x"
@@ -384,7 +532,7 @@ next
   then show ?case by simp
 next
   case (Mult l r)
-  then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by simp
+  then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by blast
 qed  
     
 (* theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
