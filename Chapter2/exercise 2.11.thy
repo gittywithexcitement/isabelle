@@ -336,73 +336,28 @@ proof(induction xs)
     by (metis multCoeffs_v4.elims multCoeffs_v4.simps(1) multCoeffs_v4.simps(2))
 next
   case (Cons x xs)
- (* 1. \<And>a xs. multCoeffs_v4 xs ys = multCoeffs_v4 ys xs 
-          \<Longrightarrow> multCoeffs_v4 (a # xs) ys = multCoeffs_v4 ys (a # xs)     *)
-  then show ?case
-  proof(induction ys)
+  then show ?case 
+  proof(cases ys)
     case Nil
-    then show ?case by simp
+    then show ?thesis by simp
   next
-    case (Cons y ys)
-      
-(* local facts: *)
+    case (Cons yh yt)
+      (* facts *)
       (* multCoeffs_v4 xs ys = multCoeffs_v4 ys xs *)
-      (* multCoeffs_v4 xs (y # ys) = multCoeffs_v4 (y # ys) xs *)
-      (* multCoeffs_v4 xs ys = multCoeffs_v4 ys xs \<Longrightarrow> multCoeffs_v4 (x # xs) ys = multCoeffs_v4 ys (x # xs)       *)
-
-  (* ?case \<equiv> multCoeffs_v4 (x # xs) (y # ys) = multCoeffs_v4 (y # ys) (x # xs) *)
       
-      (* fun multCoeffs_v4 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where   *)
-  (* "multCoeffs_v4 [] _  = []" | *)
-  (* "multCoeffs_v4 _  [] = []" |     *)
-  (* "multCoeffs_v4 (l#ls) rs =  *)
-    (* (let mult_l = multCoeffs_by_scalar l rs; *)
-         (* rest = multCoeffs_v4 ls (0 # rs) *)
-      (* in addCoeffs mult_l rest)"     *)
+      (* ?thesis \<equiv> multCoeffs_v4 (x # xs) ys = multCoeffs_v4 ys (x # xs) *)
       
-    have "multCoeffs_v4 (x # xs) (y # ys) 
-        = addCoeffs (multCoeffs_by_scalar x (y#ys)) (multCoeffs_v4 xs (0 # y # ys))" 
-      by simp
-    also have "... = addCoeffs (multCoeffs_by_scalar x (y#ys)) (0 # multCoeffs_v4 xs (y # ys))"
-    proof(induction xs)
-      case Nil
-      then show ?case by simp
-    next
-      case (Cons x0 xs0)
-(*       have "multCoeffs_v4 (x0 # xs0) (0 # y # ys)
-          = addCoeffs (multCoeffs_by_scalar x0 (0#y#ys)) (multCoeffs_v4 xs0 (0 # 0#y#ys))" 
-        by simp *)
-      have "addCoeffs (multCoeffs_by_scalar x (y # ys)) (multCoeffs_v4 (x0 # xs0) (0 # y # ys))
-          = addCoeffs (multCoeffs_by_scalar x (y # ys)) (addCoeffs (multCoeffs_by_scalar x0 (0#y#ys)) (multCoeffs_v4 xs0 (0 # 0#y#ys)))"
-        by simp
-        
-(*   ?case \<equiv> addCoeffs (multCoeffs_by_scalar x (y # ys)) (multCoeffs_v4 (x0 # xs0) (0 # y # ys)) 
-           = addCoeffs (multCoeffs_by_scalar x (y # ys)) (0 # multCoeffs_v4 (x0 # xs0) (y # ys)) *)
-      then show ?case sledgehammer
-    qed
-      
-    then show ?case sorry
+      (* left side *)
+    have "multCoeffs_v4 (x # xs) ys = addCoeffs (multCoeffs_by_scalar x ys) (multCoeffs_v4 xs (0 # ys))"
+      by (simp add: local.Cons)
+    then show ?thesis sorry
   qed
+        (* "multCoeffs_v4 (l#ls) rs =  *)
+    (* (let mult_l = multCoeffs_by_scalar l rs; *)
+         (* rest =  *)
+      (* in addCoeffs mult_l rest)"     *)
 qed
   
-  
-  
-(*   have "multCoeffs_v4_helper [1] cr pow  
-     = addCoeffs (multCoeffs_by_var 1 cr pow) (multCoeffs_v4_helper [] cr (Suc pow))"
-  proof -
-    obtain ii :: "nat \<Rightarrow> int list \<Rightarrow> int" and iis :: "nat \<Rightarrow> int list \<Rightarrow> int list" where
-      "\<forall>x0 x1. (\<exists>v2 v3. x1 = v2 # v3 \<and> length v3 = x0) = (x1 = ii x0 x1 # iis x0 x1 \<and> length (iis x0 x1) = x0)"
-      by moura
-    then obtain nn :: "nat \<Rightarrow> nat" where
-      "cr = ii (nn (length cr)) cr # iis (nn (length cr)) cr \<and> length (iis (nn (length cr)) cr) = nn (length cr)"
-      by (meson assms gr0_implies_Suc length_Suc_conv)
-    then show ?thesis
-      by (metis (no_types) multCoeffs_v4_helper.simps(3))
-  qed
-  also have "... = addCoeffs (multCoeffs_by_var 1 cr pow) []" 
-    by simp
-  also have "... = multCoeffs_by_var 1 cr pow" by simp *)
-
 value "multCoeffs_v4 [1,2] [3,4]"
     
 fun coeffs :: "exp \<Rightarrow> int list" where
