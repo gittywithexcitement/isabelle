@@ -313,6 +313,80 @@ next
   then show ?case by simp
 qed
   
+(* Can't prove this because xs could be []  
+Can't assume (length xs > 0) and do induction on xs *)
+(* lemma multCoeffs_v4_commutative_01:
+  (* assumes "length xs > 0 \<and> y \<noteq> []" *)
+  (* assumes "length xs > 0" *)
+  shows "multCoeffs_v4 xs (0 # y # ys) = 0 # multCoeffs_v4 xs (y # ys)" 
+proof(induction xs)
+  case Nil
+  then show ?case try
+next
+  case (Cons a xs)
+  then show ?case sorry
+qed *)
+
+  
+lemma multCoeffs_v4_commutative:
+  shows "multCoeffs_v4 xs ys = multCoeffs_v4 ys xs"
+proof(induction xs)
+  case Nil
+  then show ?case
+    by (metis multCoeffs_v4.elims multCoeffs_v4.simps(1) multCoeffs_v4.simps(2))
+next
+  case (Cons x xs)
+ (* 1. \<And>a xs. multCoeffs_v4 xs ys = multCoeffs_v4 ys xs 
+          \<Longrightarrow> multCoeffs_v4 (a # xs) ys = multCoeffs_v4 ys (a # xs)     *)
+  then show ?case
+  proof(induction ys)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons y ys)
+      
+(* local facts: *)
+      (* multCoeffs_v4 xs ys = multCoeffs_v4 ys xs *)
+      (* multCoeffs_v4 xs (y # ys) = multCoeffs_v4 (y # ys) xs *)
+      (* multCoeffs_v4 xs ys = multCoeffs_v4 ys xs \<Longrightarrow> multCoeffs_v4 (x # xs) ys = multCoeffs_v4 ys (x # xs)       *)
+
+  (* ?case \<equiv> multCoeffs_v4 (x # xs) (y # ys) = multCoeffs_v4 (y # ys) (x # xs) *)
+      
+      (* fun multCoeffs_v4 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where   *)
+  (* "multCoeffs_v4 [] _  = []" | *)
+  (* "multCoeffs_v4 _  [] = []" |     *)
+  (* "multCoeffs_v4 (l#ls) rs =  *)
+    (* (let mult_l = multCoeffs_by_scalar l rs; *)
+         (* rest = multCoeffs_v4 ls (0 # rs) *)
+      (* in addCoeffs mult_l rest)"     *)
+      
+    have "multCoeffs_v4 (x # xs) (y # ys) 
+        = addCoeffs (multCoeffs_by_scalar x (y#ys)) (multCoeffs_v4 xs (0 # y # ys))" 
+      by simp
+    also have "... = addCoeffs (multCoeffs_by_scalar x (y#ys)) (0 # multCoeffs_v4 xs (y # ys))"
+    proof(induction xs)
+      case Nil
+      then show ?case by simp
+    next
+      case (Cons x0 xs0)
+(*       have "multCoeffs_v4 (x0 # xs0) (0 # y # ys)
+          = addCoeffs (multCoeffs_by_scalar x0 (0#y#ys)) (multCoeffs_v4 xs0 (0 # 0#y#ys))" 
+        by simp *)
+      have "addCoeffs (multCoeffs_by_scalar x (y # ys)) (multCoeffs_v4 (x0 # xs0) (0 # y # ys))
+          = addCoeffs (multCoeffs_by_scalar x (y # ys)) (addCoeffs (multCoeffs_by_scalar x0 (0#y#ys)) (multCoeffs_v4 xs0 (0 # 0#y#ys)))"
+        by simp
+        
+(*   ?case \<equiv> addCoeffs (multCoeffs_by_scalar x (y # ys)) (multCoeffs_v4 (x0 # xs0) (0 # y # ys)) 
+           = addCoeffs (multCoeffs_by_scalar x (y # ys)) (0 # multCoeffs_v4 (x0 # xs0) (y # ys)) *)
+      then show ?case sledgehammer
+    qed
+      
+    then show ?case sorry
+  qed
+qed
+  
+  
+  
 (*   have "multCoeffs_v4_helper [1] cr pow  
      = addCoeffs (multCoeffs_by_var 1 cr pow) (multCoeffs_v4_helper [] cr (Suc pow))"
   proof -
@@ -382,7 +456,7 @@ next
   finally show ?case by simp
 qed *)
   
-value "multCoeffs_v2 [0, 1] [3,4,5]"
+(* value "multCoeffs_v2 [0, 1] [3,4,5]" *)
   
 (* lemma evalPoly_multCoeffs_equiv_times: 
   assumes "evalPoly (coeffs l) x = eval l x" 
@@ -434,7 +508,7 @@ next
 qed *)
   
   
-lemma evalPoly_multCoeffs_v4_equiv_times[simp]: 
+(* lemma evalPoly_multCoeffs_v4_equiv_times[simp]: 
   assumes "evalPoly (coeffs l) x = eval l x" 
     and "evalPoly (coeffs r) x = eval r x"
     and "eval (Mult l r) x = eval l x * eval r x"
@@ -477,8 +551,9 @@ next
   case (Mult l1 l2)
   then show ?case sorry
 qed
- 
-lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
+ *)
+  
+(* lemma evalPoly_coeffs_Mult_equiv_eval_Mult[simp]:
   fixes l :: exp and r :: exp and x :: int
   assumes "evalPoly (coeffs l) x = eval l x"
     and "evalPoly (coeffs r) x = eval r x"
@@ -493,7 +568,7 @@ proof -
   have "eval (Mult l r) x = (eval l x) * (eval r x)" by simp
   thus ?thesis 
     by (simp add: left assms(1) assms(2))
-qed
+qed *)
   
 theorem "evalPoly(coeffs expr) x = eval expr x"
 proof(induction expr arbitrary: x)
@@ -507,13 +582,60 @@ next
   then show ?case by simp
 next
   case (Mult l r)
-  then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by blast
+ (* 1. \<And>expr1 expr2 x. *)
+   (* (\<And>x. evalPoly (coeffs expr1) x = eval expr1 x) \<Longrightarrow> *)
+   (* (\<And>x. evalPoly (coeffs expr2) x = eval expr2 x) \<Longrightarrow> 
+  evalPoly (coeffs (Mult expr1 expr2)) x = eval (Mult expr1 expr2) x *)
+    
+    (* left side *)
+  have "evalPoly (coeffs (Mult l r)) x = evalPoly (multCoeffs_v4 (coeffs l) (coeffs r)) x" 
+    by simp
+  fix cl cr assume "cl = coeffs l" and "cr = coeffs r"
+  hence "evalPoly (multCoeffs_v4 (coeffs l) cr) x  = evalPoly (multCoeffs_v4 cl cr) x " 
+    by simp
+      (* TODO Or maybe the right side should be: eval l x * eval r x ? *)
+  have "evalPoly (multCoeffs_v4 cl cr) x = evalPoly cl x * evalPoly cr x" 
+  proof(induction cl)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons c cl)
+      (* 1. \<And>a cl. evalPoly (multCoeffs_v4 cl (coeffs r)) x = evalPoly cl x * evalPoly (coeffs r) x \<Longrightarrow> *)
+      (* evalPoly (multCoeffs_v4 (a # cl) (coeffs r)) x = evalPoly (a # cl) x * evalPoly (coeffs r) x       *)
+    have "evalPoly (multCoeffs_v4 (c # cl) cr) x 
+        = evalPoly (addCoeffs (multCoeffs_by_scalar c cr) (multCoeffs_v4 cl (0 # cr))) x"
+    proof(induction cr)
+      case Nil
+ (* 1. evalPoly (multCoeffs_v4 (c # cl) []) x = evalPoly (addCoeffs (multCoeffs_by_scalar c []) (multCoeffs_v4 cl [0])) x *)
+        (* left side *)
+      have "evalPoly (multCoeffs_v4 (c # cl) []) x = evalPoly [] x" by simp
+      hence "evalPoly (multCoeffs_v4 (c # cl) []) x = 0" by simp
+          
+          (* right side *)
+      have "evalPoly (addCoeffs (multCoeffs_by_scalar c []) (multCoeffs_v4 cl [0])) x 
+          = evalPoly (addCoeffs [] (multCoeffs_v4 cl [0])) x"
+        by simp
+      also have "... = evalPoly (multCoeffs_v4 cl [0]) x" by simp
+      then show ?case try
+    next
+      case (Cons a cr)
+      then show ?case sorry
+    qed        
+    then show ?case sorry
+  qed
+  
+      (* right side *)
+  have "eval (Mult l r) x = eval l x * eval r x" by simp
+      
+      (* then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by blast *)
+  (* then show ?case sorry *)
+  show ?case sorry
 qed  
     
-(* theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
+ (* theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
   apply(auto)
-  done *) 
+  done  *)
     
     (* 
 I have not been able to complete the proof portion of exercise 2.11.
