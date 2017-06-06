@@ -35,15 +35,18 @@ fun createPolyExpression :: "int list \<Rightarrow> nat \<Rightarrow> exp" where
   
 value "createPolyExpression [4,2,-1] 0"
   
+fun evalPoly' :: "int list \<Rightarrow> int \<Rightarrow> nat \<Rightarrow> int" where
+  "evalPoly' [] _ _ = 0"|
+  "evalPoly' (c#coeffs) v pow = (c*v^pow) + (evalPoly' coeffs v (Suc pow))"  
+  
   (* Define a function evalPoly that evaluates a polynomial at the given value. *)
   (* Evaluate a polynomial, given its coefficients and x. The coefficients are assumed to start at
   x^0, be in order, and contiguous *)
 fun evalPoly :: "int list \<Rightarrow> int \<Rightarrow> int" where
-  "evalPoly [] _ = 0"|
-  "evalPoly (c#coeffs) v = c + v * (evalPoly coeffs v)"
+  "evalPoly coeffs v = evalPoly' coeffs v 0"
   
-value "evalPoly [4,2,-1,3] 1"  
-value "evalPoly [4,2,-1,3] 3" 
+value "evalPoly [1,2,3] 1"  
+value "evalPoly [1,2,3] 3" 
   
   (* Takes the reversed coefficient list. I.e. [-1, 2, 4] represents 4+2x-x^2   *)
 fun hornerHelper :: "int list \<Rightarrow> int \<Rightarrow> int" where
@@ -109,11 +112,17 @@ fun addCoeffs :: "int list \<Rightarrow> int list \<Rightarrow> int list" where
   "addCoeffs l [] = l" |
   "addCoeffs (l#ls) (r#rs) = (l+r) # addCoeffs ls rs"
     
+lemma addCoeffs_eval_01[simp]:
+  "evalPoly' (addCoeffs r []) x p = evalPoly' r x p"
+  apply(induction r)
+   apply(auto)
+  done
+    
 lemma addCoeffs_eval[simp]:
-  "evalPoly(addCoeffs coeffs1 coeffs2) x = evalPoly coeffs1 x + evalPoly coeffs2 x"
-  apply(induction coeffs1 rule: addCoeffs.induct) (* adding arbitrary: coeffs2 breaks it *)
-    apply(simp_all add: algebra_simps)
-  by (metis addCoeffs.elims neq_Nil_conv)
+  "evalPoly'(addCoeffs a b) x p = evalPoly' a x p + evalPoly' b x p"
+  apply(induction a arbitrary: p rule:addCoeffs.induct)
+    apply(auto simp add: algebra_simps)
+  done
     
 lemma addCoeffs_zeros[simp]:
   shows "addCoeffs (replicate (length cs - 1) 0) cs = cs"
