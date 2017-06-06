@@ -287,7 +287,6 @@ qed
   
 fun multCoeffs_v4 :: "int list \<Rightarrow> int list \<Rightarrow> int list" where  
   "multCoeffs_v4 [] _  = []" |
-  "multCoeffs_v4 _  [] = []" |    
   "multCoeffs_v4 (l#ls) rs = 
     (let mult_l = multCoeffs_by_scalar l rs;
          rest = multCoeffs_v4 ls (0 # rs)
@@ -328,12 +327,13 @@ next
 qed *)
 
   
-lemma multCoeffs_v4_commutative:
+(* lemma multCoeffs_v4_commutative:
   shows "multCoeffs_v4 xs ys = multCoeffs_v4 ys xs"
-proof(induction xs)
+proof(induction xs arbitrary: ys)
   case Nil
+nitpick
   then show ?case
-    by (metis multCoeffs_v4.elims multCoeffs_v4.simps(1) multCoeffs_v4.simps(2))
+
 next
   case (Cons x xs)
   then show ?case 
@@ -356,7 +356,7 @@ next
     (* (let mult_l = multCoeffs_by_scalar l rs; *)
          (* rest =  *)
       (* in addCoeffs mult_l rest)"     *)
-qed
+qed *)
   
 value "multCoeffs_v4 [1,2] [3,4]"
     
@@ -525,6 +525,15 @@ proof -
     by (simp add: left assms(1) assms(2))
 qed *)
   
+(* lemma "evalPoly (coeffs poly) x = eval poly x"
+  apply(induction poly)
+     apply(simp)
+    apply(simp)
+   apply(simp)
+    (* apply(auto simp add: algebra_simps mult_is_star add_is_plus) *)
+done *)
+  
+  
 theorem "evalPoly(coeffs expr) x = eval expr x"
 proof(induction expr arbitrary: x)
   case Var
@@ -585,7 +594,7 @@ next
       (* then show ?case using evalPoly_coeffs_Mult_equiv_eval_Mult by blast *)
   (* then show ?case sorry *)
   show ?case sorry
-qed  
+qed
     
  (* theorem ceoffs_preserves_eval[simp]: "evalPoly(coeffs expr) x = eval expr x"
   apply(induction expr)
