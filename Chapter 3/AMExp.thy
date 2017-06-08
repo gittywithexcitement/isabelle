@@ -86,43 +86,6 @@ theorem eval_asimp[simp]:
   apply simp_all
   done
  
-    (* Sum all N's found in expression. Change all values of (N x) to (N 0) in expression.
-Assume that asimp will be run later to cleanup expressions like (Plus (N 0) (V v))
-Because the only operator is '+' , we can blindly sum all N's.
-helper for full_asimp *)
-  (* FIXME this is totally broken in the presence of Times *)
-fun sum_Ns :: "expr \<Rightarrow> int \<Rightarrow> (expr \<times> int)" where
-  "sum_Ns (N n) s = (Plus (N 0) (N 0), s+n)"|
-  "sum_Ns (V v) s = (V v, s)"|
-  "sum_Ns (Plus e\<^sub>1 e\<^sub>2) s =
-    (let (re\<^sub>1, s\<^sub>1) = sum_Ns e\<^sub>1 0;
-         (re\<^sub>2, s\<^sub>2) = sum_Ns e\<^sub>2 0
-      in (Plus re\<^sub>1 re\<^sub>2, s\<^sub>1 + s\<^sub>2))"
- 
-(* When all variables are 0, eval = sum_Ns *)
-lemma eval_sum_Ns:"eval e <> = snd (sum_Ns e 0)"
-  apply(induction e)
-    apply(auto)
-   apply (simp add: null_state_def)
-  by (simp add: case_prod_beta)
- 
-(* constant folding for expr where we sum up all constants, even if they are not next to
-each other. For example, Plus (N 1) (Plus (V x ) (N 2)) becomes Plus (V x ) (N 3). *)
-fun full_asimp :: "expr \<Rightarrow> expr" where
-   "full_asimp e\<^sub>1 = (
-      let (e\<^sub>2, s) = sum_Ns e\<^sub>1 0;
-           e\<^sub>3 = Plus (N s) e\<^sub>2
-      in  asimp e\<^sub>3)"
- 
-value "full_asimp (Plus (N 1) (Plus (V x ) (N 2)))"
- 
-theorem eval_full_asimp[simp]:
-  "eval (full_asimp e) s = eval e s"
-  apply(induction e)
-    apply(auto)
-  by (simp add: case_prod_beta)
-    (* by (simp add: case_prod_unfold) *)
- 
 (* Define a substitution function
 subst :: vname \<Rightarrow> expr \<Rightarrow> expr \<Rightarrow> expr
 such that
