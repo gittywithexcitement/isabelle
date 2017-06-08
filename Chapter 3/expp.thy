@@ -7,12 +7,25 @@ begin
   (* exercise 3.5
 impl post-increment
 division operation *)
- 
-subsection "Arithmetic Expressions"
+
+subsection "State"  
  
 type_synonym vname = string
 type_synonym val = int
 type_synonym state = "vname \<Rightarrow> val"
+  
+definition null_state ("<>") where
+  "null_state \<equiv> \<lambda>x. 0"
+syntax
+  "_State" :: "updbinds => 'a" ("<_>")
+translations
+  "_State ms" == "_Update <> ms"
+  "_State (_updbinds b bs)" <= "_Update (_State b) bs"
+ 
+lemma "<a := 1, b := 2> = (<> (a := 1)) (b := (2::int))"
+  by (rule refl)
+
+subsection "Arithmetic Expressions"
  
 datatype expr = N int | V vname | PostIncr vname | Plus expr expr | Times expr expr | Div expr expr
   
@@ -51,20 +64,12 @@ fun eval :: "expr \<Rightarrow> state \<Rightarrow> (val \<times> state) option"
           then None
           else Some (r\<^sub>1 div r\<^sub>2, s\<^sub>2))))"
   
+value "eval (Div (N 8) (N 2)) <>"
+value "eval (Div (N 8) (N 0)) <>"
+  
 value "eval (Plus (V ''x'') (N 5)) (\<lambda>x. if x = ''x'' then 7 else 0)"
  
 value "eval (Plus (V ''x'') (N 5)) ((\<lambda>x. 0) (''x'':= 7))"
- 
-definition null_state ("<>") where
-  "null_state \<equiv> \<lambda>x. 0"
-syntax
-  "_State" :: "updbinds => 'a" ("<_>")
-translations
-  "_State ms" == "_Update <> ms"
-  "_State (_updbinds b bs)" <= "_Update (_State b) bs"
- 
-lemma "<a := 1, b := 2> = (<> (a := 1)) (b := (2::int))"
-  by (rule refl)
  
 value "eval (Plus (V ''x'') (N 5)) <''x'' := 7>"
  
