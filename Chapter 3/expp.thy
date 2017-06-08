@@ -27,17 +27,26 @@ fun eval :: "expr \<Rightarrow> state \<Rightarrow> (val \<times> state) option"
   "eval (V v) s = Some (s v, s)" |
   "eval (PostIncr v) s = Some (s v, increment_variable v s)" |
   "eval (Plus a\<^sub>1 a\<^sub>2) s = 
-    (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
-         (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
-      in Some (r\<^sub>1 + r\<^sub>2, s\<^sub>2))"|
+    (case eval a\<^sub>1 s of
+      None \<Rightarrow> None
+    | Some (r\<^sub>1, s\<^sub>1) \<Rightarrow> 
+      (case eval a\<^sub>2 s\<^sub>1 of
+        None \<Rightarrow> None
+      | Some (r\<^sub>2, s\<^sub>2) \<Rightarrow> Some (r\<^sub>1 + r\<^sub>2, s\<^sub>2)))"|
   "eval (Times a\<^sub>1 a\<^sub>2) s = 
-    (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
-         (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
-      in Some (r\<^sub>1 * r\<^sub>2, s\<^sub>2))"|
+    (case eval a\<^sub>1 s of
+      None \<Rightarrow> None
+    | Some (r\<^sub>1, s\<^sub>1) \<Rightarrow> 
+      (case eval a\<^sub>2 s\<^sub>1 of
+        None \<Rightarrow> None
+      | Some (r\<^sub>2, s\<^sub>2) \<Rightarrow> Some (r\<^sub>1 * r\<^sub>2, s\<^sub>2)))"|
   "eval (Div a\<^sub>1 a\<^sub>2) s = 
-    (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
-         (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
-      in (r\<^sub>1 / r\<^sub>2, s\<^sub>2))"
+    (case eval a\<^sub>1 s of
+      None \<Rightarrow> None
+    | Some (r\<^sub>1, s\<^sub>1) \<Rightarrow> 
+      (case eval a\<^sub>2 s\<^sub>1 of
+        None \<Rightarrow> None
+      | Some (r\<^sub>2, s\<^sub>2) \<Rightarrow> Some (r\<^sub>1 div r\<^sub>2, s\<^sub>2)))"
   
 value "eval (Plus (V ''x'') (N 5)) (\<lambda>x. if x = ''x'' then 7 else 0)"
  
