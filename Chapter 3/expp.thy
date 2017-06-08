@@ -68,10 +68,28 @@ fun plus :: "expr \<Rightarrow> expr \<Rightarrow> expr" where
   "plus a\<^sub>1 a\<^sub>2 = Plus a\<^sub>1 a\<^sub>2"
  
 lemma eval_plus[simp]:
-  "eval (plus a1 a2) s = eval a1 s + eval a2 s"
+  "fst (eval (plus a1 a2) s) = fst (eval a1 s) + fst (eval a2 s)"
   (* apply(induction a1 a2 rule: plus.induct) Original. The 'a1 a2' is extraneous. *)
   apply(induction rule: plus.induct)
-    (* apply(induction a1) apply(induction a2)  Does not work*)
+    apply simp
+    apply simp
+    apply simp
+    apply simp
+  apply (simp add: prod.case_eq_if)
+    apply simp
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+  apply (simp add: prod.case_eq_if)
+                      (* apply auto *)
+    (* apply (simp_all add: prod.case_eq_if) *)
               apply simp_all (* just for a change from auto *)
   done
     
