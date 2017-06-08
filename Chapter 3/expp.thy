@@ -46,7 +46,10 @@ fun eval :: "expr \<Rightarrow> state \<Rightarrow> (val \<times> state) option"
     | Some (r\<^sub>1, s\<^sub>1) \<Rightarrow> 
       (case eval a\<^sub>2 s\<^sub>1 of
         None \<Rightarrow> None
-      | Some (r\<^sub>2, s\<^sub>2) \<Rightarrow> Some (r\<^sub>1 div r\<^sub>2, s\<^sub>2)))"
+      | Some (r\<^sub>2, s\<^sub>2) \<Rightarrow> 
+        (if r\<^sub>2 = 0
+          then None
+          else Some (r\<^sub>1 div r\<^sub>2, s\<^sub>2))))"
   
 value "eval (Plus (V ''x'') (N 5)) (\<lambda>x. if x = ''x'' then 7 else 0)"
  
