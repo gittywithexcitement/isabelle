@@ -85,12 +85,6 @@ theorem eval_asimp[simp]:
   apply(induction a)
   apply simp_all
   done
-    
-(* Traverse the expression tree until a root-node Plus is found. Sum all the N's found in the
-contiguous-Plus subtree, using subtree_sum_Ns. If the root node has an N, change N's value to the
-sum; otherwise create a new root containing an N and the old root. *)
-    
-fun root_sum_Ns    
  
     (* Sum all N's found in expression. Change all values of (N x) to (N 0) in expression.
 Assume that asimp will be run later to cleanup expressions like (Plus (N 0) (V v))
