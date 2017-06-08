@@ -14,7 +14,7 @@ type_synonym vname = string
 type_synonym val = int
 type_synonym state = "vname \<Rightarrow> val"
  
-datatype expr = N int | V vname | PostIncr vname | Plus expr expr | Times expr expr
+datatype expr = N int | V vname | PostIncr vname | Plus expr expr | Times expr expr | Div expr expr
   
 (* Returns the updated state *)
 fun increment_variable :: "vname \<Rightarrow> state \<Rightarrow> state" where
@@ -22,18 +22,22 @@ fun increment_variable :: "vname \<Rightarrow> state \<Rightarrow> state" where
     (let before = s v
         in s (v := before + 1))"
  
-fun eval :: "expr \<Rightarrow> state \<Rightarrow> val \<times> state" where
-  "eval (N n) s = (n, s)" |
-  "eval (V v) s = (s v, s)" |
-  "eval (PostIncr v) s = (s v, increment_variable v s)" |
+fun eval :: "expr \<Rightarrow> state \<Rightarrow> (val \<times> state) option" where
+  "eval (N n) s = Some (n, s)" |
+  "eval (V v) s = Some (s v, s)" |
+  "eval (PostIncr v) s = Some (s v, increment_variable v s)" |
   "eval (Plus a\<^sub>1 a\<^sub>2) s = 
     (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
          (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
-      in (r\<^sub>1 + r\<^sub>2, s\<^sub>2))"|
+      in Some (r\<^sub>1 + r\<^sub>2, s\<^sub>2))"|
   "eval (Times a\<^sub>1 a\<^sub>2) s = 
     (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
          (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
-      in (r\<^sub>1 * r\<^sub>2, s\<^sub>2))"
+      in Some (r\<^sub>1 * r\<^sub>2, s\<^sub>2))"|
+  "eval (Div a\<^sub>1 a\<^sub>2) s = 
+    (let (r\<^sub>1, s\<^sub>1) = eval a\<^sub>1 s;
+         (r\<^sub>2, s\<^sub>2) = eval a\<^sub>2 s\<^sub>1
+      in (r\<^sub>1 / r\<^sub>2, s\<^sub>2))"
   
 value "eval (Plus (V ''x'') (N 5)) (\<lambda>x. if x = ''x'' then 7 else 0)"
  
