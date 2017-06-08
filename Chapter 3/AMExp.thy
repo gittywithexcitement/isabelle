@@ -1,6 +1,8 @@
 section "Arithmetic and Boolean Expressions"
  
 theory AMExp imports Main begin
+  
+  (* exercise 3.4 *)
  
 subsection "Arithmetic Expressions"
  
@@ -99,7 +101,9 @@ fun subst :: "vname \<Rightarrow> expr \<Rightarrow> expr \<Rightarrow> expr" wh
       else V vname)"|
   "subst matchMe replaceWith (N n) = N n"|
   "subst matchMe replaceWith (Plus e\<^sub>1 e\<^sub>2) =
-      Plus (subst matchMe replaceWith e\<^sub>1) (subst matchMe replaceWith e\<^sub>2)"
+      Plus (subst matchMe replaceWith e\<^sub>1) (subst matchMe replaceWith e\<^sub>2)"|
+  "subst matchMe replaceWith (Times e\<^sub>1 e\<^sub>2) =
+      Times (subst matchMe replaceWith e\<^sub>1) (subst matchMe replaceWith e\<^sub>2)"
  
 value "subst ''x'' (N 3) (Plus (V ''x'') (V ''y'')) = Plus (N 3) (V ''y'')"
  
