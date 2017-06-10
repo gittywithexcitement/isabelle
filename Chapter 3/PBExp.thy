@@ -75,25 +75,30 @@ next
       using NOT.IH by simp
   next
     case (NOT exp\<^sub>i\<^sub>i)
-    have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" by (simp add:local.NOT.IH)
-
-    let ?left = "pbval (notopt (NOT exp\<^sub>i)) s"
-    have "?left = pbval (notopt (NOT (NOT exp\<^sub>i\<^sub>i))) s" 
-      by (simp add: NOT)
-    then have "... = pbval (notopt exp\<^sub>i\<^sub>i) s" 
-      by simp
-
-    let ?right = "pbval (NOT exp\<^sub>i) s"
-    have "?right = pbval (NOT (NOT exp\<^sub>i\<^sub>i)) s"
-      by (simp add: NOT)
-    then have "... = pbval exp\<^sub>i\<^sub>i s" 
-      by simp
+    then show ?thesis
+    proof (cases exp\<^sub>i\<^sub>i)
+      case (VAR x1)
+      then show ?thesis 
+        by (simp add: NOT)
+    next
+      case (NOT exp\<^sub>i\<^sub>i\<^sub>i)
+(*   ?thesis \<equiv> pbval (notopt (NOT exp\<^sub>i)) s = pbval (NOT exp\<^sub>i) s
+local facts:
+      exp\<^sub>i\<^sub>i = NOT exp\<^sub>i\<^sub>i\<^sub>i
+      exp\<^sub>i = NOT exp\<^sub>i\<^sub>i
+      pbval (notopt exp\<^sub>i) ?s = pbval exp\<^sub>i ?s *)
+      have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" by (simp add:local.NOT.IH)
         
-    (* have "?left = ?right" sledgehammer *)
-        (* have "pbval (notopt exp\<^sub>o) s = pbval exp\<^sub>o s"  *)
-    (* then have "exp\<^sub>i = NOT x2 \<Longrightarrow> pbval (notopt x2) s = pbval x2 s" *)
-      (* apply_end simp *)
-    then show ?thesis (* sledgehammer *) sorry
+      then show ?thesis sorry (* sledgehammer *)
+    next
+      case (AND x31 x32)
+      then show ?thesis 
+        using NOT NOT.IH by auto 
+    next
+      case (OR x41 x42)
+      then show ?thesis 
+        using NOT NOT.IH by auto
+    qed
   qed
 (* NOT.IH: pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s *)
     (* ?case \<equiv> pbval (notopt (NOT exp)) s = pbval (NOT exp) s *)
