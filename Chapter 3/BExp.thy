@@ -82,10 +82,10 @@ fun Eq :: "aexp \<Rightarrow> aexp \<Rightarrow> bexp" where
   
 value "bval (Eq (N 1) (N 1)) <>"
 value "bval (Eq (N 1) (N 2)) <>"
-
+ 
 fun LessEq :: "aexp \<Rightarrow> aexp \<Rightarrow> bexp" where
   "LessEq a\<^sub>l a\<^sub>r = Not (Less a\<^sub>r a\<^sub>l)"
-
+ 
 value "bval (LessEq (N 1) (N 1)) <>"
 value "bval (LessEq (N 1) (N 2)) <>"
 value "bval (LessEq (N 2) (N 1)) <>"
@@ -102,12 +102,34 @@ fun ifval :: "ifexp \<Rightarrow> state \<Rightarrow> bool" where
  "ifval (Less2 a\<^sub>1 a\<^sub>2) s = (aval a\<^sub>1 s < aval a\<^sub>2 s)"
  
 fun or :: "bexp \<Rightarrow> bexp \<Rightarrow> bexp" where
-  "or bl br = And (Not bl) (Not br)"
+  "or bl br = Not (And (Not bl) (Not br))"
   
+lemma or_commutative:"bval (or x y) = bval (or y x)"
+  apply(induction x arbitrary: y)
+  by auto
+
+(* exclusive or *)
+fun xor :: "bexp \<Rightarrow> bexp \<Rightarrow> bexp" where
+  "xor bl br = And (Not (And bl br)) (or bl br)"
+
+lemma xor_commutative:"bval (xor x y) = bval (xor y x)"
+  apply(induction x arbitrary: y)
+  by auto
+
 fun if2bexp :: "ifexp \<Rightarrow> bexp" where
  "if2bexp (Bc2 v) = Bc v" |
- "if2bexp (If cond do_true do_false) = or (And (if2bexp cond) (if2bexp do_true)) (if2bexp do_false)" |
+ "if2bexp (If cond do_true do_false) = or (And (if2bexp cond) (if2bexp do_true)) (And (Not (if2bexp cond)) (if2bexp do_false))" |
  "if2bexp (Less2 a\<^sub>1 a\<^sub>2) = Less a\<^sub>1 a\<^sub>2"
+ 
+fun b2ifexp::"bexp \<Rightarrow> ifexp" where
+  "b2ifexp (Bc v) = Bc2 v" |
+  "b2ifexp (Not bexp) = (If (b2ifexp bexp) (Bc2 False) (Bc2 True))" |
+  "b2ifexp (And b\<^sub>l b\<^sub>r) = (If (b2ifexp b\<^sub>l) (b2ifexp b\<^sub>r) (Bc2 False))" |
+  "b2ifexp (Less a\<^sub>1 a\<^sub>2) = Less2 a\<^sub>1 a\<^sub>2"
   
-  
+lemma "bval (if2bexp ifexp) s = ifval ifexp s"  
+  apply(induction ifexp)
+  by auto
+
 end
+ 
