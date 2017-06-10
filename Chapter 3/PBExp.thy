@@ -75,17 +75,33 @@ next
     then show ?case by simp
   next
     case (NOT exp\<^sub>i\<^sub>i)
-      (* goal: *)
-      (* pbval (notopt (NOT (NOT exp\<^sub>i\<^sub>i))) s = pbval (NOT (NOT exp\<^sub>i\<^sub>i)) s *)
-    have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s"
-      by (simp add: IH\<^sub>i)
-    (* then have "pbval (notopt (NOT exp\<^sub>i)) s = pbval (NOT exp\<^sub>i) s" (* tried in vain *)  *)
-    have "pbval (notopt (NOT (NOT exp\<^sub>i))) s = pbval (NOT (NOT exp\<^sub>i)) s"
-      by (simp add: IH\<^sub>i)
-    have "pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s" 
-      using NOT.prems by blast 
-      
-    then show ?case  sledgehammer  sorry
+    (* have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" *)
+      (* by (simp add: IH\<^sub>i) *)
+    (* have "pbval (notopt (NOT (NOT exp\<^sub>i))) s = pbval (NOT (NOT exp\<^sub>i)) s" *)
+      (* by (simp add: IH\<^sub>i) *)
+    (* have "pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"  *)
+      (* using NOT.prems by blast  *)
+    then show ?case
+    proof(induction exp\<^sub>i\<^sub>i)
+      case (VAR x)
+      then show ?case 
+        by simp
+    next
+      case (AND exp\<^sub>i\<^sub>i1 exp\<^sub>i\<^sub>i2)
+      then show ?case
+        by auto
+    next
+      case (OR exp\<^sub>i\<^sub>i1 exp\<^sub>i\<^sub>i2)
+      then show ?case
+        by auto
+    next
+      case (NOT exp\<^sub>i\<^sub>i\<^sub>i)
+        (* prove *)
+        (* pbval (notopt (NOT (NOT (NOT exp\<^sub>i\<^sub>i\<^sub>i)))) s = pbval (NOT (NOT (NOT exp\<^sub>i\<^sub>i\<^sub>i))) s *)
+      have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" 
+        by (simp add: IH\<^sub>i) 
+      then show ?case (* sledgehammer *) sorry
+    qed
   qed
 qed
    
