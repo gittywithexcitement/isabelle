@@ -26,21 +26,21 @@ lemma equal_implies_nots_equal:
 text{* Optimizing constructors: *}
   
   (* remove extraneous NOTs, i.e. NOT(NOT(x)) = x *)
-fun notopt :: "pbexp \<Rightarrow> pbexp"where
-  "notopt (VAR x) = (VAR x)" |
+fun not_simp :: "pbexp \<Rightarrow> pbexp"where
+  "not_simp (VAR x) = (VAR x)" |
   (* First recurse on b, then pattern match *)
-  "notopt (NOT b) = (
-    case notopt b of
+  "not_simp (NOT b) = (
+    case not_simp b of
       (NOT c) \<Rightarrow> c|
       _       \<Rightarrow> NOT b)" |
-  "notopt (AND b1 b2) = (AND (notopt b1) (notopt b2))" |
-  "notopt (OR b1 b2) = (OR (notopt b1) (notopt b2))"
+  "not_simp (AND b1 b2) = (AND (not_simp b1) (not_simp b2))" |
+  "not_simp (OR b1 b2) = (OR (not_simp b1) (not_simp b2))"
   
-value "notopt (NOT (NOT exp))"
-value "notopt (NOT (NOT (NOT exp)))"
-value "notopt (NOT (NOT (NOT (NOT exp))))"
+value "not_simp (NOT (NOT exp))"
+value "not_simp (NOT (NOT (NOT exp)))"
+value "not_simp (NOT (NOT (NOT (NOT exp))))"
   
-lemma not_preserves_value_v1[simp]: "pbval (notopt exp\<^sub>o) s = pbval exp\<^sub>o s"
+lemma not_preserves_value_v1[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^sub>o s"
   apply(induction exp\<^sub>o)
      apply simp_all
   apply(simp split: pbexp.splits)
@@ -58,14 +58,34 @@ fun is_nnf::"pbexp \<Rightarrow> bool"where
   "is_nnf (AND b1 b2) = (is_nnf b1 \<and> is_nnf b2)" |
   "is_nnf (OR b1 b2) = (is_nnf b1 \<and> is_nnf b2)"
   
+value "is_nnf (VAR ''x'')"  
+value "is_nnf (NOT(VAR x))"  
+value "is_nnf (NOT(NOT(VAR x)))"  
+  
 (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
-fun nnf :: "pbexp \<Rightarrow> pbexp"where
-  "nnf (VAR x) = True" |
-  "nnf (NOT b) = is_var b" |
-  "nnf (AND b1 b2) = (nnf b1 \<and> nnf b2)" |
-  "nnf (OR b1 b2) = (nnf b1 \<and> nnf b2)"
- 
- 
+fun nnf :: "pbexp \<Rightarrow> pbexp" where
+  "nnf (VAR x) = (VAR x)" |
+  "nnf (NOT b) = (
+    case nnf b of
+      (NOT c)     \<Rightarrow> c |
+      (AND b1 b2) \<Rightarrow> (OR   (NOT b1) (NOT b2)) |
+      (OR b1 b2)  \<Rightarrow> (AND  (NOT b1) (NOT b2)) |
+      (VAR c)     \<Rightarrow> NOT (VAR c))" |  
+  "nnf (AND b1 b2) = (AND (nnf b1) (nnf b2))" |
+  "nnf (OR b1 b2) = (OR (nnf b1) (nnf b2))"
+  
+lemma nnf_preserves_value[simp]: "pbval (nnf exp\<^sub>o) s = pbval exp\<^sub>o s"
+  apply(induction exp\<^sub>o) 
+     apply simp_all
+  apply(simp split: pbexp.splits)
+  by auto
+    
+lemma nnf_is_nnf: "is_nnf (nnf b)"
+  apply(induction b)
+    apply(simp_all)
+  apply(simp split: pbexp.splits)
+  nitpick
+    
   
 (* text{* Optimizing constructors: *}
   
