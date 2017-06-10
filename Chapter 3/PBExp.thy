@@ -40,13 +40,38 @@ value "notopt (NOT (NOT exp))"
 value "notopt (NOT (NOT (NOT exp)))"
 value "notopt (NOT (NOT (NOT (NOT exp))))"
   
-(* lemma notop_01:  
-  assumes "pbval (notopt e1) s = pbval e1 s"  
-  shows "pbval (notopt (NOT e1)) s = pbval (NOT e1) s"
-  apply(induction e1)
-     apply simp
-  try
-  sorry *)
+lemma notopt_equal_implies_NOT:  
+  assumes "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s"  
+  shows "pbval (notopt (NOT e\<^sub>1)) s = pbval (NOT e\<^sub>1) s"
+proof(induction e\<^sub>1 (* arbitrary: s *))
+  case (VAR x)
+  then show ?case
+    by simp
+next
+  case (AND e\<^sub>2\<^sub>a e\<^sub>2\<^sub>b)
+  have "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s" 
+    using assms by simp
+      (* facts *)
+      (* pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s *)
+      (* pbval (notopt (NOT e\<^sub>2\<^sub>a)) ?s = pbval (NOT e\<^sub>2\<^sub>a) ?s *)
+      (* pbval (notopt (NOT e\<^sub>2\<^sub>b)) ?s = pbval (NOT e\<^sub>2\<^sub>b) ?s *)
+  then show ?case (* sledgehammer *)  sorry
+next
+  case (OR e\<^sub>2\<^sub>a e\<^sub>2\<^sub>b)
+  then show ?case  sorry
+next
+  case (NOT e\<^sub>2)
+  have "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s"
+    using local.assms by simp
+  then have "pbval (notopt(NOT(NOT e\<^sub>1))) s = pbval (NOT(NOT e\<^sub>1)) s"    
+    by (simp add: assms)
+  then have "pbval (NOT(notopt(NOT e\<^sub>1))) s = pbval (NOT(NOT e\<^sub>1)) s"    
+    sledgehammer
+  (* then have "(\<not>(pbval (notopt(NOT e\<^sub>1)) s)) = (\<not>(pbval (NOT e\<^sub>1) s))"     *)
+    (* sledgehammer sorry *)
+  then show ?case (* sledgehammer *)sorry
+qed
+
   
 (* In the proof I have this IH
 pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s
@@ -72,6 +97,7 @@ next
   have notopt\<^sub>i:"pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" 
     by (simp add: NOT.IH) 
   then show ?case 
+    (* using notopt_equal_implies_NOT by auto  *)
   proof(induction exp\<^sub>i (* arbitrary: s *))
     case (VAR x)
     then show ?case by simp
@@ -83,10 +109,8 @@ next
     then show ?case by simp
   next
     case (NOT exp\<^sub>i\<^sub>i)
-    have notopt\<^sub>i\<^sub>i:"pbval (notopt exp\<^sub>i\<^sub>i) s = pbval exp\<^sub>i\<^sub>i s"
-      by (metis NOT.prems not_not_is_id notop_01 notopt.simps(2) pbexp.simps(18))
-    have notopt_NOT\<^sub>i\<^sub>i:"pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"
-      using NOT.prems by simp      
+    have NOT\<^sub>i\<^sub>i:"pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"
+      using NOT.prems by simp
     then show ?case
     proof(induction exp\<^sub>i\<^sub>i)
       case (VAR x)
@@ -102,8 +126,8 @@ next
         by auto
     next
       case (NOT exp\<^sub>i\<^sub>i\<^sub>i)
-      then show ?case 
-        using NOT.prems notop_01 by simp  
+      then show ?case (* sledgehammer *) sorry
+        (* using NOT.prems notopt_equal_implies_NOT by simp   *)
     qed
   qed
 qed
