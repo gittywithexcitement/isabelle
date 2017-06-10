@@ -40,13 +40,13 @@ value "notopt (NOT (NOT exp))"
 value "notopt (NOT (NOT (NOT exp)))"
 value "notopt (NOT (NOT (NOT (NOT exp))))"
   
-lemma notop_01:  
+(* lemma notop_01:  
   assumes "pbval (notopt e1) s = pbval e1 s"  
   shows "pbval (notopt (NOT e1)) s = pbval (NOT e1) s"
   apply(induction e1)
      apply simp
   try
-  sorry
+  sorry *)
   
 (* In the proof I have this IH
 pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s
