@@ -14,9 +14,18 @@ fun pbval :: "pbexp \<Rightarrow> bstate \<Rightarrow> bool" where
  
 subsection "Exercise 3.9"
   
+lemma not_not_is_id[simp]: "pbval (NOT (NOT exp)) s = pbval exp s"
+  apply(induction exp)
+  by simp_all
+    
+lemma equal_implies_nots_equal:
+  assumes "pbval e1 s = pbval e2 s"
+  shows "pbval (NOT e1) s = pbval (NOT e2) s"
+    by (simp add: assms)
+
 text{* Optimizing constructors: *}
   
- (* remove extraneous NOTs, i.e. NOT(NOT(x)) = x *)
+  (* remove extraneous NOTs, i.e. NOT(NOT(x)) = x *)
 fun notopt :: "pbexp \<Rightarrow> pbexp"where
   "notopt (VAR x) = (VAR x)" |
   "notopt (NOT b) = (
@@ -27,64 +36,130 @@ fun notopt :: "pbexp \<Rightarrow> pbexp"where
   "notopt (AND b1 b2) = (AND (notopt b1) (notopt b2))" |
   "notopt (OR b1 b2) = (OR (notopt b1) (notopt b2))"
   
+value "notopt (NOT (NOT exp))"
+value "notopt (NOT (NOT (NOT exp)))"
+value "notopt (NOT (NOT (NOT (NOT exp))))"
+  
+(* In the proof I have this IH
+pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s
+and then I split cases, and this is the case I am working on:
+exp\<^sub>i = NOT exp\<^sub>i\<^sub>i  
+ *)
+  
 (* lemma not_preserves_value: "pbval exp s = pbval (notopt exp) s"
-  
-  
  1. \<And>exp s. (\<And>s. pbval exp s = pbval (notopt exp) s) \<Longrightarrow>
              (\<not> pbval (notopt exp) s) = pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s   *)
-  
-lemma not_preserves_value_v1[simp]: "pbval (notopt exp) s = pbval exp s"
-proof(induction exp arbitrary: s)
+lemma not_preserves_value_v1[simp]: "pbval (notopt exp\<^sub>o) s = pbval exp\<^sub>o s"
+proof(induction exp\<^sub>o arbitrary: s) (* No difference if you do rule:notopt.induct *)
   case (VAR x)
   then show ?case by simp
-next
-  case (NOT exp)
-  show ?case 
-  proof(induction exp arbitrary: s)
-    case (VAR x)
-    then show ?case by simp
-  next
-    case (NOT exp)
-    then show ?case try0
-  next
-    case (AND exp1 exp2)
-    then show ?case try0
-  next
-    case (OR exp1 exp2)
-    then show ?case try0
-  qed
-    
-    
-    (* 1. \<And>exp s. 
-      pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s 
-      = (\<not> pbval exp s) *)
-  have "pbval (notopt (NOT exp)) s = pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s"
-    by simp
-  have "pbval (NOT exp) s = (\<not> pbval exp s)" 
-    by simp
-      (* show "pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s = (\<not> pbval exp s)" sorry *)
-      
-      (* apply_end(simp_all) *)
-      (* assume IH : "\<And>s. pbval (notopt exp_) s = pbval exp_ s" *)
-      (* ?case \<equiv> pbval (notopt (NOT exp)) s = pbval (NOT exp) s *)
-  (* show ?case *)
-  proof cases
-    (* case True *)
-    assume "exp = NOT exp\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r"
-    then show ?thesis try
-  next
-    case False
-    then show ?thesis sorry
-  qed
-    
- 
- (* then show ?case sorry *)
 next
   case (AND exp1 exp2)
   then show ?case by simp
 next
   case (OR exp1 exp2)
   then show ?case by simp
+next
+  case (NOT exp\<^sub>i)
+  then show ?case 
+  proof (cases exp\<^sub>i)
+    case (VAR x1)
+    then show ?thesis by simp
+  next
+    case (AND x31 x32)
+    then show ?thesis
+      using NOT.IH by simp
+  next
+    case (OR x41 x42)
+    then show ?thesis
+      using NOT.IH by simp
+  next
+    case (NOT exp\<^sub>i\<^sub>i)
+    have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" by (simp add:local.NOT.IH)
+
+    let ?left = "pbval (notopt (NOT exp\<^sub>i)) s"
+    have "?left = pbval (notopt (NOT (NOT exp\<^sub>i\<^sub>i))) s" 
+      by (simp add: NOT)
+    then have "... = pbval (notopt exp\<^sub>i\<^sub>i) s" 
+      by simp
+
+    let ?right = "pbval (NOT exp\<^sub>i) s"
+    have "?right = pbval (NOT (NOT exp\<^sub>i\<^sub>i)) s"
+      by (simp add: NOT)
+    then have "... = pbval exp\<^sub>i\<^sub>i s" 
+      by simp
+        
+    (* have "?left = ?right" sledgehammer *)
+        (* have "pbval (notopt exp\<^sub>o) s = pbval exp\<^sub>o s"  *)
+    (* then have "exp\<^sub>i = NOT x2 \<Longrightarrow> pbval (notopt x2) s = pbval x2 s" *)
+      (* apply_end simp *)
+    then show ?thesis (* sledgehammer *) sorry
+  qed
+(* NOT.IH: pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s *)
+    (* ?case \<equiv> pbval (notopt (NOT exp)) s = pbval (NOT exp) s *)
+
+  (* apply_end(simp split: pbexp.split) *)
+
+  (* simp yields:     *)
+(*   have l\<^sub>s\<^sub>i\<^sub>m\<^sub>p:"pbval (notopt (NOT exp)) s = pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s"
+    by simp
+  have r\<^sub>s\<^sub>i\<^sub>m\<^sub>p:"pbval (NOT exp) s = (\<not> pbval exp s)" 
+    by simp *)     
+(*   proof(induction exp\<^sub>i arbitrary: s)
+    case (VAR x)
+    then show ?case by simp
+  next
+    case (AND exp1 exp2)
+    then show ?case sorry
+  next
+    case (OR exp1 exp2)
+    then show ?case sorry
+  next
+    case (NOT exp\<^sub>i\<^sub>i)
+  (* NOT.IH: pbval (notopt (NOT exp\<^sub>i\<^sub>i)) ?s = pbval (NOT exp\<^sub>i\<^sub>i) ?s *)
+
+      (* 1. \<And>exp s. (\<And>s. pbval (notopt (NOT exp)) s = pbval (NOT exp) s) 
+\<Longrightarrow> pbval (notopt (NOT (NOT exp))) s = pbval (NOT (NOT exp)) s *)
+      (* simplifies to *)
+      (* pbval (notopt exp) s = pbval exp s *)
+    have l0:"pbval (notopt (NOT (NOT exp\<^sub>i\<^sub>i))) s  = pbval (notopt exp\<^sub>i\<^sub>i) s"
+      by simp
+    have r0:"pbval (NOT (NOT exp\<^sub>i\<^sub>i)) s = pbval exp\<^sub>i\<^sub>i s"
+      by simp
+    (* then show "pbval (notopt exp\<^sub>i\<^sub>i\<^sub>) s = pbval exp\<^sub>i\<^sub>i\<^sub> s" sledgehammer *)
+    have "pbval (notopt exp\<^sub>i\<^sub>i) s = pbval exp\<^sub>i\<^sub>i s" try0 
+        
+      (* apply_end simp *)
+    (* then show ?case try0 *)
+  qed *)
+  
+    
+    (* 1. \<And>exp s. 
+      pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s 
+      = (\<not> pbval exp s) *)
+    
+      
+(*   have "pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s = pbval (NOT exp) s = (\<not> pbval exp s)"      
+    sorry *)
+      
+      (* show "pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s = (\<not> pbval exp s)" sorry *)
+      
+      (* apply_end(simp_all) *)
+
+  (* show ?case *)
+      
+(*   proof cases
+    (* case True *)
+    assume "exp = NOT exp\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r"
+    then show ?thesis try
+  next
+    case False
+    then show ?thesis sorry
+  qed *)
+    
+ 
+ 
+ then show ?case sorry
 qed
  
   
