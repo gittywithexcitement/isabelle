@@ -28,11 +28,11 @@ text{* Optimizing constructors: *}
   (* remove extraneous NOTs, i.e. NOT(NOT(x)) = x *)
 fun notopt :: "pbexp \<Rightarrow> pbexp"where
   "notopt (VAR x) = (VAR x)" |
+  (* First recurse on b, then pattern match *)
   "notopt (NOT b) = (
-    case b of
-      (NOT c) \<Rightarrow> notopt c|
-      _       \<Rightarrow> NOT (notopt b))" |
- (* x       \<Rightarrow> NOT (notopt x))" | is more complex *)
+    case notopt b of
+      (NOT c) \<Rightarrow> c|
+      _       \<Rightarrow> NOT b)" |
   "notopt (AND b1 b2) = (AND (notopt b1) (notopt b2))" |
   "notopt (OR b1 b2) = (OR (notopt b1) (notopt b2))"
   
@@ -40,108 +40,11 @@ value "notopt (NOT (NOT exp))"
 value "notopt (NOT (NOT (NOT exp)))"
 value "notopt (NOT (NOT (NOT (NOT exp))))"
   
-lemma notopt_equal_implies_NOT:  
-  assumes "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s"  
-  shows "pbval (notopt (NOT e\<^sub>1)) s = pbval (NOT e\<^sub>1) s"
-proof(induction e\<^sub>1 (* arbitrary: s *))
-  case (VAR x)
-  then show ?case
-    by simp
-next
-  case (AND e\<^sub>2\<^sub>a e\<^sub>2\<^sub>b)
-  have "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s" 
-    using assms by simp
-      (* facts *)
-      (* pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s *)
-      (* pbval (notopt (NOT e\<^sub>2\<^sub>a)) ?s = pbval (NOT e\<^sub>2\<^sub>a) ?s *)
-      (* pbval (notopt (NOT e\<^sub>2\<^sub>b)) ?s = pbval (NOT e\<^sub>2\<^sub>b) ?s *)
-  then show ?case (* sledgehammer *)  sorry
-next
-  case (OR e\<^sub>2\<^sub>a e\<^sub>2\<^sub>b)
-  then show ?case  sorry
-next
-  case (NOT e\<^sub>2)
-  have "pbval (notopt e\<^sub>1) s = pbval e\<^sub>1 s"
-    using local.assms by simp
-  then have "pbval (notopt(NOT(NOT e\<^sub>1))) s = pbval (NOT(NOT e\<^sub>1)) s"    
-    by (simp add: assms)
-  then have "pbval (NOT(notopt(NOT e\<^sub>1))) s = pbval (NOT(NOT e\<^sub>1)) s"    
-    sledgehammer
-  (* then have "(\<not>(pbval (notopt(NOT e\<^sub>1)) s)) = (\<not>(pbval (NOT e\<^sub>1) s))"     *)
-    (* sledgehammer sorry *)
-  then show ?case (* sledgehammer *)sorry
-qed
-
-  
-(* In the proof I have this IH
-pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s
-and then I split cases, and this is the case I am working on:
-exp\<^sub>i = NOT exp\<^sub>i\<^sub>i  
- *)
-  
-(* lemma not_preserves_value: "pbval exp s = pbval (notopt exp) s"
- 1. \<And>exp s. (\<And>s. pbval exp s = pbval (notopt exp) s) \<Longrightarrow>
-             (\<not> pbval (notopt exp) s) = pbval (case exp of NOT x \<Rightarrow> notopt x | _ \<Rightarrow> NOT (notopt exp)) s   *)
 lemma not_preserves_value_v1[simp]: "pbval (notopt exp\<^sub>o) s = pbval exp\<^sub>o s"
-proof(induction exp\<^sub>o arbitrary: s) (* No difference if you do rule:notopt.induct *)
-  case (VAR x)
-  then show ?case by simp
-next
-  case (AND exp1 exp2)
-  then show ?case by simp
-next
-  case (OR exp1 exp2)
-  then show ?case by simp
-next
-  case (NOT exp\<^sub>i)
-  have notopt\<^sub>i:"pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" 
-    by (simp add: NOT.IH) 
-  then show ?case 
-    (* using notopt_equal_implies_NOT by auto  *)
-  proof(induction exp\<^sub>i (* arbitrary: s *))
-    case (VAR x)
-    then show ?case by simp
-  next
-    case (AND exp\<^sub>i1 exp\<^sub>i2)
-    then show ?case by simp
-  next
-    case (OR exp\<^sub>i1 exp\<^sub>i2)
-    then show ?case by simp
-  next
-    case (NOT exp\<^sub>i\<^sub>i)
-    have NOT\<^sub>i\<^sub>i:"pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"
-      using NOT.prems by simp
-    then show ?case
-    proof(induction exp\<^sub>i\<^sub>i)
-      case (VAR x)
-      then show ?case 
-        by simp
-    next
-      case (AND exp\<^sub>i\<^sub>i1 exp\<^sub>i\<^sub>i2)
-      then show ?case
-        by auto
-    next
-      case (OR exp\<^sub>i\<^sub>i1 exp\<^sub>i\<^sub>i2)
-      then show ?case
-        by auto
-    next
-      case (NOT exp\<^sub>i\<^sub>i\<^sub>i)
-      then show ?case (* sledgehammer *) sorry
-        (* using NOT.prems notopt_equal_implies_NOT by simp   *)
-    qed
-  qed
-qed
-   
-
- 
-(* fun "and" :: "bexp \<Rightarrow> bexp \<Rightarrow> bexp" where
-  "and (Bc True) b = b" |
-  "and b (Bc True) = b" |
-  "and (Bc False) b = Bc False" |
-  "and b (Bc False) = Bc False" |
-  "and b\<^sub>1 b\<^sub>2 = And b\<^sub>1 b\<^sub>2"
- *)  
-  
+  apply(induction exp\<^sub>o)
+     apply simp_all
+  apply(simp split: pbexp.splits)
+    by auto
  
 fun is_var::"pbexp \<Rightarrow> bool"  where
   "is_var (VAR _) = True"|
