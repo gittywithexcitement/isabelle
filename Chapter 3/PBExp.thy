@@ -83,14 +83,6 @@ next
     then show ?case by simp
   next
     case (NOT exp\<^sub>i\<^sub>i)
-    (* have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" *)
-      (* by (simp add: notopt\<^sub>i) *)
-    (* have "pbval (notopt (NOT (NOT exp\<^sub>i))) s = pbval (NOT (NOT exp\<^sub>i)) s" *)
-      (* by (simp add: notopt\<^sub>i) *)
-    (* have "pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"  *)
-      (* using NOT.prems by blast  *)
-      
-      (* pbval (notopt exp\<^sub>i\<^sub>i) s = pbval exp\<^sub>i\<^sub>i s \<Longrightarrow> pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s *)
     have notopt\<^sub>i\<^sub>i:"pbval (notopt exp\<^sub>i\<^sub>i) s = pbval exp\<^sub>i\<^sub>i s"
       by (metis NOT.prems not_not_is_id notop_01 notopt.simps(2) pbexp.simps(18))
     have notopt_NOT\<^sub>i\<^sub>i:"pbval (notopt (NOT exp\<^sub>i\<^sub>i)) s = pbval (NOT exp\<^sub>i\<^sub>i) s"
@@ -110,24 +102,13 @@ next
         by auto
     next
       case (NOT exp\<^sub>i\<^sub>i\<^sub>i)
-      have "pbval (notopt exp\<^sub>i) s = pbval exp\<^sub>i s" 
-        by (simp add: notopt\<^sub>i) 
       then show ?case 
-        using NOT.prems notop_01 by auto  
+        using NOT.prems notop_01 by simp  
     qed
   qed
 qed
    
-lemma not_preserves_value_v2[simp]: "pbval (notopt exp) s = pbval exp s"
-  (* apply(induction exp) *)
-  apply(induction exp arbitrary: s) (* I don't think arbitrary:s makes a difference *)
-     apply(simp_all)
-    (* apply auto *) (* Leads to 2 unsolved goals *)
-    (* apply(auto split: pbexp.split) *)
-  (* apply(simp split: pbexp.split) *) (* I don't think this helps *)
-    (* apply auto Will take us in circles*)
-  (* apply(induction exp) Will take us in circles.*)
-  (* nitpick sledgehammer *)
+
  
 (* fun "and" :: "bexp \<Rightarrow> bexp \<Rightarrow> bexp" where
   "and (Bc True) b = b" |
