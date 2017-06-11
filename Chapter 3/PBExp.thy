@@ -85,15 +85,14 @@ lemma nnf_preserves_value:
   apply(induction exp arbitrary:num)
   by simp_all
  
-fun is_var::"pbexp \<Rightarrow> bool"  where
-  "is_var (VAR _) = True"|
-  "is_var _ = False"
-  
   (* True when NOT is only applied to VARs. Otherwise, false.
 What about not(not(var))? *)
 fun is_nnf::"pbexp \<Rightarrow> bool"where
   "is_nnf (VAR x) = True" |
-  "is_nnf (NOT b) = is_var b" |
+  "is_nnf (NOT b) = 
+    (case b of
+      (VAR _) \<Rightarrow> True|
+      _       \<Rightarrow> False)" |
   "is_nnf (AND b1 b2) = (is_nnf b1 \<and> is_nnf b2)" |
   "is_nnf (OR b1 b2) = (is_nnf b1 \<and> is_nnf b2)"
   
