@@ -161,5 +161,31 @@ fun is_dnf:: "pbexp \<Rightarrow> seen_and \<Rightarrow> bool"where
   "is_dnf (OR b1 b2) NeverSeenAnd = (is_dnf b1 NeverSeenAnd \<and> is_dnf b2 NeverSeenAnd)"|
   "is_dnf (OR b1 b2) SeenAnAnd = False"
   
+(* args:
+first child on an AND, already dnf'ed
+second child on an AND, already dnf'ed
+returns: the transformed expression; pulling ORs up through the parent AND as needed *)
+fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
+"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
+  (OR (OR (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) (OR (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
+"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
+  OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>l notOr)"|
+"transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
+  OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
+"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"
+  
+(* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
+ If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
+ remains are ANDs and ORs.
+ We would like to bubble up the ORs*)
+fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
+  "dnf_of_nnf (VAR x) = (VAR x)" |
+  "dnf_of_nnf (NOT b) = NOT (dnf_of_nnf b)" |
+  "dnf_of_nnf (AND b\<^sub>l b\<^sub>r) = 
+    (let dnf_b\<^sub>l = dnf_of_nnf b\<^sub>l;
+         dnf_b\<^sub>r = dnf_of_nnf b\<^sub>r
+    in transform_children_of_and dnf_b\<^sub>l dnf_b\<^sub>r)" |
+  "dnf_of_nnf (OR b1 b2) = (OR (dnf_of_nnf b1) (dnf_of_nnf b2))"
+  
 
 end
