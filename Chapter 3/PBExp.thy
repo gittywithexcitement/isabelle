@@ -40,11 +40,35 @@ value "not_simp (NOT (NOT exp))"
 value "not_simp (NOT (NOT (NOT exp)))"
 value "not_simp (NOT (NOT (NOT (NOT exp))))"
   
-lemma not_preserves_value_v1[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^sub>o s"
+lemma not_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^sub>o s"
   apply(induction exp\<^sub>o)
      apply simp_all
   apply(simp split: pbexp.splits)
-    by auto
+  by auto
+
+(* How many NOTs have been encountered so far, travelling from the expression's root to this point?
+Every time two NOTs are encountered, the count is reset to zero. *)
+datatype num_nots = ZeroN | OneN  
+  
+(* Uses num_nots to simplify an expression's NOTs.   *)
+fun not_simp_v2 :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
+  "not_simp_v2 (VAR x) ZeroN = (VAR x)" |
+  "not_simp_v2 (VAR x) OneN = NOT (VAR x)" |
+  "not_simp_v2 (NOT b) ZeroN = not_simp_v2 b OneN" |
+  "not_simp_v2 (NOT b) OneN = not_simp_v2 b ZeroN" |
+  "not_simp_v2 (AND b1 b2) n = (AND (not_simp_v2 b1 n) (not_simp_v2 b2 n))" |
+  "not_simp_v2 (OR b1 b2) n = (OR (not_simp_v2 b1 n) (not_simp_v2 b2 n))"
+
+value "not_simp_v2 (NOT (NOT (VAR ''x''))) ZeroN"
+value "not_simp_v2 (NOT (NOT (NOT (VAR ''x'')))) ZeroN"
+value "not_simp_v2 (NOT (NOT (NOT (NOT (VAR ''x''))))) ZeroN"
+  
+lemma not_simp_v2_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^sub>o s"
+  apply(induction exp\<^sub>o)
+     apply simp_all
+  apply(simp split: pbexp.splits)
+  by auto
+
  
 fun is_var::"pbexp \<Rightarrow> bool"  where
   "is_var (VAR _) = True"|
@@ -60,9 +84,9 @@ fun is_nnf::"pbexp \<Rightarrow> bool"where
   
 value "is_nnf (VAR ''x'')"  
 value "is_nnf (NOT(VAR x))"  
-value "is_nnf (NOT(NOT(VAR x)))"  
-  
-(* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
+value "is_nnf (NOT(NOT(VAR x)))"
+
+(* (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
 fun nnf :: "pbexp \<Rightarrow> pbexp" where
   "nnf (VAR x) = (VAR x)" |
   "nnf (NOT b) = (
@@ -73,7 +97,8 @@ fun nnf :: "pbexp \<Rightarrow> pbexp" where
       (VAR c)     \<Rightarrow> NOT (VAR c))" |  
   "nnf (AND b1 b2) = (AND (nnf b1) (nnf b2))" |
   "nnf (OR b1 b2) = (OR (nnf b1) (nnf b2))"
-  
+(*       (AND b1 b2) \<Rightarrow> (OR   (nnf (NOT b1)) (nnf (NOT b2))) |
+      (OR b1 b2)  \<Rightarrow> (AND  (nnf (NOT b1)) (nnf (NOT b2))) |*)  
 lemma nnf_preserves_value[simp]: "pbval (nnf exp\<^sub>o) s = pbval exp\<^sub>o s"
   apply(induction exp\<^sub>o arbitrary: s) 
      apply simp_all
@@ -87,6 +112,6 @@ lemma nnf_is_nnf: "is_nnf (nnf b)"
        apply(simp_all)
       nitpick
   apply(simp split: pbexp.splits)
-  nitpick
+  nitpick *)
 
 end
