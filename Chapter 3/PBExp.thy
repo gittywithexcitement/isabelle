@@ -63,7 +63,7 @@ fun nnf :: "pbexp \<Rightarrow> pbexp" where
 Every time two NOTs are encountered, the count is reset to zero. *)
 datatype num_nots = ZeroN | OneN  
   
-(* Convert an expression to negative normal form; pass it ZeroN   *)
+(* Convert an expression to negative normal form; pass it ZeroN to begin with   *)
 fun nnf :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
   "nnf (VAR x) ZeroN = (VAR x)" |
   "nnf (VAR x) OneN = NOT (VAR x)" |
@@ -80,7 +80,7 @@ value "nnf (NOT (NOT (NOT (NOT (VAR ''x''))))) ZeroN"
 
 lemma nnf_preserves_value: 
   "pbval (nnf exp num) s = 
-  (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
+    (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
   apply(simp split: num_nots.splits)
   apply(induction exp arbitrary:num)
   by simp_all
@@ -99,6 +99,104 @@ fun is_nnf::"pbexp \<Rightarrow> bool"where
 value "is_nnf (VAR ''x'')"  
 value "is_nnf (NOT(VAR x))"  
 value "is_nnf (NOT(NOT(VAR x)))"
+  
+(* Try it in ISAR. I'd like to split num   *)
+lemma nnf_is_nnf_1: "is_nnf (nnf exp num)"
+proof(induction exp arbitrary:num)
+(* proof(induction exp) *)
+  case (VAR x)
+  then show ?case
+  proof(induction num)
+    case ZeroN
+    then show ?case by simp
+  next
+    case OneN
+    then show ?case by simp
+  qed
+next
+  case (AND exp1 exp2)
+  then show ?case
+  proof(induction num)
+    case ZeroN
+    then show ?case by simp
+  next
+    case OneN
+    then show ?case by simp
+  qed
+next
+  case (OR exp1 exp2)
+  then show ?case
+  proof(induction num)
+    case ZeroN
+    then show ?case by simp
+  next
+    case OneN
+    then show ?case by simp
+  qed
+next
+  case (NOT exp)
+  then show ?case
+  proof(induction num)
+    case ZeroN
+    then show ?case by simp
+  next
+    case OneN
+    then show ?case by simp
+  qed
+qed
+  (* apply(induction exp arbitrary:num) *)
+  (* apply(induction exp) *)
+    
+    (* apply (metis (full_types) is_nnf.simps(1) is_nnf.simps(2) nnf.simps(1) nnf.simps(2) num_nots.exhaust pbexp.simps(17)) *)
+ (* apply(induction num) *)
+  (* apply(induction (* exp *) rule: nnf.induct) *)
+     (* apply(simp_all split: num_nots.splits) *)
+
+(* lemma nnf_is_nnf_0: "is_nnf (nnf exp ZeroN)"
+proof(induction exp)
+  case (VAR x)
+  then show ?case by simp
+next
+  case (AND exp1 exp2)
+  then show ?case by simp
+next
+  case (OR exp1 exp2)
+  then show ?case by simp
+next
+  case (NOT exp\<^sub>n)
+    (* fix exp_ *)
+    (* assume IH : "is_nnf (nnf exp_ ZeroN)"  *)
+    (* let "?case" = "is_nnf (nnf (NOT exp_) ZeroN)" *)
+
+    (* left side of equality is proof goal *)    
+  have "is_nnf (nnf (NOT exp\<^sub>n) ZeroN) = is_nnf (nnf exp\<^sub>n OneN)" by simp
+  let ?goal\<^sub>s\<^sub>i\<^sub>m\<^sub>p="is_nnf (nnf exp\<^sub>n OneN)"
+    (* If exp\<^sub>n ends with a NOT(VAR), then OneN and NOT cancel out, exp\<^sub>n is nnf.
+    If exp\<^sub>n ends with VAR, then we wrap it in NOT, exp\<^sub>n is nnf.  *)
+
+  then show "is_nnf (nnf (NOT exp\<^sub>n) ZeroN)" (* ?case *)
+    (* sledgehammer[timeout=300] timed out *)
+    (* nitpick[timeout=300] Nitpick found no counterexample *)
+qed *)
+    
+(* lemma nnf_is_nnf_1: "is_nnf (nnf exp ZeroN)"
+proof(induction rule: nnf.induct)
+ *) 
+    
+
+(* lemma nnf_is_nnf_0: "is_nnf (nnf exp ZeroN)"
+  apply(induction exp)
+     apply(simp_all)
+ *)
+    
+(* lemma nnf_is_nnf: "is_nnf (nnf exp num)"
+ (* apply(simp split: num_nots.splits) *)
+  apply(induction exp arbitrary:num)
+    (* try *)
+    apply (metis is_nnf.simps(1) is_nnf.simps(2) is_var.simps(1) nnf.simps(1) nnf.simps(2) num_nots.exhaust)
+  (* apply(simp_all)  *)
+    (* apply(auto) *)
+  by simp_all *)
 
 
 end
