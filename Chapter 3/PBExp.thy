@@ -142,5 +142,24 @@ next
     then show ?case by simp
   qed
 qed
+  
+(* Returns true if the expression is an OR   *)
+fun is_OR :: "pbexp \<Rightarrow> bool" where  
+  "is_OR (OR _ _) = True" |
+  "is_OR _ = False"
+  
+(* No ANDs have been seen yet (when traversing the tree from root to here)
+| at least one AND has been seen. *)
+datatype seen_and = NeverSeenAnd | SeenAnAnd  
+    
+(* An expression is in DNF (disjunctive normal form) if it is in NNF and if no OR occurs below an
+AND.*)
+fun is_dnf:: "pbexp \<Rightarrow> seen_and \<Rightarrow> bool"where
+  "is_dnf (VAR _) _ = True" |
+  "is_dnf (NOT b) sa = is_dnf b sa"|
+  "is_dnf (AND b1 b2) _ = (is_dnf b1 SeenAnAnd \<and> is_dnf b2 SeenAnAnd)" |
+  "is_dnf (OR b1 b2) NeverSeenAnd = (is_dnf b1 NeverSeenAnd \<and> is_dnf b2 NeverSeenAnd)"|
+  "is_dnf (OR b1 b2) SeenAnAnd = False"
+  
 
 end
