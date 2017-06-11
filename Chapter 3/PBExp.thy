@@ -3,7 +3,7 @@ theory PBExp imports AExp begin
 subsection "Boolean Expressions"
   
 datatype pbexp = VAR vname | NOT pbexp | AND pbexp pbexp | OR pbexp pbexp
- 
+  
 type_synonym bstate = "vname \<Rightarrow> bool"
   
 fun pbval :: "pbexp \<Rightarrow> bstate \<Rightarrow> bool" where
@@ -11,7 +11,7 @@ fun pbval :: "pbexp \<Rightarrow> bstate \<Rightarrow> bool" where
   "pbval (NOT b) s = (\<not> pbval b s)" |
   "pbval (AND b1 b2) s = (pbval b1 s \<and> pbval b2 s)" |
   "pbval (OR b1 b2) s = (pbval b1 s \<or> pbval b2 s)"
- 
+  
 subsection "Exercise 3.9"
   
 lemma not_not_is_id[simp]: "pbval (NOT (NOT exp)) s = pbval exp s"
@@ -21,8 +21,8 @@ lemma not_not_is_id[simp]: "pbval (NOT (NOT exp)) s = pbval exp s"
 lemma equal_implies_nots_equal:
   assumes "pbval e1 s = pbval e2 s"
   shows "pbval (NOT e1) s = pbval (NOT e2) s"
-    by (simp add: assms)
-
+  by (simp add: assms)
+    
 text{* Optimizing constructors: *}
   
   (* remove extraneous NOTs, i.e. NOT(NOT(x)) = x *)
@@ -45,9 +45,9 @@ lemma not_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^s
      apply simp_all
   apply(simp split: pbexp.splits)
   by auto
-
-  (* This implementation could not even be auto-proved to terminate. *)
-(* (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
+    
+    (* This implementation could not even be auto-proved to terminate. *)
+    (* (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
 fun nnf :: "pbexp \<Rightarrow> pbexp" where
   "nnf (VAR x) = (VAR x)" |
   "nnf (NOT b) = (
@@ -58,12 +58,12 @@ fun nnf :: "pbexp \<Rightarrow> pbexp" where
       (VAR c)     \<Rightarrow> NOT (VAR c))" |  
   "nnf (AND b1 b2) = (AND (nnf b1) (nnf b2))" |
   "nnf (OR b1 b2) = (OR (nnf b1) (nnf b2))" *)    
-
-(* How many NOTs have been encountered so far, travelling from the expression's root to this point?
+    
+    (* How many NOTs have been encountered so far, travelling from the expression's root to this point?
 Every time two NOTs are encountered, the count is reset to zero. *)
 datatype num_nots = ZeroN | OneN  
   
-(* Convert an expression to negative normal form; pass it ZeroN to begin with   *)
+  (* Convert an expression to negative normal form; pass it ZeroN to begin with   *)
 fun nnf :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
   "nnf (VAR x) ZeroN = (VAR x)" |
   "nnf (VAR x) OneN = NOT (VAR x)" |
@@ -73,19 +73,19 @@ fun nnf :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
   "nnf (AND b1 b2) OneN = (OR (nnf b1 OneN) (nnf b2 OneN))" |
   "nnf (OR b1 b2) ZeroN = (OR (nnf b1 ZeroN) (nnf b2 ZeroN))" |
   "nnf (OR b1 b2) OneN = (AND (nnf b1 OneN) (nnf b2 OneN))"
-
+  
 value "nnf (NOT (NOT (VAR ''x''))) ZeroN"
 value "nnf (NOT (NOT (NOT (VAR ''x'')))) ZeroN"
 value "nnf (NOT (NOT (NOT (NOT (VAR ''x''))))) ZeroN"
-
+  
 lemma nnf_preserves_value: 
   "pbval (nnf exp num) s = 
     (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
   apply(simp split: num_nots.splits)
   apply(induction exp arbitrary:num)
   by simp_all
- 
-  (* True when NOT is only applied to VARs. Otherwise, false.
+    
+    (* True when NOT is only applied to VARs. Otherwise, false.
 What about not(not(var))? *)
 fun is_nnf::"pbexp \<Rightarrow> bool"where
   "is_nnf (VAR x) = True" |
@@ -143,16 +143,16 @@ next
   qed
 qed
   
-(* Returns true if the expression is an OR   *)
+  (* Returns true if the expression is an OR   *)
 fun is_OR :: "pbexp \<Rightarrow> bool" where  
   "is_OR (OR _ _) = True" |
   "is_OR _ = False"
   
-(* No ANDs have been seen yet (when traversing the tree from root to here)
+  (* No ANDs have been seen yet (when traversing the tree from root to here)
 | at least one AND has been seen. *)
 datatype seen_and = NeverSeenAnd | SeenAnAnd  
-    
-(* An expression is in DNF (disjunctive normal form) if it is in NNF and if no OR occurs below an
+  
+  (* An expression is in DNF (disjunctive normal form) if it is in NNF and if no OR occurs below an
 AND.*)
 fun is_dnf:: "pbexp \<Rightarrow> seen_and \<Rightarrow> bool"where
   "is_dnf (VAR _) _ = True" |
