@@ -51,23 +51,78 @@ Every time two NOTs are encountered, the count is reset to zero. *)
 datatype num_nots = ZeroN | OneN  
   
 (* Uses num_nots to simplify an expression's NOTs.   *)
-fun not_simp_v2 :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
-  "not_simp_v2 (VAR x) ZeroN = (VAR x)" |
-  "not_simp_v2 (VAR x) OneN = NOT (VAR x)" |
-  "not_simp_v2 (NOT b) ZeroN = not_simp_v2 b OneN" |
-  "not_simp_v2 (NOT b) OneN = not_simp_v2 b ZeroN" |
-  "not_simp_v2 (AND b1 b2) n = (AND (not_simp_v2 b1 n) (not_simp_v2 b2 n))" |
-  "not_simp_v2 (OR b1 b2) n = (OR (not_simp_v2 b1 n) (not_simp_v2 b2 n))"
+fun nnf_v2 :: "pbexp \<Rightarrow> num_nots \<Rightarrow> pbexp" where
+  "nnf_v2 (VAR x) ZeroN = (VAR x)" |
+  "nnf_v2 (VAR x) OneN = NOT (VAR x)" |
+  "nnf_v2 (NOT b) ZeroN = nnf_v2 b OneN" |
+  "nnf_v2 (NOT b) OneN = nnf_v2 b ZeroN" |
+  "nnf_v2 (AND b1 b2) ZeroN = (AND (nnf_v2 b1 ZeroN) (nnf_v2 b2 ZeroN))" |
+  "nnf_v2 (AND b1 b2) OneN = (OR (nnf_v2 b1 OneN) (nnf_v2 b2 OneN))" |
+  "nnf_v2 (OR b1 b2) ZeroN = (OR (nnf_v2 b1 ZeroN) (nnf_v2 b2 ZeroN))" |
+  "nnf_v2 (OR b1 b2) OneN = (AND (nnf_v2 b1 OneN) (nnf_v2 b2 OneN))"
 
-value "not_simp_v2 (NOT (NOT (VAR ''x''))) ZeroN"
-value "not_simp_v2 (NOT (NOT (NOT (VAR ''x'')))) ZeroN"
-value "not_simp_v2 (NOT (NOT (NOT (NOT (VAR ''x''))))) ZeroN"
+value "nnf_v2 (NOT (NOT (VAR ''x''))) ZeroN"
+value "nnf_v2 (NOT (NOT (NOT (VAR ''x'')))) ZeroN"
+value "nnf_v2 (NOT (NOT (NOT (NOT (VAR ''x''))))) ZeroN"
   
-lemma not_simp_v2_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^sub>o s"
-  apply(induction exp\<^sub>o)
-     apply simp_all
-  apply(simp split: pbexp.splits)
-  by auto
+(* lemma nnf_v2_one_is_not: 
+  "pbval (nnf_v2 exp ZeroN) s = pbval exp s 
+  \<Longrightarrow> pbval (nnf_v2 exp OneN) s = (\<not> pbval exp s)"
+  apply(induction exp)
+    apply(simp_all)
+ *)
+
+(* lemma nnf_v2_preserves_value_1[simp]: 
+  "pbval (nnf_v2 exp num) s = 
+  (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
+  (* apply(induction exp) *)
+ apply(induction exp arbitrary:num)
+    (* apply auto *)
+    apply(simp split: num_nots.splits)
+ *)
+(* lemma nnf_v2_preserves_value_1: 
+  "pbval (nnf_v2 exp num) s = 
+  (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
+proof(induction exp arbitrary:num)
+  case (VAR x)
+  then show ?case 
+    by (simp split: num_nots.splits) 
+next
+  case (NOT exp)
+  then show ?case 
+    by (simp split: num_nots.splits) 
+next
+  case (AND exp1 exp2)
+  then show ?case 
+    by (simp split: num_nots.splits) 
+next
+  case (OR exp1 exp2)
+  then show ?case 
+    by (simp split: num_nots.splits) 
+qed *)
+
+(* lemma nnf_v2_preserves_value_2: 
+  "pbval (nnf_v2 exp num) s = 
+  (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
+  apply(induction exp arbitrary:num)
+     apply(simp split: num_nots.splits)
+    apply(metis PBExp.nnf_v2_preserves_value_1)
+   apply(metis PBExp.nnf_v2_preserves_value_1)
+  apply(metis PBExp.nnf_v2_preserves_value_1) *)
+    
+lemma nnf_v2_preserves_value: 
+  "pbval (nnf_v2 exp num) s = 
+  (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
+  apply(simp split: num_nots.splits)
+  apply(induction exp arbitrary:num)
+  by simp_all
+
+  (* Do I need to generalize ZeroN to a variable? *)
+(*  lemma nnf_v2_preserves_value[simp]: "pbval (nnf_v2 exp ZeroN) s = pbval exp s"
+  apply(induction exp)
+  (* apply(induction rule: nnf_v2.induct) *)
+    apply simp_all
+  apply(simp split: pbexp.splits) *)
 
  
 fun is_var::"pbexp \<Rightarrow> bool"  where
