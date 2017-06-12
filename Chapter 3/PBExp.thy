@@ -206,98 +206,100 @@ next
   then show ?case by simp
 next
   case (AND exp1 exp2)
-    (* simplify left side *)
-  fix dnf_exp1 dnf_exp2 
-  assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
-  have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (transform_children_of_and (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
-    by simp 
-  then have "... = pbval (transform_children_of_and dnf_exp1 dnf_exp2) s" 
-    by (simp add: \<open>dnf_exp1 = dnf_of_nnf exp1\<close> \<open>dnf_exp2 = dnf_of_nnf exp2\<close>)
-  then have "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
-  proof(cases dnf_exp1)
-    case v1:(VAR x1)
-    then show ?thesis 
-    proof(cases dnf_exp2)
-      case (VAR x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+  {
+    fix dnf_exp1 dnf_exp2 
+    assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
+    have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (transform_children_of_and (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
+      by simp 
+    then have "... = pbval (transform_children_of_and dnf_exp1 dnf_exp2) s" 
+      by (simp add: fix1 fix2)
+    then have "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
+    proof(cases dnf_exp1)
+      case v1:(VAR x1)
+      then show ?thesis 
+      proof(cases dnf_exp2)
+        case (VAR x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+      next
+        case (NOT x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+      next
+        case (AND x31 x32)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+      next
+        case (OR x41 x42)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by auto
+      qed
     next
-      case (NOT x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+      case n1:(NOT x1)
+      then show ?thesis 
+      proof(cases dnf_exp2)
+        case (VAR x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+      next
+        case (NOT x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+      next
+        case (AND x31 x32)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+      next
+        case (OR x41 x42)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by auto
+      qed
     next
-      case (AND x31 x32)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+      case a1:(AND x31 x32)
+      then show ?thesis 
+      proof(cases dnf_exp2)
+        case (VAR x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+      next
+        case (NOT x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+      next
+        case (AND x31 x32)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+      next
+        case (OR x41 x42)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by auto
+      qed
     next
-      case (OR x41 x42)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by auto
+      case o1:(OR x41 x42)
+      then show ?thesis 
+      proof(cases dnf_exp2)
+        case (VAR x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+      next
+        case (NOT x2)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+      next
+        case (AND x31 x32)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+      next
+        case (OR x41 x42)
+        then show ?thesis
+          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+      qed
     qed
-  next
-    case n1:(NOT x1)
-    then show ?thesis 
-    proof(cases dnf_exp2)
-      case (VAR x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-    next
-      case (NOT x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-    next
-      case (AND x31 x32)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-    next
-      case (OR x41 x42)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by auto
-    qed
-  next
-    case a1:(AND x31 x32)
-    then show ?thesis 
-    proof(cases dnf_exp2)
-      case (VAR x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-    next
-      case (NOT x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-    next
-      case (AND x31 x32)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-    next
-      case (OR x41 x42)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by auto
-    qed
-  next
-    case o1:(OR x41 x42)
-    then show ?thesis 
-    proof(cases dnf_exp2)
-      case (VAR x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-    next
-      case (NOT x2)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-    next
-      case (AND x31 x32)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-    next
-      case (OR x41 x42)
-      then show ?thesis
-        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-    qed
-  qed
-  then have ?case 
-    by (simp add: fix1 fix2)
+    then have ?case 
+      by (simp add: fix1 fix2)
+  }
   then show ?case
+    by simp
 qed
   
 (* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
