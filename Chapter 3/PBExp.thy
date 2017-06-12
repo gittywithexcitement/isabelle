@@ -194,10 +194,8 @@ fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
 
 value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
   
-(* declare [[quickcheck_full_support = true]] *)
-  
 lemma dnf_preserves_value:"pbval (dnf_of_nnf exp) s = pbval exp s"
-proof(induction exp)  (* rule: dnf_of_nnf.induct) *)
+proof(induction exp)
   case (VAR x)
   then show ?case by simp
 next
@@ -208,15 +206,6 @@ next
   then show ?case by simp
 next
   case (AND exp1 exp2)
-  (* quickcheck[random,iterations=10000, expect = no_counterexample] *)
-  (* nitpick[timeout=60] *)
- (* apply_end(simp (* add:Let_def *) split: pbexp.splits) *)
-  (* apply_end(induction rule: transform_children_of_and.induct) *)
-(*       AND.IH:
-      pbval (dnf_of_nnf exp1) s = pbval exp1 s
-      pbval (dnf_of_nnf exp2) s = pbval exp2 s *)
-  (* ?case \<equiv> pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (AND exp1 exp2) s *)
-    
     (* simplify left side *)
   fix dnf_exp1 dnf_exp2 
   assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
@@ -306,29 +295,9 @@ next
         using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
     qed
   qed
-    
- 
- (* then show ?case *)
- (* show "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s" *)
- (* then show "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s" *)
-    (* apply(simp) *)
-   
-   (* This is bad and leads to False goals  *)
-   (* apply(induction rule: transform_children_of_and.induct)  *)
-   
-      (* proof(induction exp1 arbitrary: exp2)
-    case (VAR x)
-    then show ?case sorry
-  next
-    case (NOT exp1)
-    then show ?case sorry
-  next
-    case (AND exp11 exp12)
-    then show ?case sorry
-  next
-    case (OR exp11 exp12)
-    then show ?case sorry
-  qed *) 
+  then have ?case 
+    by (simp add: fix1 fix2)
+  then show ?case
 qed
   
 (* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
