@@ -154,12 +154,11 @@ datatype seen_and = NeverSeenAnd | SeenAnAnd
   
   (* An expression is in DNF (disjunctive normal form) if it is in NNF and if no OR occurs below an
 AND.*)
-fun is_dnf:: "pbexp \<Rightarrow> seen_and \<Rightarrow> bool"where
-  "is_dnf (VAR _) _ = True" |
-  "is_dnf (NOT b) sa = is_dnf b sa"|
-  "is_dnf (AND b1 b2) _ = (is_dnf b1 SeenAnAnd \<and> is_dnf b2 SeenAnAnd)" |
-  "is_dnf (OR b1 b2) NeverSeenAnd = (is_dnf b1 NeverSeenAnd \<and> is_dnf b2 NeverSeenAnd)"|
-  "is_dnf (OR b1 b2) SeenAnAnd = False"
+fun is_dnf:: "pbexp \<Rightarrow> bool"where
+  "is_dnf (VAR _) = True" |
+  "is_dnf (NOT b) = is_dnf b"|
+  "is_dnf (AND b1 b2) = (is_dnf b1 \<and> is_dnf b2 \<and> (\<not> is_OR b1) \<and> (\<not> is_OR b2))" |
+  "is_dnf (OR b1 b2) = (is_dnf b1 \<and> is_dnf b2)"
   
 (* args:
 first child on an AND, already dnf'ed
