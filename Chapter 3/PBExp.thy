@@ -169,10 +169,15 @@ fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp"
 "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
   (OR (OR (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) (OR (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
 "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
-  OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>l notOr)"|
+  OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>r notOr)"|
 "transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
   OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
 "transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"
+
+value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
+value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
+value "transform_children_of_and (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
+value "transform_children_of_and (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated *)
   
 (* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
  If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
@@ -186,6 +191,145 @@ fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
          dnf_b\<^sub>r = dnf_of_nnf b\<^sub>r
     in transform_children_of_and dnf_b\<^sub>l dnf_b\<^sub>r)" |
   "dnf_of_nnf (OR b1 b2) = (OR (dnf_of_nnf b1) (dnf_of_nnf b2))"
-  
 
+value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
+  
+(* declare [[quickcheck_full_support = true]] *)
+  
+lemma dnf_preserves_value:"pbval (dnf_of_nnf exp) s = pbval exp s"
+proof(induction exp)  (* rule: dnf_of_nnf.induct) *)
+  case (VAR x)
+  then show ?case by simp
+next
+  case (NOT exp)
+  then show ?case by simp
+next
+  case (OR exp1 exp2)
+  then show ?case by simp
+next
+  case (AND exp1 exp2)
+  (* quickcheck[random,iterations=10000, expect = no_counterexample] *)
+  (* nitpick[timeout=60] *)
+ (* apply_end(simp (* add:Let_def *) split: pbexp.splits) *)
+  (* apply_end(induction rule: transform_children_of_and.induct) *)
+(*       AND.IH:
+      pbval (dnf_of_nnf exp1) s = pbval exp1 s
+      pbval (dnf_of_nnf exp2) s = pbval exp2 s *)
+  (* ?case \<equiv> pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (AND exp1 exp2) s *)
+    
+    (* simplify left side *)
+  fix dnf_exp1 dnf_exp2 
+  assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
+  have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (transform_children_of_and (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
+    by simp 
+  then have "... = pbval (transform_children_of_and dnf_exp1 dnf_exp2) s" 
+    by (simp add: \<open>dnf_exp1 = dnf_of_nnf exp1\<close> \<open>dnf_exp2 = dnf_of_nnf exp2\<close>)
+  then have "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
+  proof(cases dnf_exp1)
+    case v1:(VAR x1)
+    then show ?thesis 
+    proof(cases dnf_exp2)
+      case (VAR x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+    next
+      case (NOT x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+    next
+      case (AND x31 x32)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
+    next
+      case (OR x41 x42)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) v1 fix1 fix2 by auto
+    qed
+  next
+    case n1:(NOT x1)
+    then show ?thesis 
+    proof(cases dnf_exp2)
+      case (VAR x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+    next
+      case (NOT x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+    next
+      case (AND x31 x32)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
+    next
+      case (OR x41 x42)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) n1 fix1 fix2 by auto
+    qed
+  next
+    case a1:(AND x31 x32)
+    then show ?thesis 
+    proof(cases dnf_exp2)
+      case (VAR x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+    next
+      case (NOT x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+    next
+      case (AND x31 x32)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
+    next
+      case (OR x41 x42)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) a1 fix1 fix2 by auto
+    qed
+  next
+    case o1:(OR x41 x42)
+    then show ?thesis 
+    proof(cases dnf_exp2)
+      case (VAR x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+    next
+      case (NOT x2)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+    next
+      case (AND x31 x32)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+    next
+      case (OR x41 x42)
+      then show ?thesis
+        using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
+    qed
+  qed
+    
+ 
+ (* then show ?case *)
+ (* show "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s" *)
+ (* then show "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s" *)
+    (* apply(simp) *)
+   
+   (* This is bad and leads to False goals  *)
+   (* apply(induction rule: transform_children_of_and.induct)  *)
+   
+      (* proof(induction exp1 arbitrary: exp2)
+    case (VAR x)
+    then show ?case sorry
+  next
+    case (NOT exp1)
+    then show ?case sorry
+  next
+    case (AND exp11 exp12)
+    then show ?case sorry
+  next
+    case (OR exp11 exp12)
+    then show ?case sorry
+  qed *) 
+qed
+  
+(* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
 end
