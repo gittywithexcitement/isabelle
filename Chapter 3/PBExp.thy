@@ -301,5 +301,32 @@ next
     by simp
 qed
   
+lemma dnf_of_nnf_returns_is_dnf:
+  assumes "is_nnf exp"
+  shows "is_dnf (dnf_of_nnf exp)" (* Might need to generalize NeverSeenAnd *)
+proof(induction exp)
+  case (VAR x)
+  then show ?case 
+    by simp
+next
+  case (NOT exp)
+  then show ?case 
+    by simp
+next
+  case (OR exp1 exp2)
+  then show ?case 
+    by simp
+next
+  case (AND exp1 exp2)
+    (* then have "is_nnf exp1" sledgehammer *)
+  then show ?case 
+    (* apply(simp) *)
+ sledgehammer
+ (* quickcheck[random] *)
+ (* nitpick *)
+        (* "is_dnf (AND b1 b2) _ = (is_dnf b1 SeenAnAnd \<and> is_dnf b2 SeenAnAnd)" | *)
+
+qed
+  
 (* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
 end
