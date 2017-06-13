@@ -48,34 +48,31 @@ lemma not_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^s
     
     (* This implementation could not even be auto-proved to terminate. *)
      (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
-fun nnf_bad :: "pbexp \<Rightarrow> pbexp" where
+(* fun nnf_bad :: "pbexp \<Rightarrow> pbexp" where
   "nnf_bad (VAR x) = (VAR x)" |
-(*   "nnf_bad (NOT b) = (
+   "nnf_bad (NOT b) = (
     case nnf_bad b of
       (NOT c)     \<Rightarrow> c |
       (AND b1 b2) \<Rightarrow> (OR   (nnf_bad (NOT b1)) (nnf_bad (NOT b2))) |
       (OR b1 b2)  \<Rightarrow> (AND  (nnf_bad (NOT b1)) (nnf_bad (NOT b2))) |
-      (VAR c)     \<Rightarrow> NOT (VAR c))" |   *)
-  "nnf_bad (NOT (VAR x)) = (NOT (VAR x))" |
-  "nnf_bad (NOT (AND a b)) = OR (nnf_bad (NOT a)) (nnf_bad (NOT b))" |
-  "nnf_bad (NOT (OR a b)) = AND (nnf_bad (NOT a)) (nnf_bad (NOT b))" |
-  "nnf_bad (NOT (NOT b)) = nnf_bad b " |
+      (VAR c)     \<Rightarrow> NOT (VAR c))" |   
   "nnf_bad (AND b1 b2) = (AND (nnf_bad b1) (nnf_bad b2))" |
-  "nnf_bad (OR b1 b2) = (OR (nnf_bad b1) (nnf_bad b2))" 
+  "nnf_bad (OR b1 b2) = (OR (nnf_bad b1) (nnf_bad b2))"  *)
     
 (* https://github.com/cmr/ConcreteSemantics/blob/master/CS_Ch3.thy   *)
-  
-fun nnf_gh :: "pbexp \<Rightarrow> pbexp" where
-  "nnf_gh (VAR x) = VAR x" |
-  "nnf_gh (NOT (VAR x)) = (NOT (VAR x))" |
-  "nnf_gh (NOT (AND a b)) = OR (nnf_gh (NOT a)) (nnf_gh (NOT b))" |
-  "nnf_gh (NOT (OR a b)) = AND (nnf_gh (NOT a)) (nnf_gh (NOT b))" |
-  "nnf_gh (NOT (NOT b)) = nnf_gh b " |
-  "nnf_gh (AND a b) = AND (nnf_gh a) (nnf_gh b)" |
-  "nnf_gh (OR a b) = OR (nnf_gh a) (nnf_gh b)"
+ 
+    (* matches GH *)
+fun nnf :: "pbexp \<Rightarrow> pbexp" where
+  "nnf (VAR x) = VAR x" |
+  "nnf (NOT (VAR x)) = (NOT (VAR x))" |
+  "nnf (NOT (NOT b)) = nnf b " |
+  "nnf (NOT (AND a b)) = OR (nnf (NOT a)) (nnf (NOT b))" |
+  "nnf (NOT (OR a b)) = AND (nnf (NOT a)) (nnf (NOT b))" |
+  "nnf (AND a b) = AND (nnf a) (nnf b)" |
+  "nnf (OR a b) = OR (nnf a) (nnf b)"
   
     
-    (* How many NOTs have been encountered so far, travelling from the expression's root to this point?
+(*     (* How many NOTs have been encountered so far, travelling from the expression's root to this point?
 Every time two NOTs are encountered, the count is reset to zero. *)
 datatype num_nots = ZeroN | OneN  
   
@@ -99,16 +96,20 @@ lemma nnf_preserves_value:
     (case num of ZeroN \<Rightarrow> pbval exp s | OneN \<Rightarrow> (\<not> pbval exp s))"
   apply(simp split: num_nots.splits)
   apply(induction exp arbitrary:num)
+  by simp_all *)
+  
+lemma nnf_preserves_value:"pbval (nnf exp) s = pbval exp s"
+  apply(induction rule: nnf.induct)
   by simp_all
     
     (* True when NOT is only applied to VARs. Otherwise, false.
 What about not(not(var))? *)
 fun is_nnf::"pbexp \<Rightarrow> bool"where
   "is_nnf (VAR x) = True" |
-  "is_nnf (NOT b) = 
-    (case b of
-      (VAR _) \<Rightarrow> True|
-      _       \<Rightarrow> False)" |
+  "is_nnf (NOT (VAR _)) = True" |
+  "is_nnf (NOT _) = False" |
+(*   "is_nnf (NOT (VAR _)) = True" |
+  "is_nnf (NOT _) = False" | *)
   "is_nnf (AND b1 b2) = (is_nnf b1 \<and> is_nnf b2)" |
   "is_nnf (OR b1 b2) = (is_nnf b1 \<and> is_nnf b2)"
   
@@ -116,7 +117,7 @@ value "is_nnf (VAR ''x'')"
 value "is_nnf (NOT(VAR x))"  
 value "is_nnf (NOT(NOT(VAR x)))"
   
-lemma nnf_returns_nnf_expression: "is_nnf (nnf exp num)"
+(* lemma nnf_returns_nnf_expression: "is_nnf (nnf exp num)"
 proof(induction exp arbitrary:num)
   case (VAR x)
   then show ?case
@@ -157,9 +158,19 @@ next
     case OneN
     then show ?case by simp
   qed
-qed
+qed *)
   
-  (* Returns true if the expression is an OR   *)
+  (* NB: when using 'rule: nnf.induct', you MUST specify the induction variable! *)
+lemma nnf_returns_nnf_expression: "is_nnf (nnf exp)"
+  (* 4. \<And>a b. is_nnf (NOT a) \<Longrightarrow> is_nnf (NOT b) \<Longrightarrow> is_nnf (NOT (AND a b)) *)
+  (* apply(induction rule: nnf.induct) (* Was creating FALSE goals *) *)
+  
+    (* 4. \<And>a b. is_nnf (nnf (NOT a)) \<Longrightarrow> is_nnf (nnf (NOT b)) 
+\<Longrightarrow> is_nnf (nnf (NOT (AND a b))) *)
+  apply(induction exp rule: nnf.induct)
+  by simp_all
+ 
+(*   (* Returns true if the expression is an OR   *)
 fun is_OR :: "pbexp \<Rightarrow> bool" where  
   "is_OR (OR _ _) = True" |
   "is_OR _ = False"
@@ -174,7 +185,67 @@ fun is_dnf:: "pbexp \<Rightarrow> bool"where
   "is_dnf (VAR _) = True" |
   "is_dnf (NOT b) = is_dnf b"|
   "is_dnf (AND b1 b2) = (is_dnf b1 \<and> is_dnf b2 \<and> (\<not> is_OR b1) \<and> (\<not> is_OR b2))" |
+  "is_dnf (OR b1 b2) = (is_dnf b1 \<and> is_dnf b2)" *)
+  
+  (* An expression is in DNF (disjunctive normal form) if it is in NNF and if no OR occurs below an
+AND.*)
+fun is_dnf:: "pbexp \<Rightarrow> bool"where
+  "is_dnf (VAR _) = True" |
+  "is_dnf (NOT b) = is_dnf b"|
+  "is_dnf (AND (OR _ _) _) = False" |
+  "is_dnf (AND _ (OR _ _)) = False" |
+  "is_dnf (AND bl br) = (is_dnf bl \<and> is_dnf br)" |
   "is_dnf (OR b1 b2) = (is_dnf b1 \<and> is_dnf b2)"
+  
+(* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
+ If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
+ remains are ANDs and ORs.
+ We would like to bubble up the ORs*)
+(* fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
+  "dnf_of_nnf (VAR x) = (VAR x)" |
+ 
+  (* No need to recurse inside NOT, because arg is already in NNF form *)
+  (* "dnf_of_nnf (NOT b) = NOT (dnf_of_nnf b)" | *)
+  "dnf_of_nnf (NOT b) = NOT b" |
+ 
+  "dnf_of_nnf (OR b1 b2) = (OR (dnf_of_nnf b1) (dnf_of_nnf b2))"|
+ 
+(*   I think this is wrong; needs to recurse on children of AND before 
+  pattern matching on those transformed children *)
+  "dnf_of_nnf (AND (OR ll lr) (OR rl rr)) = 
+    OR (OR (AND ll rl) (AND ll rr)) (OR (AND lr rl) (AND lr rr))"|
+  "dnf_of_nnf (AND (OR ll lr) r) = (OR (AND ll r) (AND lr r))"|
+  "dnf_of_nnf (AND l (OR rl rr)) = (OR (AND l rl) (AND l rr))"|
+  "dnf_of_nnf (AND l r) = AND (dnf_of_nnf l) (dnf_of_nnf r)" *)
+  
+(* Before adding extra recursion   *)
+(* args:
+first child on an AND, already dnf'ed
+second child on an AND, already dnf'ed
+returns: the transformed expression; pulling ORs up through the parent AND as needed *)
+(* fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
+"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
+  (OR (OR (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) (OR (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
+"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
+  OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>r notOr)"|
+"transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
+  OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
+"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r" *)
+  
+(* TODO I think I need a new function: push AND down, that pushes AND down below all OR
+children. transform_children_of_and is halfway there. *) 
+  (* Push AND down:
+when encountering an AND above an OR, this function is called.
+It recursively pushes down AND until a AND, NOT, or VAR is found.
+It converts a
+       and
+     or   or
+into:
+       or
+   or       or
+ and and and and 
+Then it recurses on the 4 AND's that were just created.
+ *)
   
 (* args:
 first child on an AND, already dnf'ed
@@ -187,8 +258,8 @@ fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp"
   OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>r notOr)"|
 "transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
   OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
-"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"
-
+"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"  
+ 
 value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
 value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
 value "transform_children_of_and (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
@@ -200,13 +271,14 @@ value "transform_children_of_and (VAR ''x'') (VAR ''y'')"  (* This isn't being e
  We would like to bubble up the ORs*)
 fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
   "dnf_of_nnf (VAR x) = (VAR x)" |
+  (* No need to recurse inside the NOT because we know it's in NNF form. *)
   "dnf_of_nnf (NOT b) = NOT (dnf_of_nnf b)" |
   "dnf_of_nnf (AND b\<^sub>l b\<^sub>r) = 
     (let dnf_b\<^sub>l = dnf_of_nnf b\<^sub>l;
          dnf_b\<^sub>r = dnf_of_nnf b\<^sub>r
     in transform_children_of_and dnf_b\<^sub>l dnf_b\<^sub>r)" |
   "dnf_of_nnf (OR b1 b2) = (OR (dnf_of_nnf b1) (dnf_of_nnf b2))"
-
+  
 value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
   
 lemma dnf_preserves_value:"pbval (dnf_of_nnf exp) s = pbval exp s"
@@ -334,22 +406,27 @@ next
     by simp
 next
   case (AND exp1 exp2)
-  then have "is_nnf (AND exp1 exp2)" (* sledgehammer *)
-    (* then have "is_nnf exp1" sledgehammer *)
     
-(* using this: *)
-    (* is_dnf (dnf_of_nnf exp1) *)
-    (* is_dnf (dnf_of_nnf exp2) *)
-(* goal (1 subgoal): *)
- (* 1. is_dnf (dnf_of_nnf (AND exp1 exp2))     *)
+(* Nitpick found a counterexample:
+ 
+  Free variables:
+    exp = OR (VAR s\<^sub>1) (VAR s\<^sub>1)
+    exp1 = VAR s\<^sub>1
+    exp2 = VAR s\<^sub>1
+  Skolem constants:
+    exp1 = OR (OR (VAR s\<^sub>1) (VAR s\<^sub>1)) (OR (VAR s\<^sub>1) (VAR s\<^sub>1))
+    exp2 = VAR s\<^sub>1 *)    
     
-  then show ?case 
-    apply(simp)
-    (* sledgehammer *)
- (* quickcheck[random] *)
+   
  (* nitpick *)
-        (* "is_dnf (AND b1 b2) _ = (is_dnf b1 SeenAnAnd \<and> is_dnf b2 SeenAnAnd)" | *)
-
+ (* quickcheck[random] *)
+    (* exp = AND (OR (VAR [CHR 0xDC]) (VAR [CHR 0x91])) (VAR [CHR 0x7F, CHR 0xFD]) *)
+    (* exp1__ = AND (OR (VAR [CHR ''I'', CHR 0xFA]) (VAR [])) (AND (VAR [CHR 0xA0]) (VAR [])) *)
+    (* exp2__ = NOT (VAR [CHR 0x1F]) *)
+    (* exp1 = OR (OR (VAR [CHR 0x9D, CHR ''9'']) (VAR [CHR ''-'', CHR 0x7F])) (VAR []) *)
+    (* exp2 = OR (NOT (VAR [CHR 0xE6])) (AND (VAR [CHR 0x07]) (VAR ''d,'')) *)
+       
+  then show ?case 
   qed
   oops
     
@@ -372,10 +449,10 @@ next
     (* is_nnf exp2 \<Longrightarrow> is_dnf (dnf_of_nnf exp2) *)
     
     (* ?case \<equiv> is_dnf (dnf_of_nnf (AND exp1 exp2)) *)
-
+ 
   then show ?case 
-    nitpick
-    quickcheck[random]
+    (* nitpick *)
+    (* quickcheck[random] *)
 (*         Free variables:
     exp1 = OR (OR (VAR s\<^sub>1) (VAR s\<^sub>1)) (OR (VAR s\<^sub>1) (VAR s\<^sub>1))
     exp2 = VAR s\<^sub>1 *)
