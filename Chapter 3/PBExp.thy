@@ -223,47 +223,55 @@ fun is_dnf:: "pbexp \<Rightarrow> bool"where
 first child on an AND, already dnf'ed
 second child on an AND, already dnf'ed
 returns: the transformed expression; pulling ORs up through the parent AND as needed *)
-(* fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
-"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
+(* fun push_and_below_or :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
+"push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
   (OR (OR (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) (OR (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
-"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
+"push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
   OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>r notOr)"|
-"transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
+"push_and_below_or notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
   OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
-"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r" *)
+"push_and_below_or notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r" *)
   
 (* TODO I think I need a new function: push AND down, that pushes AND down below all OR
-children. transform_children_of_and is halfway there. *) 
+children. push_and_below_or is halfway there. *) 
   (* Push AND down:
-when encountering an AND above an OR, this function is called.
+when encountering an AND above an OR (in dnf_of_nnf), this function is called.
 It recursively pushes down AND until a AND, NOT, or VAR is found.
 It converts a
        and
      or   or
 into:
-       or
-   or       or
+        or
+    or      or
  and and and and 
-Then it recurses on the 4 AND's that were just created.
+Then it recurses on the 4 AND's that were just created, because there may be ORs beneath them.
  *)
   
 (* args:
 first child on an AND, already dnf'ed
 second child on an AND, already dnf'ed
-returns: the transformed expression; pulling ORs up through the parent AND as needed *)
-fun transform_children_of_and :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
-"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
-  (OR (OR (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) (OR (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (AND or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
-"transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
-  OR (AND or\<^sub>l\<^sub>l notOr) (AND or\<^sub>l\<^sub>r notOr)"|
-"transform_children_of_and notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
-  OR (AND or\<^sub>r\<^sub>l notOr) (AND or\<^sub>r\<^sub>r notOr)"|
-"transform_children_of_and notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"  
+returns: the transformed expression; pushing an AND below its OR children (if there are any). This
+function will recursively call itself until all ORs have been moved above the ANDs.
+
+Because dnf_of_nnf is this function's only caller, and dnf_of_nnf recurses on the children of an AND
+before calling this function, we know that we may stop once we encounter an AND, NOT, or VAR.*)
+fun push_and_below_or :: "pbexp \<Rightarrow> pbexp \<Rightarrow> pbexp" where
+"push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) = 
+  (OR (OR (push_and_below_or or\<^sub>l\<^sub>l or\<^sub>r\<^sub>l) (push_and_below_or or\<^sub>l\<^sub>l or\<^sub>r\<^sub>r)) 
+      (OR (push_and_below_or or\<^sub>l\<^sub>r or\<^sub>r\<^sub>l) (push_and_below_or or\<^sub>l\<^sub>r or\<^sub>r\<^sub>r)))"|
+(* NB: the order of arguments to the recursive calls to push_and_below_or, found below, are
+critical. For example, changing (push_and_below_or or\<^sub>l\<^sub>l notOr) to (push_and_below_or notOr or\<^sub>l\<^sub>l)
+will cause auto-termination proof of this function to fail.*)
+"push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) notOr =
+  OR (push_and_below_or or\<^sub>l\<^sub>l notOr) (push_and_below_or or\<^sub>l\<^sub>r notOr)"|
+"push_and_below_or notOr (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r) =
+  OR (push_and_below_or notOr or\<^sub>r\<^sub>l) (push_and_below_or notOr or\<^sub>r\<^sub>r)"|
+"push_and_below_or notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"  
  
-value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
-value "transform_children_of_and (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
-value "transform_children_of_and (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
-value "transform_children_of_and (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated *)
+value "push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
+value "push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
+value "push_and_below_or (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
+value "push_and_below_or (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated *)
   
 (* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
  If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
@@ -276,7 +284,7 @@ fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
   "dnf_of_nnf (AND b\<^sub>l b\<^sub>r) = 
     (let dnf_b\<^sub>l = dnf_of_nnf b\<^sub>l;
          dnf_b\<^sub>r = dnf_of_nnf b\<^sub>r
-    in transform_children_of_and dnf_b\<^sub>l dnf_b\<^sub>r)" |
+    in push_and_below_or dnf_b\<^sub>l dnf_b\<^sub>r)" |
   "dnf_of_nnf (OR b1 b2) = (OR (dnf_of_nnf b1) (dnf_of_nnf b2))"
   
 value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
@@ -296,11 +304,11 @@ next
   {
     fix dnf_exp1 dnf_exp2 
     assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
-    have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (transform_children_of_and (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
+    have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (push_and_below_or (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
       by simp 
-    then have "... = pbval (transform_children_of_and dnf_exp1 dnf_exp2) s" 
+    then have "... = pbval (push_and_below_or dnf_exp1 dnf_exp2) s" 
       by (simp add: fix1 fix2)
-    then have "pbval (transform_children_of_and dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
+    then have "pbval (push_and_below_or dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
     proof(cases dnf_exp1)
       case v1:(VAR x1)
       then show ?thesis 
@@ -319,7 +327,8 @@ next
       next
         case (OR x41 x42)
         then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by auto
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 try (* by auto *)
+            sorry
       qed
     next
       case n1:(NOT x1)
