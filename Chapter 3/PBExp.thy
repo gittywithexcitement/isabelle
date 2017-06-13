@@ -271,8 +271,13 @@ will cause auto-termination proof of this function to fail.*)
 value "push_and_below_or (OR (VAR ''1'') (OR (VAR ''2'') (VAR ''3''))) (OR (VAR ''4'') (VAR ''5''))"
 value "push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
 value "push_and_below_or (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
-value "push_and_below_or (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated *)
+value "push_and_below_or (VAR ''x'') (VAR ''y'')"
   
+lemma push_and_below_or_preserves_eval:"pbval (push_and_below_or el er) s = pbval (AND el er) s"
+  apply(induction el er rule: push_and_below_or.induct)
+                      apply(simp_all)
+  by auto
+
 (* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
  If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
  remains are ANDs and ORs.
@@ -327,8 +332,9 @@ next
       next
         case (OR x41 x42)
         then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 try (* by auto *)
-            sorry
+          using AND.IH(1) AND.IH(2) v1 fix1 fix2 (* by auto *) 
+          sledgehammer
+          sorry
       qed
     next
       case n1:(NOT x1)
