@@ -308,7 +308,7 @@ lemma dnf_preserves_value[simp]:"pbval (dnf_of_nnf exp) s = pbval exp s"
      apply(simp_all)
   using push_and_below_or_preserves_eval by simp
     
-lemma dnf_of_nnf_returns_dnf_1:"is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)"
+lemma dnf_of_nnf_returns_dnf:"is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)"
 proof(induction exp rule: dnf_of_nnf.induct)
   case (1 x)
   then show ?case by simp
@@ -316,8 +316,6 @@ next
   case (2 b)
   then show ?case 
     apply simp
-      (* by (metis is_dnf.simps(1) is_dnf.simps(2) is_nnf.elims(2) pbexp.distinct(7) pbexp.distinct(9)) *)
-      (* by (metis is_dnf.simps(1) is_nnf.elims(2) is_nnf.simps(2) is_nnf.simps(3) pbexp.distinct(7) pbexp.distinct(9) pbexp.inject(2)) *)
       using is_dnf.simps(1) is_nnf.elims(2) by blast
 next
   case (3 b\<^sub>l b\<^sub>r)
@@ -327,80 +325,6 @@ next
   case (4 b1 b2)
   then show ?case by simp
 qed
-
-lemma dnf_of_nnf_returns_is_dnf:
-  assumes "is_nnf exp"
-  shows "is_dnf (dnf_of_nnf exp)" (* Might need to generalize NeverSeenAnd *)
-proof(induction exp)
-  case (VAR x)
-  then show ?case 
-    by simp
-next
-  case (NOT exp)
-  then show ?case 
-    by simp
-next
-  case (OR exp1 exp2)
-  then show ?case 
-    by simp
-next
-  case (AND exp1 exp2)
-    
-(* Nitpick found a counterexample:
- 
-  Free variables:
-    exp = OR (VAR s\<^sub>1) (VAR s\<^sub>1)
-    exp1 = VAR s\<^sub>1
-    exp2 = VAR s\<^sub>1
-  Skolem constants:
-    exp1 = OR (OR (VAR s\<^sub>1) (VAR s\<^sub>1)) (OR (VAR s\<^sub>1) (VAR s\<^sub>1))
-    exp2 = VAR s\<^sub>1 *)    
-    
-   
- (* nitpick *)
- (* quickcheck[random] *)
-    (* exp = AND (OR (VAR [CHR 0xDC]) (VAR [CHR 0x91])) (VAR [CHR 0x7F, CHR 0xFD]) *)
-    (* exp1__ = AND (OR (VAR [CHR ''I'', CHR 0xFA]) (VAR [])) (AND (VAR [CHR 0xA0]) (VAR [])) *)
-    (* exp2__ = NOT (VAR [CHR 0x1F]) *)
-    (* exp1 = OR (OR (VAR [CHR 0x9D, CHR ''9'']) (VAR [CHR ''-'', CHR 0x7F])) (VAR []) *)
-    (* exp2 = OR (NOT (VAR [CHR 0xE6])) (AND (VAR [CHR 0x07]) (VAR ''d,'')) *)
-       
-  then show ?case 
-  qed
-  oops
-    
-lemma dnf_of_nnf_returns_is_dnf_1:
-  assumes "is_nnf exp"
-  shows "is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)" (* Might need to generalize NeverSeenAnd *)
-proof(induction exp)
-  case (VAR x)
-  then show ?case 
-    by simp
-next
-  case (NOT exp)
-  then show ?case
-    by (metis dnf_of_nnf.simps(2) is_OR.simps(1) is_OR.simps(3) is_dnf.elims(3) is_nnf.elims(3) is_nnf.simps(2) pbexp.distinct(7) pbexp.inject(2) pbexp.simps(18) pbexp.simps(19) pbexp.simps(20))
-next
-  case (AND exp1 exp2)
-    (* is_nnf exp *)
-    (* is_nnf (AND exp1 exp2) *)
-    (* is_nnf exp1 \<Longrightarrow> is_dnf (dnf_of_nnf exp1) *)
-    (* is_nnf exp2 \<Longrightarrow> is_dnf (dnf_of_nnf exp2) *)
-    
-    (* ?case \<equiv> is_dnf (dnf_of_nnf (AND exp1 exp2)) *)
- 
-  then show ?case 
-    (* nitpick *)
-    (* quickcheck[random] *)
-(*         Free variables:
-    exp1 = OR (OR (VAR s\<^sub>1) (VAR s\<^sub>1)) (OR (VAR s\<^sub>1) (VAR s\<^sub>1))
-    exp2 = VAR s\<^sub>1 *)
-      sorry
-next
-  case (OR exp1 exp2)
-  then show ?case 
-    by simp
-qed    
   
-(* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
 end
+  
