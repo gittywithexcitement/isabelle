@@ -280,7 +280,7 @@ value "push_and_below_or (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated
 fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
   "dnf_of_nnf (VAR x) = (VAR x)" |
   (* No need to recurse inside the NOT because we know it's in NNF form. *)
-  "dnf_of_nnf (NOT b) = NOT (dnf_of_nnf b)" |
+  "dnf_of_nnf (NOT b) = NOT b" |
   "dnf_of_nnf (AND b\<^sub>l b\<^sub>r) = 
     (let dnf_b\<^sub>l = dnf_of_nnf b\<^sub>l;
          dnf_b\<^sub>r = dnf_of_nnf b\<^sub>r
