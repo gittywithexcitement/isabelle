@@ -281,7 +281,13 @@ lemma push_and_below_or_preserves_eval:"pbval (push_and_below_or el er) s = pbva
 lemma push_and_below_or_preserves_nnf:"is_nnf el \<Longrightarrow> is_nnf er \<Longrightarrow> is_nnf (push_and_below_or el er)"
   apply(induction el er rule: push_and_below_or.induct)
   by (simp_all)
-    
+
+lemma push_and_below_or_preserves_dnf:
+  "is_nnf el \<Longrightarrow> is_nnf er \<Longrightarrow> is_dnf el \<Longrightarrow> is_dnf er
+\<Longrightarrow> is_dnf (push_and_below_or el er)"
+  apply(induction el er rule: push_and_below_or.induct)
+  by (simp_all)
+
 (* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
  If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
  remains are ANDs and ORs.
