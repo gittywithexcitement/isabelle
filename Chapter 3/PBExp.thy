@@ -294,6 +294,12 @@ fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
   
 value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
   
+lemma dnf_preserves_value_1:"pbval (dnf_of_nnf exp) s = pbval exp s"
+  apply(induction exp)
+     apply(simp_all)
+  using push_and_below_or_preserves_eval by simp
+    
+  
 lemma dnf_preserves_value:"pbval (dnf_of_nnf exp) s = pbval exp s"
 proof(induction exp)
   case (VAR x)
