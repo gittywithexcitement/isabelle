@@ -283,8 +283,7 @@ lemma push_and_below_or_preserves_nnf:"is_nnf el \<Longrightarrow> is_nnf er \<L
   by (simp_all)
 
 lemma push_and_below_or_preserves_dnf:
-  "is_nnf el \<Longrightarrow> is_nnf er \<Longrightarrow> is_dnf el \<Longrightarrow> is_dnf er
-\<Longrightarrow> is_dnf (push_and_below_or el er)"
+  "is_dnf el \<Longrightarrow> is_dnf er \<Longrightarrow> is_dnf (push_and_below_or el er)"
   apply(induction el er rule: push_and_below_or.induct)
   by (simp_all)
 
@@ -308,6 +307,26 @@ lemma dnf_preserves_value[simp]:"pbval (dnf_of_nnf exp) s = pbval exp s"
   apply(induction exp)
      apply(simp_all)
   using push_and_below_or_preserves_eval by simp
+    
+lemma dnf_of_nnf_returns_dnf_1:"is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)"
+  apply(induction exp rule: dnf_of_nnf.induct)
+     apply(simp_all)
+  using is_nnf.elims(2) apply fastforce
+ (* using push_and_below_or_preserves_dnf sledgehammer[timeout=120] *)
+proof - 
+  fix b\<^sub>l b\<^sub>r
+  (* { *)
+  assume "is_dnf (dnf_of_nnf b\<^sub>l)" and "is_dnf (dnf_of_nnf b\<^sub>r)"
+  then have "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
+    using push_and_below_or_preserves_dnf by simp
+  (* } *)
+  (* then show "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"  *)
+    (* try0 *)
+    (* sledgehammer *)
+    (* sorry *)
+qed  
+  oops
+    
 
 lemma dnf_of_nnf_returns_is_dnf:
   assumes "is_nnf exp"
