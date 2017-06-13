@@ -47,17 +47,33 @@ lemma not_preserves_value[simp]: "pbval (not_simp exp\<^sub>o) s = pbval exp\<^s
   by auto
     
     (* This implementation could not even be auto-proved to terminate. *)
-    (* (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
-fun nnf :: "pbexp \<Rightarrow> pbexp" where
-  "nnf (VAR x) = (VAR x)" |
-  "nnf (NOT b) = (
-    case nnf b of
+     (* Converts a pbexp into NNF by pushing NOT inwards as much as possible. *)
+fun nnf_bad :: "pbexp \<Rightarrow> pbexp" where
+  "nnf_bad (VAR x) = (VAR x)" |
+(*   "nnf_bad (NOT b) = (
+    case nnf_bad b of
       (NOT c)     \<Rightarrow> c |
-      (AND b1 b2) \<Rightarrow> (OR   (nnf (NOT b1)) (nnf (NOT b2))) |
-      (OR b1 b2)  \<Rightarrow> (AND  (nnf (NOT b1)) (nnf (NOT b2))) |
-      (VAR c)     \<Rightarrow> NOT (VAR c))" |  
-  "nnf (AND b1 b2) = (AND (nnf b1) (nnf b2))" |
-  "nnf (OR b1 b2) = (OR (nnf b1) (nnf b2))" *)    
+      (AND b1 b2) \<Rightarrow> (OR   (nnf_bad (NOT b1)) (nnf_bad (NOT b2))) |
+      (OR b1 b2)  \<Rightarrow> (AND  (nnf_bad (NOT b1)) (nnf_bad (NOT b2))) |
+      (VAR c)     \<Rightarrow> NOT (VAR c))" |   *)
+  "nnf_bad (NOT (VAR x)) = (NOT (VAR x))" |
+  "nnf_bad (NOT (AND a b)) = OR (nnf_bad (NOT a)) (nnf_bad (NOT b))" |
+  "nnf_bad (NOT (OR a b)) = AND (nnf_bad (NOT a)) (nnf_bad (NOT b))" |
+  "nnf_bad (NOT (NOT b)) = nnf_bad b " |
+  "nnf_bad (AND b1 b2) = (AND (nnf_bad b1) (nnf_bad b2))" |
+  "nnf_bad (OR b1 b2) = (OR (nnf_bad b1) (nnf_bad b2))" 
+    
+(* https://github.com/cmr/ConcreteSemantics/blob/master/CS_Ch3.thy   *)
+  
+fun nnf_gh :: "pbexp \<Rightarrow> pbexp" where
+  "nnf_gh (VAR x) = VAR x" |
+  "nnf_gh (NOT (VAR x)) = (NOT (VAR x))" |
+  "nnf_gh (NOT (AND a b)) = OR (nnf_gh (NOT a)) (nnf_gh (NOT b))" |
+  "nnf_gh (NOT (OR a b)) = AND (nnf_gh (NOT a)) (nnf_gh (NOT b))" |
+  "nnf_gh (NOT (NOT b)) = nnf_gh b " |
+  "nnf_gh (AND a b) = AND (nnf_gh a) (nnf_gh b)" |
+  "nnf_gh (OR a b) = OR (nnf_gh a) (nnf_gh b)"
+  
     
     (* How many NOTs have been encountered so far, travelling from the expression's root to this point?
 Every time two NOTs are encountered, the count is reset to zero. *)
@@ -318,15 +334,57 @@ next
     by simp
 next
   case (AND exp1 exp2)
+  then have "is_nnf (AND exp1 exp2)" (* sledgehammer *)
     (* then have "is_nnf exp1" sledgehammer *)
+    
+(* using this: *)
+    (* is_dnf (dnf_of_nnf exp1) *)
+    (* is_dnf (dnf_of_nnf exp2) *)
+(* goal (1 subgoal): *)
+ (* 1. is_dnf (dnf_of_nnf (AND exp1 exp2))     *)
+    
   then show ?case 
-    (* apply(simp) *)
- sledgehammer
+    apply(simp)
+    (* sledgehammer *)
  (* quickcheck[random] *)
  (* nitpick *)
         (* "is_dnf (AND b1 b2) _ = (is_dnf b1 SeenAnAnd \<and> is_dnf b2 SeenAnAnd)" | *)
 
-qed
+  qed
+  oops
+    
+lemma dnf_of_nnf_returns_is_dnf_1:
+  assumes "is_nnf exp"
+  shows "is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)" (* Might need to generalize NeverSeenAnd *)
+proof(induction exp)
+  case (VAR x)
+  then show ?case 
+    by simp
+next
+  case (NOT exp)
+  then show ?case
+    by (metis dnf_of_nnf.simps(2) is_OR.simps(1) is_OR.simps(3) is_dnf.elims(3) is_nnf.elims(3) is_nnf.simps(2) pbexp.distinct(7) pbexp.inject(2) pbexp.simps(18) pbexp.simps(19) pbexp.simps(20))
+next
+  case (AND exp1 exp2)
+    (* is_nnf exp *)
+    (* is_nnf (AND exp1 exp2) *)
+    (* is_nnf exp1 \<Longrightarrow> is_dnf (dnf_of_nnf exp1) *)
+    (* is_nnf exp2 \<Longrightarrow> is_dnf (dnf_of_nnf exp2) *)
+    
+    (* ?case \<equiv> is_dnf (dnf_of_nnf (AND exp1 exp2)) *)
+
+  then show ?case 
+    nitpick
+    quickcheck[random]
+(*         Free variables:
+    exp1 = OR (OR (VAR s\<^sub>1) (VAR s\<^sub>1)) (OR (VAR s\<^sub>1) (VAR s\<^sub>1))
+    exp2 = VAR s\<^sub>1 *)
+      sorry
+next
+  case (OR exp1 exp2)
+  then show ?case 
+    by simp
+qed    
   
 (* is_nnf b \<Longrightarrow> is_dnf (dnf_of_nnf b) *)
 end
