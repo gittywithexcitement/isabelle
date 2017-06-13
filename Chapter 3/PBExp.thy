@@ -315,15 +315,17 @@ lemma dnf_of_nnf_returns_dnf_1:"is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf 
  (* using push_and_below_or_preserves_dnf sledgehammer[timeout=120] *)
 proof - 
   fix b\<^sub>l b\<^sub>r
-  (* { *)
-  assume "is_dnf (dnf_of_nnf b\<^sub>l)" and "is_dnf (dnf_of_nnf b\<^sub>r)"
-  then have "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
-    using push_and_below_or_preserves_dnf by simp
-  (* } *)
-  (* then show "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"  *)
-    (* try0 *)
-    (* sledgehammer *)
-    (* sorry *)
+  {
+    assume "is_dnf (dnf_of_nnf b\<^sub>l)" and "is_dnf (dnf_of_nnf b\<^sub>r)"
+      and "is_nnf b\<^sub>l \<and> is_nnf b\<^sub>r"
+    then have "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
+      using push_and_below_or_preserves_dnf by simp
+  }
+  then show "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
+    try
+      (* try0 *)
+      (* sledgehammer *)
+      (* sorry *)
 qed  
   oops
     
