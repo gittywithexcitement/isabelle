@@ -278,6 +278,10 @@ lemma push_and_below_or_preserves_eval:"pbval (push_and_below_or el er) s = pbva
                       apply(simp_all)
   by auto
 
+lemma push_and_below_or_preserves_nnf:"is_nnf el \<Longrightarrow> is_nnf er \<Longrightarrow> is_nnf (push_and_below_or el er)"
+  apply(induction el er rule: push_and_below_or.induct)
+  by (simp_all)
+    
 (* The argument must be in NNF form (NOTs may only be applied to VAR, i.e. are at the leaves) 
  If the arg is in NNF form, then once we have moved up the tree past the VARs and NOTs, all that
  remains are ANDs and ORs.
@@ -294,122 +298,11 @@ fun dnf_of_nnf :: "pbexp \<Rightarrow> pbexp" where
   
 value "dnf_of_nnf (AND (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y''))"
   
-lemma dnf_preserves_value_1:"pbval (dnf_of_nnf exp) s = pbval exp s"
+lemma dnf_preserves_value[simp]:"pbval (dnf_of_nnf exp) s = pbval exp s"
   apply(induction exp)
      apply(simp_all)
   using push_and_below_or_preserves_eval by simp
-    
-  
-lemma dnf_preserves_value:"pbval (dnf_of_nnf exp) s = pbval exp s"
-proof(induction exp)
-  case (VAR x)
-  then show ?case by simp
-next
-  case (NOT exp)
-  then show ?case by simp
-next
-  case (OR exp1 exp2)
-  then show ?case by simp
-next
-  case (AND exp1 exp2)
-  {
-    fix dnf_exp1 dnf_exp2 
-    assume fix1:"dnf_exp1 = dnf_of_nnf exp1" and fix2:"dnf_exp2 = dnf_of_nnf exp2"
-    have "pbval (dnf_of_nnf (AND exp1 exp2)) s = pbval (push_and_below_or (dnf_of_nnf exp1) (dnf_of_nnf exp2)) s"
-      by simp 
-    then have "... = pbval (push_and_below_or dnf_exp1 dnf_exp2) s" 
-      by (simp add: fix1 fix2)
-    then have "pbval (push_and_below_or dnf_exp1 dnf_exp2) s = pbval (AND exp1 exp2) s"
-    proof(cases dnf_exp1)
-      case v1:(VAR x1)
-      then show ?thesis 
-      proof(cases dnf_exp2)
-        case (VAR x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
-      next
-        case (NOT x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
-      next
-        case (AND x31 x32)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 by simp
-      next
-        case (OR x41 x42)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) v1 fix1 fix2 (* by auto *) 
-          sledgehammer
-          sorry
-      qed
-    next
-      case n1:(NOT x1)
-      then show ?thesis 
-      proof(cases dnf_exp2)
-        case (VAR x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-      next
-        case (NOT x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-      next
-        case (AND x31 x32)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by simp
-      next
-        case (OR x41 x42)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) n1 fix1 fix2 by auto
-      qed
-    next
-      case a1:(AND x31 x32)
-      then show ?thesis 
-      proof(cases dnf_exp2)
-        case (VAR x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-      next
-        case (NOT x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-      next
-        case (AND x31 x32)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by simp
-      next
-        case (OR x41 x42)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) a1 fix1 fix2 by auto
-      qed
-    next
-      case o1:(OR x41 x42)
-      then show ?thesis 
-      proof(cases dnf_exp2)
-        case (VAR x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-      next
-        case (NOT x2)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-      next
-        case (AND x31 x32)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-      next
-        case (OR x41 x42)
-        then show ?thesis
-          using AND.IH(1) AND.IH(2) o1 fix1 fix2 by auto
-      qed
-    qed
-    then have ?case 
-      by (simp add: fix1 fix2)
-  }
-  then show ?case
-    by simp
-qed
-  
+
 lemma dnf_of_nnf_returns_is_dnf:
   assumes "is_nnf exp"
   shows "is_dnf (dnf_of_nnf exp)" (* Might need to generalize NeverSeenAnd *)
