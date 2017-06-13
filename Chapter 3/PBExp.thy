@@ -309,26 +309,24 @@ lemma dnf_preserves_value[simp]:"pbval (dnf_of_nnf exp) s = pbval exp s"
   using push_and_below_or_preserves_eval by simp
     
 lemma dnf_of_nnf_returns_dnf_1:"is_nnf exp \<Longrightarrow> is_dnf (dnf_of_nnf exp)"
-  apply(induction exp rule: dnf_of_nnf.induct)
-     apply(simp_all)
-  using is_nnf.elims(2) apply fastforce
- (* using push_and_below_or_preserves_dnf sledgehammer[timeout=120] *)
-proof - 
-  fix b\<^sub>l b\<^sub>r
-  {
-    assume "is_dnf (dnf_of_nnf b\<^sub>l)" and "is_dnf (dnf_of_nnf b\<^sub>r)"
-      and "is_nnf b\<^sub>l \<and> is_nnf b\<^sub>r"
-    then have "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
-      using push_and_below_or_preserves_dnf by simp
-  }
-  then show "is_dnf (push_and_below_or (dnf_of_nnf b\<^sub>l) (dnf_of_nnf b\<^sub>r))"
-    try
-      (* try0 *)
-      (* sledgehammer *)
-      (* sorry *)
-qed  
-  oops
-    
+proof(induction exp rule: dnf_of_nnf.induct)
+  case (1 x)
+  then show ?case by simp
+next
+  case (2 b)
+  then show ?case 
+    apply simp
+      (* by (metis is_dnf.simps(1) is_dnf.simps(2) is_nnf.elims(2) pbexp.distinct(7) pbexp.distinct(9)) *)
+      (* by (metis is_dnf.simps(1) is_nnf.elims(2) is_nnf.simps(2) is_nnf.simps(3) pbexp.distinct(7) pbexp.distinct(9) pbexp.inject(2)) *)
+      using is_dnf.simps(1) is_nnf.elims(2) by blast
+next
+  case (3 b\<^sub>l b\<^sub>r)
+  then show ?case 
+    by (simp add: push_and_below_or_preserves_dnf)
+next
+  case (4 b1 b2)
+  then show ?case by simp
+qed
 
 lemma dnf_of_nnf_returns_is_dnf:
   assumes "is_nnf exp"
