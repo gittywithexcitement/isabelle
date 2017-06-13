@@ -268,7 +268,7 @@ will cause auto-termination proof of this function to fail.*)
   OR (push_and_below_or notOr or\<^sub>r\<^sub>l) (push_and_below_or notOr or\<^sub>r\<^sub>r)"|
 "push_and_below_or notOr\<^sub>l notOr\<^sub>r = AND notOr\<^sub>l notOr\<^sub>r"  
  
-value "push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
+value "push_and_below_or (OR (VAR ''1'') (OR (VAR ''2'') (VAR ''3''))) (OR (VAR ''4'') (VAR ''5''))"
 value "push_and_below_or (OR or\<^sub>l\<^sub>l or\<^sub>l\<^sub>r) (VAR ''y'')"
 value "push_and_below_or (VAR ''x'') (OR or\<^sub>r\<^sub>l or\<^sub>r\<^sub>r)"
 value "push_and_below_or (VAR ''x'') (VAR ''y'')"  (* This isn't being evaluated *)
