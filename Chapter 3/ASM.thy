@@ -1,5 +1,8 @@
 (* theory ASM imports AExp begin *)
-theory ASM imports AExp Option begin
+theory ASM 
+  imports 
+    AExp Option "~~/src/HOL/Library/Code_Target_Nat" 
+begin
   
 section "Stack Machine and Compilation"
 subsection "Stack Machine"
@@ -73,6 +76,5 @@ value "compile (Plus (Plus (V ''x'') (N 1)) (V ''z''))"
 theorem exec_compile: "exec (compile a) s stk = Some (aval a s # stk)"
   apply(induction a arbitrary: stk)
   by (auto)
-  
-    
+
 end
