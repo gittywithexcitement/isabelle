@@ -22,10 +22,12 @@ and both of the node's children are ordered*)
 fun ord :: "int tree \<Rightarrow> bool" where
   "ord Tip = True" |
   "ord (Node lc x rc) = (
-    let gt_left = {y | y. y \<in> (to_set lc) \<and> x \<le> y} = {};
-        lt_right = {y | y. y \<in> (to_set rc) \<and> x \<ge> y} = {}
+    let gt_left = {y. y \<in> (to_set lc) \<and> (x \<le> y)} = {};
+        lt_right = {y. y \<in> (to_set rc) \<and> (x \<ge> y)} = {}
     in gt_left \<and> lt_right \<and> ord lc \<and> ord rc)" 
   
-value "ord (Node Tip 0 (Node (Node Tip 2 Tip) 1 Tip))"
-
+value "ord (Node (Node Tip 2 Tip) 3 Tip)"
+value "ord (Node Tip 0 (Node (Node Tip 1 Tip) 2 Tip))"
+  
+  
 end
