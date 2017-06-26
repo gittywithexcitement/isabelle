@@ -53,26 +53,17 @@ value "exec (compile (Plus (N 9) (N 10)) 1) <> <> 1"
 lemma lesser_registers_unchanged:
   "reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y < reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t \<Longrightarrow> 
     (exec (compile exp reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t) st rs) reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y = rs reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y"
+  (* arbitrary reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t is required because it changes when compiling ADD
+    arbitrary rs is required because it changes when executing *)
   apply(induction exp arbitrary: rs reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t)
     apply(simp_all)
   using exec_append by simp
 
-theorem compile_is_correct:"exec (compile expr reg_dest) state rs reg_dest = aval expr state"
-  (* possibly arbitrary: reg_dest state rs *)
- (* apply(induction expr) *)
-  (* I think reg_dest should be arbitrary because it changes during compile *)
-  apply(induction expr arbitrary: reg_dest)
+theorem compile_is_correct: "exec (compile expr reg_dest) state rs reg_dest = aval expr state"
+  (* reg_dest is arbitrary because it changes during compile ADD
+    rs is arbitrary because it changes during exec*)
+  apply(induction expr arbitrary: reg_dest rs)
     apply(simp_all)
-(*  1. \<And>expr1 expr2 reg_dest.
-       (\<And>reg_dest. exec (compile expr1 reg_dest) state rs reg_dest = aval expr1 state) \<Longrightarrow>
-       (\<And>reg_dest. exec (compile expr2 reg_dest) state rs reg_dest = aval expr2 state) \<Longrightarrow>
-       exec (compile expr1 reg_dest @ compile expr2 (Suc reg_dest) @ [ADD reg_dest (Suc reg_dest)]) state rs reg_dest 
-       = aval expr1 state + aval expr2 state     *)
-  (* try0 *)
-  (* sledgehammer *)
-    (* try *)
-    (* apply(auto)  *)
-    (* by (auto) *)
-  sorry
-    
+  using exec_append lesser_registers_unchanged by simp
+  
 end
