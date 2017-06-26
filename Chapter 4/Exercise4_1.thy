@@ -53,4 +53,19 @@ theorem ins_tree_like_insert_set:"to_set (ins x tree) = {x} \<union> to_set tree
   apply(induction tree)
   by auto
     
+theorem ins_preserves_order: "ord tree \<Longrightarrow> ord (ins x tree)"
+ (* apply(induction tree arbitrary: x rule: ins.cases) *)
+ (* apply(induction tree arbitrary: x rule: ins.induct) *)
+ (* apply(induction tree ) *)
+  apply(induction tree arbitrary: x)
+   apply(simp)
+    apply(simp split: if_splits)
+    (* apply(cases x) *)
+   (* apply(simp_all) *)
+   (* sledgehammer *)
+   
+  apply(auto)
+   (* quickcheck[random] *)
+  oops
+    
 end
