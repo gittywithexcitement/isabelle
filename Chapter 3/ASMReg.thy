@@ -22,7 +22,17 @@ fun exec1 :: "instr \<Rightarrow> state \<Rightarrow> (reg \<Rightarrow> int) \<
   
 fun exec :: "instr list \<Rightarrow> state \<Rightarrow> (reg \<Rightarrow> int) \<Rightarrow> (reg \<Rightarrow> int)" where
   "exec [] _ registers = registers" | 
-  "exec (i#is) state registers = exec is state (exec1 i state registers)" 
+  "exec (i#is) state registers = exec is state (exec1 i state registers)"
+  
+lemma exec_append:"exec (l1 @ l2) s rs = exec l2 s (exec l1 s rs)"
+  (* rs MUST be arbitrary. This strengthens the induction hypothesis: the register
+    file in the IH may be different than the register file in the thesis. 
+    This is necessary, because the inductive step adds another instruction, which will cause the
+    register file to change when executed. That is, the register file in the inductive step will be
+    different than the register file in the IH, because of the inductive step. *)
+  apply(induction l1 arbitrary: rs)
+   apply(simp_all)
+  done
 
 subsection "Compilation"
   
@@ -40,15 +50,27 @@ fun compile :: "aexp \<Rightarrow> reg \<Rightarrow> instr list" where
 value "compile (Plus (N 9) (N 10)) 0"
 value "exec (compile (Plus (N 9) (N 10)) 1) <> <> 1"
   
-  (* Do I need a lemma stating that compile does not change registers less than the argument it was given? *)
-  
+lemma lesser_registers_unchanged:
+  "reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y < reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t \<Longrightarrow> 
+    (exec (compile exp reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t) st rs) reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y = rs reg\<^sub>q\<^sub>u\<^sub>e\<^sub>r\<^sub>y"
+  apply(induction exp arbitrary: rs reg\<^sub>d\<^sub>e\<^sub>s\<^sub>t)
+    apply(simp_all)
+  using exec_append by simp
+
 theorem compile_is_correct:"exec (compile expr reg_dest) state rs reg_dest = aval expr state"
   (* possibly arbitrary: reg_dest state rs *)
-  (* apply(induction expr) *)
+ (* apply(induction expr) *)
   (* I think reg_dest should be arbitrary because it changes during compile *)
   apply(induction expr arbitrary: reg_dest)
     apply(simp_all)
-    (* try  *)
+(*  1. \<And>expr1 expr2 reg_dest.
+       (\<And>reg_dest. exec (compile expr1 reg_dest) state rs reg_dest = aval expr1 state) \<Longrightarrow>
+       (\<And>reg_dest. exec (compile expr2 reg_dest) state rs reg_dest = aval expr2 state) \<Longrightarrow>
+       exec (compile expr1 reg_dest @ compile expr2 (Suc reg_dest) @ [ADD reg_dest (Suc reg_dest)]) state rs reg_dest 
+       = aval expr1 state + aval expr2 state     *)
+  (* try0 *)
+  (* sledgehammer *)
+    (* try *)
     (* apply(auto)  *)
     (* by (auto) *)
   sorry
