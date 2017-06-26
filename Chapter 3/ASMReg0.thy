@@ -10,7 +10,6 @@ subsection "Register Machine"
   (* A register identifier is a natural number. I.e. the registers are numbered 0, 1, ...  *)
 type_synonym reg = nat
   
-(* exercise 3.12 *)
 datatype instr = 
   LDI0 val | (* register 0 is the target *)
   LD0 vname | (* register 0 is the target *)
@@ -45,13 +44,11 @@ should be left alone. *)
 fun compile :: "aexp \<Rightarrow> reg \<Rightarrow> instr list" where
   "compile (N n) _ = [LDI0 n]" |
   "compile (V v) _ = [LD0 v]" |
-  "compile (Plus e\<^sub>1 e\<^sub>2) r = 
-    compile e\<^sub>1 (r+1) @ [MV0 (r+1)] @ compile e\<^sub>2 (r + 2) @ [ADD0 (r+1)]" 
-(*   "compile (Plus e\<^sub>1 e\<^sub>2) r = (
+  "compile (Plus e\<^sub>1 e\<^sub>2) r = (
     if r > 0
     then compile e\<^sub>1 r @ [MV0 r] @ compile e\<^sub>2 (r + 1) @ [ADD0 r]
     else compile e\<^sub>1 1 @ [MV0 1] @ compile e\<^sub>2 2 @ [ADD0 1])" 
- *)
+
 value "compile (Plus (N 9) (N 10)) 0"
 value "exec (compile (Plus (N 9) (N 10)) 1) <> <> 1"
   
