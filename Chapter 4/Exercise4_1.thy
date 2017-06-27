@@ -21,8 +21,8 @@ and both of the node's children are ordered*)
 fun ord :: "int tree \<Rightarrow> bool" where
   "ord Tip = True" |
   "ord (Node lc x rc) = (
-    let gt_left = {y. y \<in> (to_set lc) \<and> (x \<le> y)} = {};
-        lt_right = {y. y \<in> (to_set rc) \<and> (x \<ge> y)} = {}
+    let gt_left = (\<forall>y \<in> (to_set lc). x > y);
+        lt_right = (\<forall>y \<in> (to_set rc). x < y)
     in gt_left \<and> lt_right \<and> ord lc \<and> ord rc)" 
   
 value "ord (Node (Node Tip 2 Tip) 3 Tip)"
@@ -43,7 +43,7 @@ value "ins 1 (Node (Node Tip 2 Tip) 4 Tip)"
 value "ins 2 (Node (Node Tip 2 Tip) 4 Tip)"
 value "ins 3 (Node (Node Tip 2 Tip) 4 Tip)"
 value "ins 5 (Node (Node Tip 2 Tip) 4 Tip)"
-
+  
 value "ord (ins 1 (Node (Node Tip 2 Tip) 4 Tip))"
 value "ord (ins 2 (Node (Node Tip 2 Tip) 4 Tip))"
 value "ord (ins 3 (Node (Node Tip 2 Tip) 4 Tip))"
@@ -54,18 +54,10 @@ theorem ins_tree_like_insert_set:"to_set (ins x tree) = {x} \<union> to_set tree
   by auto
     
 theorem ins_preserves_order: "ord tree \<Longrightarrow> ord (ins x tree)"
- (* apply(induction tree arbitrary: x rule: ins.cases) *)
- (* apply(induction tree arbitrary: x rule: ins.induct) *)
- (* apply(induction tree ) *)
-  apply(induction tree arbitrary: x)
+  (* I thought arbitrary x would be needed. It's not. *)
+  apply(induction tree)
    apply(simp)
-    apply(simp split: if_splits)
-    (* apply(cases x) *)
-   (* apply(simp_all) *)
-   (* sledgehammer *)
-   
-  apply(auto)
-   (* quickcheck[random] *)
-  oops
+  apply(simp)
+  using ins_tree_like_insert_set by simp
     
 end
