@@ -136,7 +136,7 @@ lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
   apply(induction rule: star'.induct)
    apply(metis star.refl)
   by(metis star.refl star.step star_transitive)
-
+    
 lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
 proof -
   assume "star' r x y" and syz:"star' r y z"
@@ -145,11 +145,19 @@ proof -
   moreover have "star r y z" by (simp add: starp_implies_star syz)
   ultimately have "star r x z" by (metis star_transitive)
   then show "star' r x z" (* sledgehammer *) (* by (simp add: starp_implies_star) *)
-      oops
+    oops
+      
+lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
+proof(induction (* arbitrary:z *) rule: star'.induct)
+  case (refl' x)
+  then show ?case by simp
+next
+  case (step' a b c) (* x y z *)
+  then show ?case (* sledgehammer *)
+qed
+oops
     
-  (* assume "star' r x y \<Longrightarrow> star' r y z" *)
-  (* using starp_implies_star star_transitive  *)
-  (* apply(induction arbitrary: z rule: star'.induct) *)
+    (* apply(induction arbitrary: z rule: star'.induct) *)
 lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
   apply(induction rule: star'.induct)
    apply(simp)
@@ -157,15 +165,17 @@ lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarr
    apply(simp)
     (* sledgehammer *)
     (* apply(simp) *)
-    using star'.step' star'.refl'  (* try0 *)  (* sledgehammer *) 
+  using star'.step' star'.refl'  (* try0 *)  (* sledgehammer *) 
     (* apply(simp add: star'.step') *)
     (* star' r x y \<Longrightarrow> (star' r y z \<Longrightarrow> star' r x z) \<Longrightarrow> r y za \<Longrightarrow> star' r za z \<Longrightarrow> star' r x z *)
-    oops
-  
+  oops
+    
 lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
   apply(induction rule: star.induct)
    apply(metis star'.refl')
-    sledgehammer
-  (* by(metis star.refl star.step star_transitive) *)
-
+    (* apply(rule) *)
+    (* sledgehammer *)
+    (* by(metis star.refl star.step star_transitive) *)
+  oops
+    
 end
