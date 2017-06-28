@@ -138,7 +138,19 @@ lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
   by(metis star.refl star.step star_transitive)
 
 lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
+proof -
+  assume "star' r x y" and syz:"star' r y z"
+  then have "star r x y" 
+    by (simp add: starp_implies_star) 
+  moreover have "star r y z" by (simp add: starp_implies_star syz)
+  ultimately have "star r x z" by (metis star_transitive)
+  then show "star' r x z" (* sledgehammer *) (* by (simp add: starp_implies_star) *)
+      oops
+    
+  (* assume "star' r x y \<Longrightarrow> star' r y z" *)
+  (* using starp_implies_star star_transitive  *)
   (* apply(induction arbitrary: z rule: star'.induct) *)
+lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
   apply(induction rule: star'.induct)
    apply(simp)
   apply(rule)
