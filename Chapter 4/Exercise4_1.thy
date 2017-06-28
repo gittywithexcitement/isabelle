@@ -132,50 +132,28 @@ inductive star' :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<
   refl': "star' r x x" |
   step': "star' r x y \<Longrightarrow> r y z \<Longrightarrow> star' r x z"
   
+(* This version is hard (impossible?) to prove   *)
+lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
+  apply(induction rule: star'.induct)
+   apply(simp)
+  oops
+    
+(* By flipping the assumption order so that rule induction is applied to (star' r y z), this is easy
+to prove *)
+lemma starp_transitive:"star' r y z \<Longrightarrow> star' r x y \<Longrightarrow> star' r x z"
+  apply(induction rule: star'.induct)
+   apply(simp)
+  apply(simp)
+  by (metis star'.step')
+    
 lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
   apply(induction rule: star'.induct)
    apply(metis star.refl)
   by(metis star.refl star.step star_transitive)
     
-lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
-proof -
-  assume "star' r x y" and syz:"star' r y z"
-  then have "star r x y" 
-    by (simp add: starp_implies_star) 
-  moreover have "star r y z" by (simp add: starp_implies_star syz)
-  ultimately have "star r x z" by (metis star_transitive)
-  then show "star' r x z" (* sledgehammer *) (* by (simp add: starp_implies_star) *)
-    oops
-      
-lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
-proof(induction (* arbitrary:z *) rule: star'.induct)
-  case (refl' x)
-  then show ?case by simp
-next
-  case (step' a b c) (* x y z *)
-  then show ?case (* sledgehammer *)
-qed
-oops
-    
-    (* apply(induction arbitrary: z rule: star'.induct) *)
-lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
-  apply(induction rule: star'.induct)
-   apply(simp)
-  apply(rule)
-   apply(simp)
-    (* sledgehammer *)
-    (* apply(simp) *)
-  using star'.step' star'.refl'  (* try0 *)  (* sledgehammer *) 
-    (* apply(simp add: star'.step') *)
-    (* star' r x y \<Longrightarrow> (star' r y z \<Longrightarrow> star' r x z) \<Longrightarrow> r y za \<Longrightarrow> star' r za z \<Longrightarrow> star' r x z *)
-  oops
-    
 lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
   apply(induction rule: star.induct)
    apply(metis star'.refl')
-    (* apply(rule) *)
-    (* sledgehammer *)
-    (* by(metis star.refl star.step star_transitive) *)
-  oops
+  by (metis refl' starp_transitive step')
     
 end
