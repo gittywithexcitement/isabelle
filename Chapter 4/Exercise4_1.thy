@@ -114,7 +114,19 @@ lemma star_transitive: "star r x y \<Longrightarrow> star r y z \<Longrightarrow
   apply(induction rule: star.induct)
    apply(assumption)
   apply(simp)
-  (* by(metis step) *)
+    (* by(metis step) *)
   by(metis star.step)
     
+section "Exercise 4.2"
+  
+inductive palindrome :: "'a list \<Rightarrow> bool" where
+  empty: "palindrome []"|
+  singleton: "palindrome [x]"|
+  step: "palindrome xs \<Longrightarrow> palindrome (a # xs @ [a])"
+  
+lemma "palindrome xs \<Longrightarrow> rev xs = xs"
+  apply(induction rule: palindrome.induct)
+  by(simp_all)
+    
+
 end
