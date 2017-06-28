@@ -57,7 +57,64 @@ theorem ins_preserves_order: "ord tree \<Longrightarrow> ord (ins x tree)"
   (* I thought arbitrary x would be needed. It's not. *)
   apply(induction tree)
    apply(simp)
-  apply(simp)
+  apply(simp) 
   using ins_tree_like_insert_set by simp
+    
+lemma "\<lbrakk> (a::nat)\<le>b; b\<le>c; c\<le>d; d\<le>e \<rbrakk> \<Longrightarrow> a\<le>e"
+  (* by linarith *)
+  by (blast intro:le_trans)
+    
+lemma "Suc(Suc(Suc a)) \<le> b \<Longrightarrow> a \<le> b"
+  by (blast dest: Suc_leD)
+    
+inductive ev :: "nat \<Rightarrow> bool" where
+  ev0: "ev 0" |
+  evSS: "ev n \<Longrightarrow> ev (Suc(Suc n))"
+  
+fun evn :: "nat \<Rightarrow> bool" where
+  "evn 0 = True"|  
+  "evn (Suc 0) = False"|  
+  "evn (Suc(Suc n)) = evn n"  
+  
+lemma "ev(Suc(Suc(Suc(Suc 0))))"
+  apply(rule evSS)
+  apply(rule evSS)
+  apply(rule ev0)
+  done
+    
+lemma ev_to_evn:"ev m \<Longrightarrow> evn m"
+  (*   apply(induction m) 
+    Bad because it creates this goal:
+    2. \<And>m. (ev m \<Longrightarrow> evn m) \<Longrightarrow> ev (Suc m) \<Longrightarrow> evn (Suc m) *)
+  apply(induction rule: ev.induct)
+  by simp_all
+    
+lemma evn_to_ev:"evn n \<Longrightarrow> ev n"
+  apply(induction n rule: evn.induct)
+  by(simp_all add: ev0 evSS)
+    
+lemma "evn n = ev n"
+  (*   find_theorems intro
+using [[rule_trace]] apply(rule HOL.iffI) *)
+  apply(rule)
+   apply(metis evn_to_ev)
+  apply(metis ev_to_evn)
+  done
+    
+declare ev.intros[simp,intro]
+  
+  (* The “for r” in the header is merely a hint to Isabelle that r is a fixed parameter of star, in
+contrast to the further parameters of star, which change. As a result, Isabelle generates a simpler
+induction rule *)
+inductive star :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" for r where
+  refl: "star r x x" |
+  step: "r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+  
+lemma star_transitive: "star r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+  apply(induction rule: star.induct)
+   apply(assumption)
+  apply(simp)
+  (* by(metis step) *)
+  by(metis star.step)
     
 end
