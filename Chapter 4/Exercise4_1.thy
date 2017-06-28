@@ -128,5 +128,32 @@ lemma "palindrome xs \<Longrightarrow> rev xs = xs"
   apply(induction rule: palindrome.induct)
   by(simp_all)
     
+inductive star' :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" for r where
+  refl': "star' r x x" |
+  step': "star' r x y \<Longrightarrow> r y z \<Longrightarrow> star' r x z"
+  
+lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
+  (* apply(induction arbitrary: z rule: star'.induct) *)
+  apply(induction rule: star'.induct)
+   apply(simp)
+  apply(rule)
+   apply(simp)
+    (* sledgehammer *)
+    (* apply(simp) *)
+    using star'.step' star'.refl'  (* try0 *)  (* sledgehammer *) 
+    (* apply(simp add: star'.step') *)
+    (* star' r x y \<Longrightarrow> (star' r y z \<Longrightarrow> star' r x z) \<Longrightarrow> r y za \<Longrightarrow> star' r za z \<Longrightarrow> star' r x z *)
+    oops
+  
+lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
+  apply(induction rule: star'.induct)
+   apply(metis star.refl)
+  by(metis star.refl star.step star_transitive)
+
+lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
+  apply(induction rule: star.induct)
+   apply(metis star'.refl')
+    sledgehammer
+  (* by(metis star.refl star.step star_transitive) *)
 
 end
