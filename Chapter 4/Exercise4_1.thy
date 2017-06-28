@@ -132,6 +132,11 @@ inductive star' :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<
   refl': "star' r x x" |
   step': "star' r x y \<Longrightarrow> r y z \<Longrightarrow> star' r x z"
   
+lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
+  apply(induction rule: star'.induct)
+   apply(metis star.refl)
+  by(metis star.refl star.step star_transitive)
+
 lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarrow> star' r x z"
   (* apply(induction arbitrary: z rule: star'.induct) *)
   apply(induction rule: star'.induct)
@@ -145,11 +150,6 @@ lemma starp_transitive:"star' r x y \<Longrightarrow> star' r y z \<Longrightarr
     (* star' r x y \<Longrightarrow> (star' r y z \<Longrightarrow> star' r x z) \<Longrightarrow> r y za \<Longrightarrow> star' r za z \<Longrightarrow> star' r x z *)
     oops
   
-lemma starp_implies_star:"star' r x y \<Longrightarrow> star r x y"
-  apply(induction rule: star'.induct)
-   apply(metis star.refl)
-  by(metis star.refl star.step star_transitive)
-
 lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
   apply(induction rule: star.induct)
    apply(metis star'.refl')
