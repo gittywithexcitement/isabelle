@@ -258,17 +258,17 @@ subsection "exercise 4.5"
 datatype alpha = a | b
   
 inductive gram_S :: "alpha list \<Rightarrow> bool" where
-  terminal: "gram_S []" |
+  empty: "gram_S []" |
   aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
-  SS: "gram_S w \<Longrightarrow> gram_S (w @ w)"
+  SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)"
   
 inductive gram_T :: "alpha list \<Rightarrow> bool" where
-  terminal: "gram_T []" |
-  TaTb: "gram_T w \<Longrightarrow> gram_T (w @ [a] @ w @ [b])"
+  empty: "gram_T []" |
+  TaTb: "gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ [a] @ w\<^sub>1 @ [b])"
   
 lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
   apply(induction rule: gram_T.induct)
-   apply(simp add: gram_S.terminal)
-  oops
+   apply(simp add: gram_S.empty)
+  by (simp add: SS aSb)
     
 end
