@@ -95,7 +95,22 @@ lemma "ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n + m)"
    apply simp
   apply(simp)
   by (simp add: evSS)
-
+    
+inductive ev' :: "nat \<Rightarrow> bool" where
+ ev'0: "ev' 0" |
+ ev'2: "ev' 2" |
+ ev'sum: "ev' n \<Longrightarrow> ev' m \<Longrightarrow> ev' (n+m)"
+ 
+lemma ev_equivalent_ev':"ev n \<longleftrightarrow> ev' n"
+  apply(rule)
+   apply(induction rule:ev.induct)
+    apply (simp add: ev'0)
+  using ev'2 ev'sum apply force
+  apply(induction rule:ev'.induct)
+    apply (simp add: ev0)
+  apply (simp add: ev0 evSS numeral_2_eq_2)
+  by (metis add_mult_distrib even_equivalent_doubled)
+    
 (* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
