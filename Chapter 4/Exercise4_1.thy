@@ -71,6 +71,15 @@ inductive ev :: "nat \<Rightarrow> bool" where
   ev0: "ev 0" |
   evSS: "ev n \<Longrightarrow> ev (Suc(Suc n))"
   
+  (* Exercises from Software Foundations, Inductively Defined Propositions, exercise 1  *)
+lemma "ev (n * 2)"
+  apply(induction n)
+   apply (simp add: ev0)
+  by (simp add: evSS)
+    
+(* End exercises from Software Foundations *)
+      
+  
 fun evn :: "nat \<Rightarrow> bool" where
   "evn 0 = True"|  
   "evn (Suc 0) = False"|  
