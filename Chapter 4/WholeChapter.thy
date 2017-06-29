@@ -259,7 +259,11 @@ datatype alpha = a | b | \<epsilon>
   
 inductive gram_S :: "alpha list \<Rightarrow> bool" where
   terminal: "gram_S [\<epsilon>]" |
-  aSb: "gram_S xs \<Longrightarrow> gram_S (a # xs @ [b])" |
-  SS: "gram_S xs \<Longrightarrow> gram_S (xs @ xs)"
-      
+  aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
+  SS: "gram_S w \<Longrightarrow> gram_S (w @ w)"
+  
+inductive gram_T :: "alpha list \<Rightarrow> bool" where
+  terminal: "gram_T [\<epsilon>]" |
+  TaTb: "gram_T w \<Longrightarrow> gram_T (w @ [a] @ w @ [b])"
+
 end
