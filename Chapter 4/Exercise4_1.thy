@@ -111,6 +111,17 @@ lemma ev_equivalent_ev':"ev n \<longleftrightarrow> ev' n"
   apply (simp add: ev0 evSS numeral_2_eq_2)
   by (metis add_mult_distrib even_equivalent_doubled)
     
+(* if stuck, flip order of premises *)
+lemma ev_n_plus_m:"ev (n+m) \<Longrightarrow> ev n \<Longrightarrow> ev m"
+  apply(induction rule:ev.induct)
+   apply(simp_all)
+    oops
+
+lemma ev_n_plus_m:"ev n \<Longrightarrow> ev (n+m) \<Longrightarrow> ev m"
+  apply(induction rule:ev.induct)
+   apply(simp_all)
+  using ev.simps by blast
+    
 (* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
