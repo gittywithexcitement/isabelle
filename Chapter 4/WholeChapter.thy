@@ -253,5 +253,13 @@ lemma star_implies_some_iter:"star r x y \<Longrightarrow> \<exists>n. iter r n 
    apply (metis iter.refl)
   by (metis iter.step)
     
+subsection "exercise 4.5"
+  
+datatype alpha = a | b | \<epsilon>
+  
+inductive gram_S :: "alpha list \<Rightarrow> bool" where
+  terminal: "gram_S [\<epsilon>]" |
+  aSb: "gram_S xs \<Longrightarrow> gram_S (a # xs @ [b])" |
+  SS: "gram_S xs \<Longrightarrow> gram_S (xs @ xs)"
       
 end
