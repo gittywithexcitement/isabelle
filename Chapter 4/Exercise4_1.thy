@@ -77,8 +77,9 @@ lemma "ev (n * 2)"
    apply (simp add: ev0)
   by (simp add: evSS)
     
-(* End exercises from Software Foundations *)
-      
+lemma "ev (Suc (Suc n)) \<Longrightarrow> ev n"
+  using ev.simps by blast
+(* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
   "evn 0 = True"|  
