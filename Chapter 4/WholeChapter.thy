@@ -255,15 +255,20 @@ lemma star_implies_some_iter:"star r x y \<Longrightarrow> \<exists>n. iter r n 
     
 subsection "exercise 4.5"
   
-datatype alpha = a | b | \<epsilon>
+datatype alpha = a | b
   
 inductive gram_S :: "alpha list \<Rightarrow> bool" where
-  terminal: "gram_S [\<epsilon>]" |
+  terminal: "gram_S []" |
   aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
   SS: "gram_S w \<Longrightarrow> gram_S (w @ w)"
   
 inductive gram_T :: "alpha list \<Rightarrow> bool" where
-  terminal: "gram_T [\<epsilon>]" |
+  terminal: "gram_T []" |
   TaTb: "gram_T w \<Longrightarrow> gram_T (w @ [a] @ w @ [b])"
-
+  
+lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
+  apply(induction rule: gram_T.induct)
+   apply(simp add: gram_S.terminal)
+  oops
+    
 end
