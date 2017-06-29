@@ -97,10 +97,16 @@ lemma "ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n + m)"
   by (simp add: evSS)
     
 inductive ev' :: "nat \<Rightarrow> bool" where
- ev'0: "ev' 0" |
- ev'2: "ev' 2" |
- ev'sum: "ev' n \<Longrightarrow> ev' m \<Longrightarrow> ev' (n+m)"
- 
+  ev'0: "ev' 0" |
+  ev'2: "ev' 2" |
+  ev'sum: "ev' n \<Longrightarrow> ev' m \<Longrightarrow> ev' (n+m)"
+  
+lemma ev_n_ev_m_plus:"ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n+m)"
+  apply(induction rule:ev.induct)
+   apply simp
+  apply(simp)
+  by (simp add: evSS)
+    
 lemma ev_equivalent_ev':"ev n \<longleftrightarrow> ev' n"
   apply(rule)
    apply(induction rule:ev.induct)
@@ -108,21 +114,21 @@ lemma ev_equivalent_ev':"ev n \<longleftrightarrow> ev' n"
   using ev'2 ev'sum apply force
   apply(induction rule:ev'.induct)
     apply (simp add: ev0)
-  apply (simp add: ev0 evSS numeral_2_eq_2)
-  by (metis add_mult_distrib even_equivalent_doubled)
+   apply (simp add: ev0 evSS numeral_2_eq_2)
+  using ev_n_ev_m_plus by simp
     
-(* if stuck, flip order of premises *)
+    (* if stuck, flip order of premises *)
 lemma ev_n_plus_m:"ev (n+m) \<Longrightarrow> ev n \<Longrightarrow> ev m"
   apply(induction rule:ev.induct)
    apply(simp_all)
-    oops
-
+  oops
+    
 lemma ev_n_plus_m:"ev n \<Longrightarrow> ev (n+m) \<Longrightarrow> ev m"
   apply(induction rule:ev.induct)
    apply(simp_all)
   using ev.simps by blast
     
-(* End exercises from Software Foundations *)      
+    (* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
   "evn 0 = True"|  
