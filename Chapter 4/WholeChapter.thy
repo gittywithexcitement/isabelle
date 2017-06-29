@@ -271,27 +271,12 @@ lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
    apply(simp add: gram_S.empty)
   by (simp add: SS aSb)
     
-lemma foo:"gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
+lemma T_append_T:"gram_T w\<^sub>1 \<Longrightarrow> gram_T w\<^sub>0 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
   apply(induction rule: gram_T.induct)
    apply(simp add: gram_T.empty)
-  apply(simp)
-  (* sledgehammer *)
-  oops
-    
-lemma foo:"gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
-  apply(induction w\<^sub>0)
-   apply(simp)
-  apply(simp)
-  (* sledgehammer *)
-  oops
-    
-lemma foo:"gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
-  apply(induction w\<^sub>1)
-   apply(simp)
-  apply(simp)
-  (* sledgehammer *)
-  oops
-    
+    (* apply simp This will break the proof*)
+  by (metis append.assoc gram_T.simps)
+
 lemma T_like_aSb: "gram_T w \<Longrightarrow> gram_T (a # w @ [b])"  
   using TaTb gram_T.empty by fastforce
     
@@ -299,15 +284,11 @@ lemma S_implies_T: "gram_S w \<Longrightarrow> gram_T w"
   apply(induction rule: gram_S.induct)
     apply(simp add: gram_T.empty)
   using T_like_aSb apply simp
-  (* using TaTb gram_T.empty  *)
-      (* sledgehammer *)
+  using T_append_T by simp
     
- (* apply(induction rule: gram_T.induct) *)
-
-    (* apply(simp) *)
-  (* try0 *)
-  (* nitpick *)
-  (* sledgehammer *)
-  oops
+lemma S_equiv_T: "gram_S w \<longleftrightarrow> gram_T w"
+  apply(rule)
+   apply(simp add: S_implies_T)
+  by (simp add: T_implies_S)
     
 end
