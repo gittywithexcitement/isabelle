@@ -72,13 +72,24 @@ inductive ev :: "nat \<Rightarrow> bool" where
   evSS: "ev n \<Longrightarrow> ev (Suc(Suc n))"
   
   (* Exercises from Software Foundations, Inductively Defined Propositions, exercise 1  *)
-lemma "ev (n * 2)"
+lemma n_doubled_is_even:"ev (n * 2)"
   apply(induction n)
    apply (simp add: ev0)
   by (simp add: evSS)
     
 lemma "ev (Suc (Suc n)) \<Longrightarrow> ev n"
   using ev.simps by blast
+    
+lemma even_implies_doubled:"ev n \<Longrightarrow> \<exists>k. n = (k * 2)"
+  apply(induction rule: ev.induct)
+   apply simp
+  by arith
+
+lemma even_equivalent_doubled: "ev n \<longleftrightarrow> (\<exists>k. n = (k * 2))"
+  apply(rule)
+   apply(simp add:even_implies_doubled)
+  using n_doubled_is_even by auto
+    
 (* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
