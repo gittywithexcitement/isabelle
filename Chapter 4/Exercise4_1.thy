@@ -90,6 +90,12 @@ lemma even_equivalent_doubled: "ev n \<longleftrightarrow> (\<exists>k. n = (k *
    apply(simp add:even_implies_doubled)
   using n_doubled_is_even by auto
     
+lemma "ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n + m)"
+  apply(induction rule: ev.induct)
+   apply simp
+  apply(simp)
+  by (simp add: evSS)
+
 (* End exercises from Software Foundations *)      
   
 fun evn :: "nat \<Rightarrow> bool" where
@@ -131,7 +137,7 @@ inductive star :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<R
   refl: "star r x x" |
   step: "r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
   
-lemma star_transitive: "star r x y \<Longrightarrow> star r y z \<Longrightarrow> star r x z"
+lemma star_transitive: "star r a b \<Longrightarrow> star r b c \<Longrightarrow> star r a c"
   apply(induction rule: star.induct)
    apply(assumption)
   apply(simp)
