@@ -245,8 +245,13 @@ inductive iter :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> nat \<
   
 lemma iter_implies_star:"iter r n x y \<Longrightarrow> star r x y"
   apply(induction rule: iter.induct)
-   apply (simp add: star.refl)
-  by (simp add: star.step)
+   apply (metis star.refl)
+  by (metis star.step)
+    
+lemma star_implies_some_iter:"star r x y \<Longrightarrow> \<exists>n. iter r n x y "
+  apply(induction rule: star.induct)
+   apply (metis iter.refl)
+  by (metis iter.step)
     
       
 end
