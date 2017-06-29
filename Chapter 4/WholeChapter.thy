@@ -96,17 +96,17 @@ lemma "ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n + m)"
   apply(simp)
   by (simp add: evSS)
     
-inductive ev' :: "nat \<Rightarrow> bool" where
-  ev'0: "ev' 0" |
-  ev'2: "ev' 2" |
-  ev'sum: "ev' n \<Longrightarrow> ev' m \<Longrightarrow> ev' (n+m)"
-  
 lemma ev_n_ev_m_plus:"ev n \<Longrightarrow> ev m \<Longrightarrow> ev (n+m)"
   apply(induction rule:ev.induct)
    apply simp
   apply(simp)
   by (simp add: evSS)
     
+inductive ev' :: "nat \<Rightarrow> bool" where
+  ev'0: "ev' 0" |
+  ev'2: "ev' 2" |
+  ev'sum: "ev' n \<Longrightarrow> ev' m \<Longrightarrow> ev' (n+m)"
+  
 lemma ev_equivalent_ev':"ev n \<longleftrightarrow> ev' n"
   apply(rule)
    apply(induction rule:ev.induct)
@@ -140,9 +140,12 @@ lemma "le 2 2"
 lemma "le 1 2"
   by (metis Suc_1 eq grow)
 
-(* inductive lt :: "nat \<Rightarrow> nat \<Rightarrow> bool" where
-  base: "le x y \<and> le (Suc x) y \<Longrightarrow> lt x (Suc y)" *)
-  
+definition lt :: "nat \<Rightarrow> nat \<Rightarrow> bool" where
+  "lt x y = le (Suc x) y" 
+
+lemma "lt 1 2"
+  by (simp add: eq lt_def numeral_2_eq_2)
+        
 section "End exercises from Software Foundations"      
   
 fun evn :: "nat \<Rightarrow> bool" where
@@ -191,7 +194,7 @@ lemma star_transitive: "star r a b \<Longrightarrow> star r b c \<Longrightarrow
     (* by(metis step) *)
   by(metis star.step)
     
-section "Exercise 4.2"
+subsection "Exercise 4.2"
   
 inductive palindrome :: "'a list \<Rightarrow> bool" where
   empty: "palindrome []"|
@@ -202,6 +205,8 @@ lemma "palindrome xs \<Longrightarrow> rev xs = xs"
   apply(induction rule: palindrome.induct)
   by(simp_all)
     
+subsection "exercise 4.3"
+  
 inductive star' :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" for r where
   refl': "star' r x x" |
   step': "star' r x y \<Longrightarrow> r y z \<Longrightarrow> star' r x z"
@@ -229,5 +234,8 @@ lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
   apply(induction rule: star.induct)
    apply(metis star'.refl')
   by (metis refl' starp_transitive step')
+
+subsection "exercise 4.4"    
+    
     
 end
