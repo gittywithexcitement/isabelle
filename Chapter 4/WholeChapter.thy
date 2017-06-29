@@ -1,5 +1,4 @@
-(* exercise 3.12 *)
-theory Exercise4_1
+theory WholeChapter
   imports Main "~~/src/HOL/Library/Code_Target_Nat"  
 begin
   
