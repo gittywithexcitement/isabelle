@@ -90,7 +90,7 @@ lemma ev_to_evn:"ev m \<Longrightarrow> evn m"
   by simp_all
     
 lemma evn_to_ev:"evn n \<Longrightarrow> ev n"
-  apply(induction n rule: evn.induct)
+  apply(induction rule: evn.induct)
   by(simp_all add: ev0 evSS)
     
 lemma "evn n = ev n"
