@@ -235,7 +235,18 @@ lemma star_implies_starp:"star r x y \<Longrightarrow> star' r x y"
    apply(metis star'.refl')
   by (metis refl' starp_transitive step')
 
-subsection "exercise 4.4"    
+subsection "exercise 4.4"
+  
+inductive iter :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" for r where
+  refl: "iter r 0 x x" |
+  (* will the order of the premises make proving harder? *)
+  (* step: "iter r n x y \<Longrightarrow> r y z \<Longrightarrow> iter r (Suc n) x z" *)
+ step: "r x y \<Longrightarrow> iter r n y z \<Longrightarrow> iter r (Suc n) x z"
+  
+lemma iter_implies_star:"iter r n x y \<Longrightarrow> star r x y"
+  apply(induction rule: iter.induct)
+   apply (simp add: star.refl)
+  by (simp add: star.step)
     
-    
+      
 end
