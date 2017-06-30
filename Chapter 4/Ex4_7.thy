@@ -6,10 +6,11 @@ section "Exercise 4.6"
   
 inductive ok :: "nat \<Rightarrow> instr list \<Rightarrow> nat \<Rightarrow> bool" where
   empty: "ok n [] n" |
-  loadi: "ok _ is _ \<Longrightarrow> ok n ((LOADI _) # is) (n + 1)" |
+  loadi: "ok _ is n \<Longrightarrow> ok n ((LOADI _) # is) (n + 1)" |
   (* literal: "ok nb is na \<Longrightarrow> ok n ((LOADI _) # is) (na + 1)" *)
-  load: "ok _ is _ \<Longrightarrow> ok n ((LOAD _) # is) (n + 1)" |
-  add: "ok _ is _ \<Longrightarrow> n \<ge> 2 \<Longrightarrow> ok n (ADD # is) (n - 2)"
+  load: "ok _ is n \<Longrightarrow> ok n ((LOAD _) # is) (n + 1)" |
+  add: "ok _ is n \<Longrightarrow> n \<ge> 2 \<Longrightarrow> ok n (ADD # is) (n - 2)"
+  (* add: "ok _ is _ \<Longrightarrow> n \<ge> 2 \<Longrightarrow> ok n (ADD # is) (n - 2)" *)
   
   (* datatype instr = LOADI val | LOAD vname | ADD *)
   
@@ -19,12 +20,17 @@ lemma test0:"ok 0 [LOADI 9] 1"
 lemma "ok 1 [LOADI 9] 2"
   using empty loadi by (metis nat_1_add_1)
 
+lemma "ok n [LOADI 9] (n+1)"
+  using empty loadi by blast 
+
 lemma test1:"ok 0 [LOADI 9, LOADI 9] 2"
-  using loadi test0   sledgehammer
-(* proof -
+  (* using loadi test0 sledgehammer *)
+proof -
   have "ok 0 [LOADI 9] 1" using test0 by simp
-  then have "ok 0 [LOADI 9, LOADI 9] 2"
- *)    
+  then have "ok 0 [LOADI 9, LOADI 9] (1+1)" 
+    using loadi 
+    nitpick
+      
 
 (* lemma "aval_rel (Plus (N 2) (N 4)) <> 6"
 proof -
