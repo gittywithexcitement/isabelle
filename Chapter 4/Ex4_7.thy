@@ -6,11 +6,11 @@ section "Exercise 4.6"
   
 inductive ok :: "nat \<Rightarrow> instr list \<Rightarrow> nat \<Rightarrow> bool" where
   empty: "ok n [] n" |
-  loadi: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b ((LOADI _) # is) (n\<^sub>a + 1)" |
-  load: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b ((LOAD _) # is) (n\<^sub>a + 1)" |
-  add: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> n\<^sub>b \<ge> 2 \<Longrightarrow> ok n\<^sub>b (ADD # is) (n\<^sub>a - 1)"
+  loadi: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b (is @ [LOADI _]) (n\<^sub>a + 1)" |
+  load: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b (is @ [LOAD _]) (n\<^sub>a + 1)" |
+  add: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> n\<^sub>a \<ge> 2 \<Longrightarrow> ok n\<^sub>b (is @ [ADD]) (n\<^sub>a - 1)"
   
-theorem ok_computes_stack_size:
+(* theorem ok_computes_stack_size:
   "\<lbrakk>ok n instructions n'; length stack = n \<rbrakk> \<Longrightarrow> length (exec instructions state stack) = n'"
 proof(induction rule: ok.induct) (* arbitrary n? stack?*)
   case (empty n)
@@ -31,6 +31,7 @@ next
   case (add n\<^sub>b "is" n\<^sub>a)
   then show ?case (* try0 sledgehammer *) sorry
 qed 
+ *)
   
 (*case (empty  n)
   then show ?case 
