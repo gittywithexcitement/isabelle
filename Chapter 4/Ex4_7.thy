@@ -6,13 +6,13 @@ section "Exercise 4.6"
   
 inductive ok :: "nat \<Rightarrow> instr list \<Rightarrow> nat \<Rightarrow> bool" where
   empty: "ok n [] n" |
-  loadi: "ok _ is n \<Longrightarrow> ok _ ((LOADI _) # is) (n + 1)" |
-  load: "ok _ is n \<Longrightarrow> ok _ ((LOAD _) # is) (n + 1)" |
-  add: "ok _ is n \<Longrightarrow> n\<^sub>a\<^sub>t\<^sub>l\<^sub>e\<^sub>a\<^sub>s\<^sub>t \<ge> 2 \<Longrightarrow> ok n\<^sub>a\<^sub>t\<^sub>l\<^sub>e\<^sub>a\<^sub>s\<^sub>t (ADD # is) (n - 2)"
+  loadi: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b ((LOADI _) # is) (n\<^sub>a + 1)" |
+  load: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> ok n\<^sub>b ((LOAD _) # is) (n\<^sub>a + 1)" |
+  add: "ok n\<^sub>b is n\<^sub>a \<Longrightarrow> n\<^sub>b \<ge> 2 \<Longrightarrow> ok n\<^sub>b (ADD # is) (n\<^sub>a - 1)"
   
 theorem ok_computes_stack_size:
   "\<lbrakk>ok n instructions n'; length stack = n \<rbrakk> \<Longrightarrow> length (exec instructions state stack) = n'"
-proof(induction arbitrary: stack rule: ok.induct) (* arbitrary n? *)
+proof(induction rule: ok.induct) (* arbitrary n? stack?*)
   case (empty n)
   then show ?case 
     by simp
@@ -30,7 +30,7 @@ next
   then show ?case sledgehammer sorry
 next
   case (load ux instructions n uy uz)
-  then show ?case sledgehammer sorry
+  then show ?case (* sledgehammer *) sorry
 next
   case (add va instructions n n\<^sub>a\<^sub>t\<^sub>l\<^sub>e\<^sub>a\<^sub>s\<^sub>t)
   then show ?case sledgehammer sorry
@@ -57,23 +57,24 @@ lemma test1_3:"ok 1 [LOADI 9, LOADI 9] 3"
   using loadi 
   by (metis add.commute add_One add_One_commute empty inc.simps(2) nat_1_add_1 one_plus_numeral)    
     
-lemma "ok 2 [ADD] 0"
+lemma "ok 2 [ADD] 1"
 proof -
   have "ok 2 [] 2" 
     using empty by metis
-  hence "ok 2 [ADD] (2-2)" using add by blast
-  thus ?thesis by simp 
+  hence "ok 2 [ADD] (2-1)" using add by blast
+  thus ?thesis by simp
 qed
   
-lemma add2_1:"ok 2 [ADD, LOADI 1] 1"
+lemma add2_1:"ok 2 [ADD, LOADI 1] 2"
 proof -
   have "ok 2 [] 2" 
     using empty by metis
-  hence "ok 2 [ADD] 0" using add by fastforce
-  hence "ok 2 [ADD, LOADI 1] (0+1)"
-    using loadi by (metis add.left_neutral add_diff_cancel_left' ok.simps order_refl)
+  hence "ok 2 [ADD] 1" using add by fastforce
+  hence "ok 2 [ADD, LOADI 1] (1+1)"
+    using loadi 
+    by (metis \<open>ok 2 [] 2\<close> add add_diff_cancel_left' dual_order.refl nat_1_add_1 one_plus_numeral_commute)
   thus ?thesis
-    by simp
+    by (metis one_add_one)
 qed
   
 end
