@@ -12,14 +12,14 @@ lemma
 proof cases
   assume "A x y \<and> A y x"
   hence "x = y" using A by blast
-  thus "T x y" 
+  thus "T x y"
     using T by blast
 next
   assume "\<not>(A x y \<and> A y x)"
-  hence "\<not>A y x"
+  hence 0:"\<not>A y x"
     by (simp add: axy)
   have "\<forall> x y. T y x \<or> A x y" using T TA by blast
-  thus "T x y"  by (meson \<open>\<forall>x y. T y x \<or> A x y\<close> \<open>\<not> (A x y \<and> A y x)\<close> axy)
+  thus "T x y"  by (meson \<open>\<forall>x y. T y x \<or> A x y\<close> 0)
 qed
     
     (* proof (rule ccontr)
