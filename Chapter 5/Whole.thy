@@ -16,27 +16,10 @@ proof cases
     using T by blast
 next
   assume "\<not>(A x y \<and> A y x)"
-  hence 0:"\<not>A y x"
+  hence "\<not>A y x"
     by (simp add: axy)
-  have "\<forall> x y. T y x \<or> A x y" using T TA by blast
-  thus "T x y"  by (meson \<open>\<forall>x y. T y x \<or> A x y\<close> 0)
+  moreover have "\<forall> x y. T y x \<or> A x y" using T TA by blast
+  ultimately show "T x y" by metis
 qed
-    
-    (* proof (rule ccontr)
-  assume "\<not>(T x y)"
-    (* If I can prove \<not>(A x y), then that implies \<not>(T x y)
-      Not sure how that helps. *)
-  hence "\<forall> x y. T y x"  
-    using T A TA assms(4) by blast
-  have "\<forall> x y. T y x \<or> A x y" using T TA by blast
-      (* If I can prove x \<noteq> y, then \<not>(A x y \<and> A y x)
-                                   ... = (\<not>A x y) \<or> (\<not>A y x) 
-          because A x y, we have \<not>A y x*)
-  show False sorry
-qed
- *)  
-    
-    (* Is A y x true? *)
-    
-    
+
 end
