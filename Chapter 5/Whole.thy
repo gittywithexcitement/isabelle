@@ -46,6 +46,20 @@ next
     by (simp add: y z)
   moreover have "length ys\<^sub>p = length zs\<^sub>p + 1" using hl y z by fastforce
   ultimately show ?thesis by fastforce 
-qed 
+qed
+
+subsection "unnamed 'simple' Exercise"
   
+inductive ev :: "nat \<Rightarrow> bool" where
+ev0: "ev 0" |
+evSS: "ev n \<Longrightarrow> ev (Suc (Suc n))"
+  
+lemma "\<not>ev (Suc(Suc(Suc 0)))"
+proof
+  assume "ev (Suc (Suc (Suc 0)))"
+  hence "ev (Suc 0)" 
+    using ev.cases by blast
+  thus False by cases
+qed
+
 end
