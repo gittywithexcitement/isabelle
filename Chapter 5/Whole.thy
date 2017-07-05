@@ -1,7 +1,7 @@
 theory Whole imports Main begin
   
 section "Chapter 5"
-
+  
 subsection "Exercise 5.1"
   
 lemma 
@@ -25,7 +25,7 @@ next
 qed
   
 subsection "Exercise 5.2"
- 
+  
 lemma "(\<exists> ys zs. xs = ys @ zs \<and> length ys = length zs) 
      \<or> (\<exists> ys zs. xs = ys @ zs \<and> length ys = length zs + 1)"
 proof cases
@@ -86,7 +86,7 @@ proof(induction "Suc m" arbitrary: m rule:ev.induct)
 qed
   
 subsection "Exercise 5.3"
-
+  
   (* rule inversion *)
 lemma
   assumes a:"ev(Suc(Suc n))"
@@ -99,13 +99,28 @@ proof -
   qed
 qed
   
-(* Can I do the same proof with induction?   *)
+  (* Can I do the same proof with induction?   *)
 lemma
   assumes a:"ev(Suc(Suc n))"
   shows "ev n"
 proof(induction rule: ev.induct)
-(* No  *)
+  (* No  *)
   oops
-
-
+    
+  subsection "Exercise 5.4"
+    
+lemma "\<not> ev (Suc (Suc (Suc 0)))"
+proof
+  assume "ev (Suc (Suc (Suc 0)))"
+  thus False
+  proof cases
+    assume "ev (Suc 0)" 
+    thus False
+    proof cases
+    qed
+  qed
+qed
+  
+  
+  
 end
