@@ -166,8 +166,14 @@ next
     have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" using xa yp zp by simp
     then show ?thesis by blast 
   next
-    assume "x \<noteq> a"
-    then show ?thesis sorry
+    assume xa:"x \<noteq> a"
+      (* then show ?thesis by (metis IH append_Cons elems.simps(2) insert_iff prems) *)
+    obtain yp zp where yz:"xs = yp @ (x # zp) \<and> x \<notin> elems yp"
+      using IH prems xa by auto
+    obtain ya where yz:"ya = a # yp" by simp        
+    have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" nitpick 
+      (* using xa yp zp by simp *)
+    then show ?thesis by blast 
   qed 
 qed
   
