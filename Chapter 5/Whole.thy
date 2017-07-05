@@ -160,8 +160,11 @@ next
   then show ?case
     (* by (metis all_not_in_conv append_Cons append_Nil elems.simps(1) elems.simps(2) insert_iff) *)
   proof cases
-    assume "x = a"
-    then show ?thesis sorry
+    assume xa:"x = a"
+    obtain yp :: "'a list" where yp:"yp = []" by simp
+    obtain zp :: "'a list" where zp:"zp = xs" by simp
+    have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" using xa yp zp by simp
+    then show ?thesis by blast 
   next
     assume "x \<noteq> a"
     then show ?thesis sorry
