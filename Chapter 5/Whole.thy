@@ -147,38 +147,14 @@ fun elems :: "'a list \<Rightarrow> 'a set" where
   "elems (x # xs) = insert x (elems xs)"
 
 lemma 
-  assumes "x \<in> elems xs"
-  shows "\<exists>ys zs. xs = ys @ (x # zs) \<and> x \<notin> elems ys"
-    (* Proof by induction fails because xs can't be Nil *)
-    (*   using [[rule_trace]]  
-    find_theorems intro *)
-proof (* ?P ?x \<Longrightarrow> \<exists>x. ?P x *)
-  (* x \<in> elems xs \<Longrightarrow> \<exists>zs. xs = ?ys @ x # zs \<and> x \<notin> elems ?ys *)
-  
-  obtain lenYAtLeast where lyal:"x \<notin> elems (take lenYAtLeast xs)"
-    by (metis elems.simps(1) equals0D take_eq_Nil)
-      
-  obtain lengthY where ly:"x \<notin> elems (take lengthY xs) \<and> x \<in> elems (take (lengthY+1) xs)"
-  proof 
-    assume 
-    qed
-      
-      
-      (* obtain lengthY where ly:"x \<notin> elems (take lengthY xs) \<and> hd (drop lengthY xs) = x" *)
-      (* Proof by induction fails because xs can't be Nil *)
-      (* sledgehammer timed out *)
-      
-      (* obtain lengthY where ly:"hd (drop lengthY xs) = x" *)
-      
-    obtain yp where yp:"x \<notin> elems yp" 
-      using elems.simps elemsHelper.simps(1) by fastforce
-    obtain zp where zp:"zp = drop (length yp + 1) xs"
-      by simp
-    have "xs = yp @ (x # zp)" using yp zp sledgehammer
-        
-        (*   then obtain halfLength where hl:"2 * halfLength = length xs" 
-    by (metis evenE) *)  
-        
-      oops
+  shows "x \<in> elems xs \<Longrightarrow> \<exists>ys zs. xs = ys @ (x # zs) \<and> x \<notin> elems ys"
+proof(induction xs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a xs)
+  then show ?case
+    by (metis all_not_in_conv append_Cons append_Nil elems.simps(1) elems.simps(2) insert_iff)
+qed
         
 end
