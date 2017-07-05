@@ -145,7 +145,7 @@ subsection "Exercise 5.6"
 fun elems :: "'a list \<Rightarrow> 'a set" where
   "elems [] = {}" |
   "elems (x # xs) = insert x (elems xs)"
-
+  
 lemma "x \<in> elems xs \<Longrightarrow> \<exists>ys zs. xs = ys @ (x # zs) \<and> x \<notin> elems ys"
 proof(induction xs)
   case Nil
@@ -171,5 +171,47 @@ next
     thus ?thesis by blast
   qed 
 qed
-          
+  
+subsection "Exercise 5.7"
+  
+(* copied from exercise 4.5 *)
+  
+datatype alpha = a | b
+  
+inductive gram_S :: "alpha list \<Rightarrow> bool" where
+  empty: "gram_S []" |
+  aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
+  SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)"
+  
+inductive gram_T :: "alpha list \<Rightarrow> bool" where
+  empty: "gram_T []" |
+  TaTb: "gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ [a] @ w\<^sub>1 @ [b])"
+  
+lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
+  apply(induction rule: gram_T.induct)
+   apply(simp add: gram_S.empty)
+  by (simp add: SS aSb)
+    
+lemma T_append_T:"gram_T w\<^sub>1 \<Longrightarrow> gram_T w\<^sub>0 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
+  apply(induction rule: gram_T.induct)
+   apply(simp add: gram_T.empty)
+    (* apply simp This will break the proof*)
+  by (metis append.assoc gram_T.simps)
+
+lemma T_like_aSb: "gram_T w \<Longrightarrow> gram_T (a # w @ [b])"  
+  using TaTb gram_T.empty by fastforce
+    
+lemma S_implies_T: "gram_S w \<Longrightarrow> gram_T w"
+  apply(induction rule: gram_S.induct)
+    apply(simp add: gram_T.empty)
+  using T_like_aSb apply simp
+  using T_append_T by simp
+    
+lemma S_equiv_T: "gram_S w \<longleftrightarrow> gram_T w"
+  apply(rule)
+   apply(simp add: S_implies_T)
+  by (simp add: T_implies_S)
+    
+    (* end of copy-pasta *)
+
 end
