@@ -1,4 +1,4 @@
-theory Whole imports Main begin
+theory WholeChapter imports Main begin
   
 section "Chapter 5"
   
