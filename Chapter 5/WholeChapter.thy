@@ -73,9 +73,9 @@ proof(induction "Suc m" arbitrary: m rule:ev.induct)
   then show ?case 
   proof - (* (rule (* classical *) ccontr) *)
     assume "ev (Suc n)"
-    thus False sorry
+(*     thus False sorry
   qed
-qed
+qed *)
   oops
     
 lemma "ev (Suc m) \<Longrightarrow> \<not>ev m"
