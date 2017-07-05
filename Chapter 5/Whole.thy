@@ -168,12 +168,16 @@ next
   next
     assume xa:"x \<noteq> a"
       (* then show ?thesis by (metis IH append_Cons elems.simps(2) insert_iff prems) *)
-    obtain yp zp where yz:"xs = yp @ (x # zp) \<and> x \<notin> elems yp"
-      using IH prems xa by auto
-    obtain ya where yz:"ya = a # yp" by simp        
-    have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" nitpick 
+    then obtain yp zp where yz:"xs = yp @ (x # zp) \<and> x \<notin> elems yp"
+      using IH prems by auto
+    obtain ya where yz:"ya = a # yp" by simp
+    have "x \<notin> elems yp" using IH yz sledgehammer try0
+    (* hence "x \<notin> elems ya" using xa IH try0 sledgehammer nitpick quickcheck[random] *)
+        
+    (* ultimately have "a # xs = ya @ x # zp \<and> x \<notin> elems ya" sledgehammer  *)
       (* using xa yp zp by simp *)
-    then show ?thesis by blast 
+    ultimately show ?thesis sledgehammer
+        sorry
   qed 
 qed
   
