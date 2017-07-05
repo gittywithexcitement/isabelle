@@ -1,6 +1,7 @@
 theory Whole imports Main begin
   
 section "Chapter 5"
+
 subsection "Exercise 5.1"
   
 lemma 
@@ -22,7 +23,9 @@ next
   moreover have "\<forall> x y. T y x \<or> A x y" using T TA by blast
   ultimately show "T b c" by metis
 qed
-
+  
+subsection "Exercise 5.2"
+ 
 lemma "(\<exists> ys zs. xs = ys @ zs \<and> length ys = length zs) 
      \<or> (\<exists> ys zs. xs = ys @ zs \<and> length ys = length zs + 1)"
 proof cases
@@ -47,12 +50,12 @@ next
   moreover have "length ys\<^sub>p = length zs\<^sub>p + 1" using hl y z by fastforce
   ultimately show ?thesis by fastforce 
 qed
-
+  
 subsection "unnamed 'simple' Exercise"
   
 inductive ev :: "nat \<Rightarrow> bool" where
-ev0: "ev 0" |
-evSS: "ev n \<Longrightarrow> ev (Suc (Suc n))"
+  ev0: "ev 0" |
+  evSS: "ev n \<Longrightarrow> ev (Suc (Suc n))"
   
 lemma "\<not>ev (Suc(Suc(Suc 0)))"
 proof
@@ -61,5 +64,26 @@ proof
     using ev.cases by blast
   thus False by cases
 qed
+  
+  (* I can't reproduce the proof on page 68.   *)
+lemma "ev (Suc m) \<Longrightarrow> \<not>ev m"
+proof(induction "Suc m" arbitrary: m rule:ev.induct)
+  (* case ev0 does not exist *)
+  case (evSS n)
+  then show ?case 
+  proof - (* (rule (* classical *) ccontr) *)
+    assume "ev (Suc n)"
+    thus False sorry
+  qed
+qed
+  oops
+    
+lemma "ev (Suc m) \<Longrightarrow> \<not>ev m"
+proof(induction "Suc m" arbitrary: m rule:ev.induct)
+  case (evSS n)
+  then show ?case
+    using ev.cases by auto
+qed
+  
 
 end
