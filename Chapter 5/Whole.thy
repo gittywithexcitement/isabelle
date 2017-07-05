@@ -99,12 +99,12 @@ proof -
   qed
 qed
   
-  (* Can I do the same proof with induction?   *)
+  (* Can I do the same proof with induction? ... No.  *)
 lemma
   assumes a:"ev(Suc(Suc n))"
   shows "ev n"
 proof(induction rule: ev.induct)
-  (* No  *)
+  (* Failed to apply initial proof method  *)
   oops
     
   subsection "Exercise 5.4"
