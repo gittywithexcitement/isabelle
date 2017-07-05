@@ -158,19 +158,17 @@ next
   then show ?case
   proof cases
     assume xa:"x = a"
-    obtain yp :: "'a list" where yp:"yp = []" by simp
-    obtain zp :: "'a list" where zp:"zp = xs" by simp
-    have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" using xa yp zp by simp
+    moreover obtain yp :: "'a list" where yp:"yp = []" by simp
+    moreover obtain zp :: "'a list" where zp:"zp = xs" by simp
+    ultimately have "a # xs = yp @ x # zp \<and> x \<notin> elems yp" by simp
     then show ?thesis by blast 
   next
-    assume xa:"x \<noteq> a"
-    then obtain ys zs where yz:"xs = ys @ (x # zs) \<and> x \<notin> elems ys"
+    assume "x \<noteq> a"
+    moreover then obtain ys zs where "xs = ys @ (x # zs) \<and> x \<notin> elems ys"
       using IH prems by auto
-    obtain ays where ays:"ays = a # ys" by simp
-    hence "x \<notin> elems ays" using xa yz by auto
-    moreover have "a # xs = ays @ x # zs"
-      using ays yz by auto
-    ultimately show ?thesis by blast
+    moreover obtain ays where "ays = a # ys" by simp
+    ultimately have "a # xs = ays @ x # zs \<and> x \<notin> elems ays" by auto
+    thus ?thesis by blast
   qed 
 qed
           
