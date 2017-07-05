@@ -100,15 +100,15 @@ proof -
 qed
   
   (* Can I do the same proof with induction? ... No.  *)
-lemma
+  (* lemma
   assumes a:"ev(Suc(Suc n))"
   shows "ev n"
 proof(induction rule: ev.induct)
   (* Failed to apply initial proof method  *)
-  oops
-    
-  subsection "Exercise 5.4"
-    
+ *)
+  
+subsection "Exercise 5.4"
+  
 lemma "\<not> ev (Suc (Suc (Suc 0)))"
 proof
   assume "ev (Suc (Suc (Suc 0)))"
