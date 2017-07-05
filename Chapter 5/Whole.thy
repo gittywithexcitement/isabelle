@@ -129,8 +129,6 @@ inductive star :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<R
   
 inductive iter :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool" for r where
   refl: "iter r 0 x x" |
-  (* will the order of the premises make proving harder? *)
-  (* step: "iter r n x y \<Longrightarrow> r y z \<Longrightarrow> iter r (Suc n) x z" *)
   step: "r x y \<Longrightarrow> iter r n y z \<Longrightarrow> iter r (Suc n) x z"
   
 lemma "iter r n x y \<Longrightarrow> star r x y"
@@ -142,5 +140,10 @@ next
   then show ?case by (meson star.step)
 qed
   
+subsection "Exercise 5.6"
   
+fun elems :: "'a list \<Rightarrow> 'a set" where
+  "elems [] = {}" |
+  "elems (x # xs) = insert x (elems xs)"
+
 end
