@@ -85,5 +85,27 @@ proof(induction "Suc m" arbitrary: m rule:ev.induct)
     using ev.cases by auto
 qed
   
+subsection "Exercise 5.3"
+
+  (* rule inversion *)
+lemma
+  assumes a:"ev(Suc(Suc n))"
+  shows "ev n"
+proof -
+  from a show "ev n"
+  proof cases
+    case evSS
+    then show ?thesis by simp 
+  qed
+qed
+  
+(* Can I do the same proof with induction?   *)
+lemma
+  assumes a:"ev(Suc(Suc n))"
+  shows "ev n"
+proof(induction rule: ev.induct)
+(* No  *)
+  oops
+
 
 end
