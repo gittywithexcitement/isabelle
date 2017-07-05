@@ -1,4 +1,4 @@
-theory WholeChapter
+theory "4_1to4_5"
   imports Main "~~/src/HOL/Library/Code_Target_Nat"  
 begin
   
