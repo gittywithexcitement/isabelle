@@ -146,9 +146,7 @@ fun elems :: "'a list \<Rightarrow> 'a set" where
   "elems [] = {}" |
   "elems (x # xs) = insert x (elems xs)"
 
-lemma 
-  (* assumes "x \<in> elems xs" *)
-  shows "x \<in> elems xs \<Longrightarrow> \<exists>ys zs. xs = ys @ (x # zs) \<and> x \<notin> elems ys"
+lemma "x \<in> elems xs \<Longrightarrow> \<exists>ys zs. xs = ys @ (x # zs) \<and> x \<notin> elems ys"
 proof(induction xs)
   case Nil
   then show ?case by simp
@@ -158,7 +156,6 @@ next
   assume IH : "x \<in> elems xs \<Longrightarrow> \<exists>ys zs. xs = ys @ x # zs \<and> x \<notin> elems ys" 
     and prems : "x \<in> elems (a # xs)"
   then show ?case
-    (* by (metis all_not_in_conv append_Cons append_Nil elems.simps(1) elems.simps(2) insert_iff) *)
   proof cases
     assume xa:"x = a"
     obtain yp :: "'a list" where yp:"yp = []" by simp
@@ -167,47 +164,14 @@ next
     then show ?thesis by blast 
   next
     assume xa:"x \<noteq> a"
-      (* then show ?thesis by (metis IH append_Cons elems.simps(2) insert_iff prems) *)
-    then obtain yp zp where yz:"xs = yp @ (x # zp) \<and> x \<notin> elems yp"
+    then obtain ys zs where yz:"xs = ys @ (x # zs) \<and> x \<notin> elems ys"
       using IH prems by auto
-    obtain ya where yz:"ya = a # yp" by simp
-    have "x \<notin> elems yp" using IH yz sledgehammer try0
-    (* hence "x \<notin> elems ya" using xa IH try0 sledgehammer nitpick quickcheck[random] *)
-        
-    (* ultimately have "a # xs = ya @ x # zp \<and> x \<notin> elems ya" sledgehammer  *)
-      (* using xa yp zp by simp *)
-    ultimately show ?thesis sledgehammer
-        sorry
+    obtain ays where ays:"ays = a # ys" by simp
+    hence "x \<notin> elems ays" using xa yz by auto
+    moreover have "a # xs = ays @ x # zs"
+      using ays yz by auto
+    ultimately show ?thesis by blast
   qed 
 qed
-  
-    oops
-  (* x \<in> elems xs \<Longrightarrow> \<exists>zs. xs = ?ys @ x # zs \<and> x \<notin> elems ?ys *)
-  
-  obtain lenYAtLeast where lyal:"x \<notin> elems (take lenYAtLeast xs)"
-    by (metis elems.simps(1) equals0D take_eq_Nil)
-      
-  obtain lengthY where ly:"x \<notin> elems (take lengthY xs) \<and> x \<in> elems (take (lengthY+1) xs)"
-  proof 
-    assume 
-    qed
-      
-      
-      (* obtain lengthY where ly:"x \<notin> elems (take lengthY xs) \<and> hd (drop lengthY xs) = x" *)
-      (* Proof by induction fails because xs can't be Nil *)
-      (* sledgehammer timed out *)
-      
-      (* obtain lengthY where ly:"hd (drop lengthY xs) = x" *)
-      
-    obtain yp where yp:"x \<notin> elems yp" 
-      using elems.simps elemsHelper.simps(1) by fastforce
-    obtain zp where zp:"zp = drop (length yp + 1) xs"
-      by simp
-    have "xs = yp @ (x # zp)" using yp zp sledgehammer
-        
-        (*   then obtain halfLength where hl:"2 * halfLength = length xs" 
-    by (metis evenE) *)  
-        
-      oops
-        
+          
 end
