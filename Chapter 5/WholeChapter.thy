@@ -347,19 +347,16 @@ next
         that's ok. Can I use hyps(4) to help me with that? *)
       (* fix len_w1_prefix assume "len_w1_prefix = length xs - length w\<^sub>0" *)
       then obtain len_w1_prefix where lwp:"len_w1_prefix = length xs - length w\<^sub>0" by simp
+      obtain lh rh where lhrh:"lh = w\<^sub>0 @ (take len_w1_prefix w\<^sub>1) \<and> rh = (drop len_w1_prefix w\<^sub>1)" by simp
       hence "gram_S ((take len_w1_prefix w\<^sub>1) @ [a,b] @ (drop len_w1_prefix w\<^sub>1))"
         using hyps(4) by auto
       hence "gram_S (w\<^sub>0 @ (take len_w1_prefix w\<^sub>1) @ [a,b] @ (drop len_w1_prefix w\<^sub>1))"
-        by (simp add: SS hyps(1))
-      then show ?thesis 
-      proof -
-        have "xs = take (length xs) (w\<^sub>0 @ w\<^sub>1)"
-          by (metis append_eq_conv_conj hyps(5))
-        then have "xs = w\<^sub>0 @ take len_w1_prefix w\<^sub>1"
-          by (simp add: True less_imp_le_nat lwp)
-        then show ?thesis
-          by (metis True \<open>gram_S (w\<^sub>0 @ take len_w1_prefix w\<^sub>1 @ [a, b] @ drop len_w1_prefix w\<^sub>1)\<close> append_assoc append_eq_conv_conj drop_all drop_append hyps(5) less_imp_le_nat lwp self_append_conv2)
-      qed
+        using SS hyps(1) by blast
+      hence "gram_S (lh @ [a,b] @ rh)"
+        by (simp add: lhrh)
+      thus ?thesis 
+        sledgehammer
+        by (metis True append_eq_conv_conj append_self_conv2 drop_all drop_append hyps(5) less_imp_le_nat lhrh lwp take_all take_append)
     next
       case False
       hence "length w\<^sub>0 > length xs" 
