@@ -351,22 +351,20 @@ next
         using SS hyps(1) hyps(4) by auto
       moreover have "lh = xs \<and> rh = ys"
         by (metis True append_eq_conv_conj append_self_conv2 drop_all drop_append hyps(5) less_or_eq_imp_le lhrh lwp take_all take_append) 
-      ultimately show ?thesis 
-        by simp
+      ultimately show ?thesis by simp
     next
       case False
       hence "length w\<^sub>0 > length xs" 
         using neq by auto 
           (* Then if we inserted [a,b] after xs, we'd be inserting it into the middle of w\<^sub>0. Prove
         that's ok. *)
-      then obtain len_xs where lxs:"len_xs = length xs" by simp
-      obtain lh rh where lhrh:"lh = (take len_xs w\<^sub>0) \<and> rh = (drop len_xs w\<^sub>0) @ w\<^sub>1" by simp
-      hence "gram_S (lh @ [a,b] @ rh)"
+      then obtain len_xs where "len_xs = length xs" by simp
+      moreover obtain lh rh where "lh = (take len_xs w\<^sub>0) \<and> rh = (drop len_xs w\<^sub>0) @ w\<^sub>1" by simp
+      moreover hence glh:"gram_S (lh @ [a,b] @ rh)"
         by (metis append.assoc append_take_drop_id gram_S.simps hyps(2) hyps(3))
-      moreover have "lh = xs \<and> rh = ys" 
-        by (metis False append_eq_append_conv_if hyps(5) le_neq_implies_less lhrh lxs)
-      ultimately show ?thesis 
-        by simp
+      ultimately have "lh = xs \<and> rh = ys" 
+        by (metis False append_eq_append_conv_if hyps(5) le_neq_implies_less)
+      thus ?thesis using glh by simp
     qed
   qed
 qed
