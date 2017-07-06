@@ -182,37 +182,9 @@ inductive gram_S :: "alpha list \<Rightarrow> bool" where
   empty: "gram_S []" |
   aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
   SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)"
-  
-(* inductive gram_T :: "alpha list \<Rightarrow> bool" where
-  empty: "gram_T []" |
-  TaTb: "gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ [a] @ w\<^sub>1 @ [b])"
-  
-lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
-  apply(induction rule: gram_T.induct)
-   apply(simp add: gram_S.empty)
-  by (simp add: SS aSb)
-    
-lemma T_append_T:"gram_T w\<^sub>1 \<Longrightarrow> gram_T w\<^sub>0 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
-  apply(induction rule: gram_T.induct)
-   apply(simp add: gram_T.empty)
-  by (metis append.assoc gram_T.simps)
 
-lemma T_like_aSb: "gram_T w \<Longrightarrow> gram_T (a # w @ [b])"  
-  using TaTb gram_T.empty by fastforce
-    
-lemma S_implies_T: "gram_S w \<Longrightarrow> gram_T w"
-  apply(induction rule: gram_S.induct)
-    apply(simp add: gram_T.empty)
-  using T_like_aSb apply simp
-  using T_append_T by simp
-    
-lemma S_equiv_T: "gram_S w \<longleftrightarrow> gram_T w"
-  apply(rule)
-   apply(simp add: S_implies_T)
-  by (simp add: T_implies_S) *)
-    
-    (* end of copy-pasta *)
-
+  (* end of copy-pasta *)
+  
   (* Is the list a balanced list of parens? *)
   (* n (first arg) is number of open parens (number of unmatched a's) *)
 fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
@@ -233,12 +205,92 @@ value "balanced 0 [a,a,a,b,b]"
 value "balanced 0 [a,a,b,b,b]"
 value "balanced 0 [a,a,b]"
   
-  (* The `a` and `b` are the constructors of datatype alpha *)
+  (* empty: "gram_S []" | *)
+  (* aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" | *)
+  (* SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)" *)
+lemma first_a_last_b: "gram_S (a # rest) \<Longrightarrow> hd (rev rest) = b"
+proof -
+  (* rule inversion *)
+  assume "gram_S (a # rest)"
+  from this have "hd (rev rest) = b"
+  proof cases
+    (* case empty then show ?case sorry next *)
+    case (aSb w)
+    then show ?thesis
+      by simp 
+  next
+    case (SS w\<^sub>0 w\<^sub>1)
+    then show ?thesis (* sledgehammer *) sorry
+  qed
+  thus ?thesis by simp
+qed
+  
+(* proof(rule ccontr)
+  assume "hd (rev rest) \<noteq> b"
+  thus False
+  proof cases
+  qed
+qed *)
+(* proof(induction rule:gram_S.induct) doesn't work *)
+ 
+(* proof(induction rest)
+  case Nil
+  then show ?case try sorry
+next
+  case (Cons a rest)
+  then show ?case try sorry
+qed *)
+
+lemma last_n_elements_are_b: 
+  "gram_S (replicate n a @ rest) \<Longrightarrow> take n (rev rest) = replicate n b"
+proof(induction n)
+  case 0
+  then show ?case 
+    by simp 
+next
+  case (Suc n)
+(* using this:
+    gram_S (replicate n a @ rest) \<Longrightarrow> take n (rev rest) = replicate n b
+    gram_S (replicate (Suc n) a @ rest)
+
+goal (1 subgoal):
+    take (Suc n) (rev rest) = replicate (Suc n) b     *)
+
+  then show ?case (* sledgehammer *) sorry
+qed
+  
+  
+    
+(* The `a` and `b` are the constructors of datatype alpha *)
 lemma insert_ab_middle_of_S:
   "gram_S (replicate n a @ rest) \<Longrightarrow> gram_S (replicate n a @ [a, b] @ rest)"
+  (* This could be produced by S (a \<epsilon> b) S = S ab S *)
+proof -
+  assume prem:"gram_S (replicate n a @ rest)"
+  hence "gram_S (replicate n a @ [a, b] @ rest)"
+  proof cases
+    case empty
+    then show ?thesis
+      using prem aSb by fastforce
+  next
+    case (aSb w)
+    then show ?thesis (* sledgehammer *) sorry
+  next
+    case assms:(SS w\<^sub>0 w\<^sub>1)
+    moreover have "gram_S [a,b]"
+      using aSb empty by fastforce
+    moreover have "gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)" 
+      using SS calculation(2) calculation(3) calculation(4) by blast
+    ultimately show ?thesis (* sledgehammer *) sorry
+        (* The problem is I have not proved that w\<^sub>0 is `replicate n a` *)
+  qed
+  thus ?thesis by simp
+qed 
+  
+(*   Won't work:
 proof(induction rule: gram_S.induct)
   case empty
-  then show ?case (* try *) (* sledgehammer *) sorry
+  then show ?case sorry
 next
   case (aSb w)
   then show ?case 
@@ -247,11 +299,13 @@ next
   case (SS w\<^sub>0 w\<^sub>1)
   then show ?case 
     by simp 
-qed
+qed *)
 
-lemma balanced_implies_S:"balanced n w \<Longrightarrow> gram_S (replicate n a @ w)"
+  
+  (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
+lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
 (* proof(induction (* arbitrary: *) n w rule: balanced.induct) *)
-proof(induction n w rule: balanced.induct)
+proof(induction n string rule: balanced.induct)
   case 1
   then show ?case by (simp add: empty)
 next
@@ -268,8 +322,39 @@ next
 next
   case (5 n rest)
     (* "balanced (Suc n) (b # rest) = balanced n rest" *)
+    
+    (* this:
+    balanced n rest \<Longrightarrow> gram_S (replicate n a @ rest)
+    balanced (Suc n) (b # rest)
 
-  then show ?case 
+goal (1 subgoal):
+ 1. \<And>n rest. (balanced n rest \<Longrightarrow> gram_S (replicate n a @ rest)) 
+\<Longrightarrow> balanced (Suc n) (b # rest) 
+\<Longrightarrow> gram_S (replicate (Suc n) a @ b # rest)     *)    
+    
+  hence "balanced n rest"
+    by simp
+  hence 0:"gram_S (replicate n a @ rest)"
+    by (simp add: "5.IH")
+  (* hence "gram_S (replicate n a @ (a # w @ [b]) @ rest)" *)
+  hence "gram_S (replicate n a @ [a, b] @ rest)"
+  proof -
+    (* The last n elements of rest must be b's
+        the other leading elements of rest must therefore satisfy S
+        so prefixing [a,b] to those elements will also satisfy S *)
+    have "gram_S (a # [] @ [b])" using aSb empty by blast
+    hence "gram_S [a, b]" by simp
+    thus ?thesis
+      (* sledgehammer *)
+        sorry
+    qed
+      (* a # w @ [b] *)
+    (* aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" | *)
+    (* SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)" *)
+
+    sorry
+      
+  thus ?case 
     
     (* sledgehammer *) 
     sorry
