@@ -343,6 +343,9 @@ next
     then show ?thesis 
     proof(cases "length w\<^sub>0 < length xs")
       case True
+        (* Then if we inserted [a,b] after xs, we'd be inserting it into the middle of w\<^sub>1. Prove
+        that's ok. Can I use hyps(4) to help me with that? *)
+      (* fix len_w1_prefix assume "len_w1_prefix = length xs - length w\<^sub>0" *)
       then show ?thesis 
         (* sledgehammer  *)
         sorry
