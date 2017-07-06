@@ -345,18 +345,14 @@ next
       case True
         (* Then if we inserted [a,b] after xs, we'd be inserting it into the middle of w\<^sub>1. Prove
         that's ok. Can I use hyps(4) to help me with that? *)
-      (* fix len_w1_prefix assume "len_w1_prefix = length xs - length w\<^sub>0" *)
       then obtain len_w1_prefix where lwp:"len_w1_prefix = length xs - length w\<^sub>0" by simp
       obtain lh rh where lhrh:"lh = w\<^sub>0 @ (take len_w1_prefix w\<^sub>1) \<and> rh = (drop len_w1_prefix w\<^sub>1)" by simp
-      hence "gram_S ((take len_w1_prefix w\<^sub>1) @ [a,b] @ (drop len_w1_prefix w\<^sub>1))"
-        using hyps(4) by auto
-      hence "gram_S (w\<^sub>0 @ (take len_w1_prefix w\<^sub>1) @ [a,b] @ (drop len_w1_prefix w\<^sub>1))"
-        using SS hyps(1) by blast
       hence "gram_S (lh @ [a,b] @ rh)"
-        by (simp add: lhrh)
-      thus ?thesis 
-        sledgehammer
-        by (metis True append_eq_conv_conj append_self_conv2 drop_all drop_append hyps(5) less_imp_le_nat lhrh lwp take_all take_append)
+        using SS hyps(1) hyps(4) by auto
+      moreover have "lh = xs \<and> rh = ys"
+        by (metis True append_eq_conv_conj append_self_conv2 drop_all drop_append hyps(5) less_or_eq_imp_le lhrh lwp take_all take_append) 
+      ultimately show ?thesis 
+        by simp
     next
       case False
       hence "length w\<^sub>0 > length xs" 
