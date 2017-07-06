@@ -208,22 +208,34 @@ value "balanced 0 [a,a,b]"
   (* empty: "gram_S []" | *)
   (* aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" | *)
   (* SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)" *)
-lemma first_a_last_b: "gram_S (a # rest) \<Longrightarrow> hd (rev rest) = b"
-proof -
+lemma first_a_last_b: "gram_S (a # rest) \<Longrightarrow> last rest = b"
+proof(induction "(a # rest)" arbitrary:rest rule: gram_S.induct)
+  (* case empty then show ?case sorrynext *)
+  case (aSb w)
+  then show ?case 
+    by simp
+next
+  case (SS w\<^sub>0 w\<^sub>1)
+    (* I think I need to show this case is impossible? by contradiction? *)
+  then show ?case sledgehammer sorry
+qed
+(* proof -
   (* rule inversion *)
   assume "gram_S (a # rest)"
-  from this have "hd (rev rest) = b"
+  from this have "last rest = b"
   proof cases
     (* case empty then show ?case sorry next *)
     case (aSb w)
     then show ?thesis
       by simp 
   next
-    case (SS w\<^sub>0 w\<^sub>1)
-    then show ?thesis (* sledgehammer *) sorry
+    case (SS w\<^sub>0 w\<^sub>1)  
+    then show ?thesis
+      (* maybe proof by contradiction? *)
+    (* proof(cases w\<^sub>1) nope *)
   qed
   thus ?thesis by simp
-qed
+qed *)
   
 (* proof(rule ccontr)
   assume "hd (rev rest) \<noteq> b"
@@ -231,6 +243,7 @@ qed
   proof cases
   qed
 qed *)
+  
 (* proof(induction rule:gram_S.induct) doesn't work *)
  
 (* proof(induction rest)
@@ -264,6 +277,7 @@ qed
 (* The `a` and `b` are the constructors of datatype alpha *)
 lemma insert_ab_middle_of_S:
   "gram_S (replicate n a @ rest) \<Longrightarrow> gram_S (replicate n a @ [a, b] @ rest)"
+  (* TODO use advanced rule induction *)
   (* This could be produced by S (a \<epsilon> b) S = S ab S *)
 proof -
   assume prem:"gram_S (replicate n a @ rest)"
@@ -285,7 +299,31 @@ proof -
         (* The problem is I have not proved that w\<^sub>0 is `replicate n a` *)
   qed
   thus ?thesis by simp
-qed 
+oops
+  
+lemma insert_ab_middle_of_S:  "gram_S (xs @ ys) \<Longrightarrow> gram_S (xs @ [a, b] @ ys)"
+proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
+  case empty
+  then show ?case
+    using aSb gram_S.empty by force 
+next
+  case (aSb w)
+  then show ?case sorry
+next
+  case (SS w\<^sub>0 w\<^sub>1)
+  then obtain xp yp where xy:"xp = w\<^sub>0 \<and> yp = w\<^sub>1" by simp
+  (* hence "gram_S xp \<and> gram_S yp" by (simp add: SS.hyps(1) SS.hyps(3)) *)
+  have "gram_S [a,b]"
+    using aSb empty by fastforce
+  hence "gram_S (xp @ [a,b] @ yp)" 
+    using SS.hyps(1) SS.hyps(3) gram_S.SS xy by blast
+  thus ?case 
+    try
+    (* sledgehammer *)
+    sorry
+qed
+  
+  (* https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
   
 (*   Won't work:
 proof(induction rule: gram_S.induct)
@@ -300,6 +338,8 @@ next
   then show ?case 
     by simp 
 qed *)
+  
+ 
 
   
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
