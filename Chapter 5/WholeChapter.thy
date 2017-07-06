@@ -335,6 +335,11 @@ next
           using hyps(2) by fastforce
         hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])"
           by (metis append.assoc gram_S.simps) 
+            
+        have "xs = a # (take (length xs - 1) w)"
+          using hyps(3) len_fs x_nontrivial
+          sledgehammer
+            sorry
 (*         have "xs = a # fs" 
           using fsgs
           (* nitpick Nitpick found no counterexample *)
@@ -342,8 +347,9 @@ next
           (* sledgehammer  *)
           sorry *)
         then show ?thesis 
-          sledgehammer
+          (* sledgehammer *)
           by (metis len_fs append_Cons append_eq_append_conv_if fsgs gram_all hyps(3) length_tl list.sel(3) take_all)
+            sorry
       next
         case False
         hence "length ys = 0" by simp
