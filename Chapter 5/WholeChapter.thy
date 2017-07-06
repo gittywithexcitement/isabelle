@@ -183,7 +183,7 @@ inductive gram_S :: "alpha list \<Rightarrow> bool" where
   aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
   SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)"
   
-inductive gram_T :: "alpha list \<Rightarrow> bool" where
+(* inductive gram_T :: "alpha list \<Rightarrow> bool" where
   empty: "gram_T []" |
   TaTb: "gram_T w\<^sub>0 \<Longrightarrow> gram_T w\<^sub>1 \<Longrightarrow> gram_T (w\<^sub>0 @ [a] @ w\<^sub>1 @ [b])"
   
@@ -195,7 +195,6 @@ lemma T_implies_S: "gram_T w \<Longrightarrow> gram_S w"
 lemma T_append_T:"gram_T w\<^sub>1 \<Longrightarrow> gram_T w\<^sub>0 \<Longrightarrow> gram_T (w\<^sub>0 @ w\<^sub>1)"    
   apply(induction rule: gram_T.induct)
    apply(simp add: gram_T.empty)
-    (* apply simp This will break the proof*)
   by (metis append.assoc gram_T.simps)
 
 lemma T_like_aSb: "gram_T w \<Longrightarrow> gram_T (a # w @ [b])"  
@@ -210,8 +209,28 @@ lemma S_implies_T: "gram_S w \<Longrightarrow> gram_T w"
 lemma S_equiv_T: "gram_S w \<longleftrightarrow> gram_T w"
   apply(rule)
    apply(simp add: S_implies_T)
-  by (simp add: T_implies_S)
+  by (simp add: T_implies_S) *)
     
     (* end of copy-pasta *)
 
+  (* Is the list a balanced list of parens? *)
+  (* n (first arg) is number of open parens (number of unmatched a's) *)
+fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
+  "balanced 0 [] = True" |
+  "balanced _ [] = False" |
+  "balanced n (a # rest) = balanced (Suc n) rest" |
+  "balanced 0 (b # rest) = False" |
+  "balanced (Suc n) (b # rest) = balanced n rest"
+
+    (* S \<rightarrow> \<epsilon> | aSb | SS *)
+    (* balanced n w is true IFF S (a\<^sup>n @ w) *)
+  
+value "balanced 0 [a,a,b,b]"
+value "balanced 0 [a,b,a,b]"
+  
+value "balanced 0 [a,b,b,b]"
+value "balanced 0 [a,a,a,b,b]"
+value "balanced 0 [a,a,b,b,b]"
+value "balanced 0 [a,a,b]"
+    
 end
