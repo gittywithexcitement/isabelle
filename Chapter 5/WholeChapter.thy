@@ -232,5 +232,28 @@ value "balanced 0 [a,b,b,b]"
 value "balanced 0 [a,a,a,b,b]"
 value "balanced 0 [a,a,b,b,b]"
 value "balanced 0 [a,a,b]"
-    
+  
+lemma balanced_implies_S:"balanced n w \<Longrightarrow> gram_S (replicate n a @ w)"
+(* proof(induction (* arbitrary: *) n w rule: balanced.induct) *)
+proof(induction n w rule: balanced.induct)
+  case 1
+  then show ?case by (simp add: empty)
+next
+  case (2 v)
+  then show ?case by (simp add: empty)
+next
+  case (3 n rest)
+  then show ?case 
+    by (metis Cons_eq_appendI balanced.simps(3) replicate_Suc replicate_app_Cons_same) 
+next
+  case (4 rest)
+  then show ?case 
+    using balanced.simps(4) by blast 
+next
+  case (5 n rest)
+  then show ?case 
+    (* sledgehammer *) 
+    sorry
+qed  
+
 end
