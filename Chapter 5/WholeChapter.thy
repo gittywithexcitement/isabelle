@@ -390,7 +390,6 @@ qed *)
   
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
 lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
-(* proof(induction (* arbitrary: *) n w rule: balanced.induct) *)
 proof(induction n string rule: balanced.induct)
   case 1
   then show ?case by (simp add: empty)
@@ -407,43 +406,16 @@ next
     using balanced.simps(4) by blast 
 next
   case (5 n rest)
-    (* "balanced (Suc n) (b # rest) = balanced n rest" *)
-    
-    (* this:
-    balanced n rest \<Longrightarrow> gram_S (replicate n a @ rest)
-    balanced (Suc n) (b # rest)
-
-goal (1 subgoal):
- 1. \<And>n rest. (balanced n rest \<Longrightarrow> gram_S (replicate n a @ rest)) 
-\<Longrightarrow> balanced (Suc n) (b # rest) 
-\<Longrightarrow> gram_S (replicate (Suc n) a @ b # rest)     *)    
-    
   hence "balanced n rest"
     by simp
   hence 0:"gram_S (replicate n a @ rest)"
     by (simp add: "5.IH")
-  (* hence "gram_S (replicate n a @ (a # w @ [b]) @ rest)" *)
   hence "gram_S (replicate n a @ [a, b] @ rest)"
-  proof -
-    (* The last n elements of rest must be b's
-        the other leading elements of rest must therefore satisfy S
-        so prefixing [a,b] to those elements will also satisfy S *)
-    have "gram_S (a # [] @ [b])" using aSb empty by blast
-    hence "gram_S [a, b]" by simp
-    thus ?thesis
-      (* sledgehammer *)
-        sorry
-    qed
-      (* a # w @ [b] *)
-    (* aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" | *)
-    (* SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)" *)
-
-    sorry
-      
-  thus ?case 
-    
-    (* sledgehammer *) 
-    sorry
+    using insert_ab_middle_of_S by simp 
+  hence "gram_S (replicate (Suc n) a @ b # rest)"
+    by (simp add: replicate_app_Cons_same)
+  thus ?case
+    by simp 
 qed  
   
   
