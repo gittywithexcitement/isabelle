@@ -329,17 +329,25 @@ next
       proof(cases "length ys > 0")
         case y_nontrivial:True
           
-        obtain len_fs where len_fs:"len_fs = (length xs - 1)" by simp
-        obtain fs gs where fsgs:"fs = take len_fs w \<and> gs = drop len_fs w" by simp
+        (* obtain len_fs where len_fs:"len_fs = (length xs - 1)" by simp *)
+        (* obtain fs gs where fsgs:"fs = take len_fs w \<and> gs = drop len_fs w" by simp *)
+        fix fs gs assume fs:"fs = drop 1 xs" and gs:"gs = butlast ys"
         hence "gram_S (fs @ [a, b] @ gs)"
-          using hyps(2) by fastforce
+          by (metis One_nat_def butlast_append butlast_snoc drop_0 drop_Suc hyps(2) hyps(3) length_greater_0_conv list.sel(3) tl_append2 x_nontrivial y_nontrivial)
         hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])"
           by (metis append.assoc gram_S.simps) 
-            
-        have "xs = a # (take (length xs - 1) w)"
-          using hyps(3) len_fs x_nontrivial
+          
+        have "a # fs = xs"
+          using fs
+          by (metis Cons_nth_drop_Suc One_nat_def append_eq_Cons_conv drop_0 hyps(3) length_greater_0_conv nth_Cons_0 x_nontrivial)
+        have "gs @ [b] = ys"
+          using gs y_nontrivial
           sledgehammer
-            sorry
+          sorry
+            
+            
+            
+        (* have "xs = a # (take (length xs - 1) w)" using hyps(3) x_nontrivial sledgehammer sorry *)
 (*         have "xs = a # fs" 
           using fsgs
           (* nitpick Nitpick found no counterexample *)
