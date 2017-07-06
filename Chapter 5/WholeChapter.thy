@@ -316,28 +316,45 @@ proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
     using aSb gram_S.empty by force 
 next
   case (aSb w)
-  then show ?case sorry
+  then show ?case 
+    (* sledgehammer  *)
+    sorry
 next
   fix w\<^sub>0 w\<^sub>1 xs ys
+  let "?case" = "gram_S (xs @ [a, b] @ ys)"
   assume hyps: 
     "gram_S w\<^sub>0" 
     "\<And>fs gs. w\<^sub>0 = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
     "gram_S w\<^sub>1"
     "\<And>fs gs. w\<^sub>1 = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
     "w\<^sub>0 @ w\<^sub>1 = xs @ ys"
-  let "?case" = "gram_S (xs @ [a, b] @ ys)"
-    (*     We have no proof that w\<^sub>0=xs, so while we can easily prove
-    gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)
-    It does us no good, without said proof. *)
-
-    
-
-  have sab:"gram_S [a,b]"
+    (* We have no proof that w\<^sub>0=xs, so while we can easily prove
+      gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)
+      It does us no good, without said proof. *)
+  moreover have sab:"gram_S [a,b]"
     using aSb empty by fastforce
-  thus ?case 
-    try
-    (* sledgehammer *)
-    sorry
+  ultimately show ?case 
+  proof(cases "length w\<^sub>0 = length xs")
+    case True
+    then show ?thesis 
+      by (metis SS append_eq_append_conv hyps(1) hyps(3) hyps(5) sab)
+  next
+    case neq:False
+    then show ?thesis 
+    proof(cases "length w\<^sub>0 < length xs")
+      case True
+      then show ?thesis 
+        (* sledgehammer  *)
+        sorry
+    next
+      case False
+      hence "length w\<^sub>0 > length xs" 
+        using neq by auto 
+      then show ?thesis 
+        (* sledgehammer  *)
+        sorry
+    qed
+  qed
 qed
   
   (* https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
