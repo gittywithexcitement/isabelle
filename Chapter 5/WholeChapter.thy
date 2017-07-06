@@ -318,16 +318,22 @@ next
   case (aSb w)
   then show ?case sorry
 next
-  case (SS w\<^sub>0 w\<^sub>1)
-  (* then obtain xp yp where xy:"xp = w\<^sub>0 \<and> yp = w\<^sub>1" by simp *)
-  (* hence "gram_S xp \<and> gram_S yp" by (simp add: SS.hyps(1) SS.hyps(3)) *)
-  have "gram_S [a,b]"
+  fix w\<^sub>0 w\<^sub>1 xs ys
+  assume hyps: 
+    "gram_S w\<^sub>0" 
+    "\<And>fs gs. w\<^sub>0 = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
+    "gram_S w\<^sub>1"
+    "\<And>fs gs. w\<^sub>1 = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
+    "w\<^sub>0 @ w\<^sub>1 = xs @ ys"
+  let "?case" = "gram_S (xs @ [a, b] @ ys)"
+    (*     We have no proof that w\<^sub>0=xs, so while we can easily prove
+    gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)
+    It does us no good, without said proof. *)
+
+    
+
+  have sab:"gram_S [a,b]"
     using aSb empty by fastforce
-  hence "gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)" 
-    using SS.hyps(1) SS.hyps(3) gram_S.SS by blast
-  have "w\<^sub>0 = xs" 
-    sledgehammer
-      sorry
   thus ?case 
     try
     (* sledgehammer *)
