@@ -323,37 +323,39 @@ next
       "a # w @ [b] = xs @ ys"
       
     then show ?case
-    proof(induction xs)
-      case Nil
-      then show ?case
-        by (metis SS aSb append_Nil empty)
-    next
-      case (Cons xh xts)
-      then show ?case 
-      proof(induction ys)
-        case Nil
-        then show ?case 
-          by (metis Cons_eq_append_conv SS aSb append_Nil2 empty) 
-      next
-        case (Cons yh yts)
+    proof(cases "length xs > 0")
+      case x_nontrivial:True
+      then show ?thesis
+      proof(cases "length ys > 0")
+        case y_nontrivial:True
           
-        obtain len_fs where "len_fs = (length xs - 1)" by simp
+        obtain len_fs where len_fs:"len_fs = (length xs - 1)" by simp
         obtain fs gs where fsgs:"fs = take len_fs w \<and> gs = drop len_fs w" by simp
         hence "gram_S (fs @ [a, b] @ gs)"
           using hyps(2) by fastforce
-        (* have "xs = a # fs" sledgehammer sorry *)
-        have "xs = a # xh # xts" sledgehammer sorry
-        hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])" 
-          (* by (metis append_assoc gram_S.simps)  *)
-        sorry
-            
-          
-        then show ?case sledgehammer sorry
+        hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])"
+          by (metis append.assoc gram_S.simps) 
+(*         have "xs = a # fs" 
+          using fsgs
+          (* nitpick Nitpick found no counterexample *)
+          (* quickcheck[random] found no counterexample *)
+          (* sledgehammer  *)
+          sorry *)
+        then show ?thesis 
+          sledgehammer
+          by (metis len_fs append_Cons append_eq_append_conv_if fsgs gram_all hyps(3) length_tl list.sel(3) take_all)
+      next
+        case False
+        hence "length ys = 0" by simp
+        then show ?thesis 
+          by (metis False SS aSb append_Nil append_Nil2 empty hyps(1) hyps(3) length_greater_0_conv) 
       qed
+    next
+      case False
+      hence "length xs = 0" by simp
+      then show ?thesis
+        by (metis False SS aSb append_self_conv2 empty hyps(1) hyps(3) length_greater_0_conv) 
     qed
-
-      
-
 next
   fix w\<^sub>0 w\<^sub>1 xs ys
   let "?case" = "gram_S (xs @ [a, b] @ ys)"
