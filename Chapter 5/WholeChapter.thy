@@ -73,11 +73,11 @@ proof(induction "Suc m" arbitrary: m rule:ev.induct)
   then show ?case 
   proof - (* (rule (* classical *) ccontr) *)
     assume "ev (Suc n)"
-(*     thus False sorry
+      (*     thus False sorry
   qed
 qed *)
-  oops
-    
+    oops
+      
 lemma "ev (Suc m) \<Longrightarrow> \<not>ev m"
 proof(induction "Suc m" arbitrary: m rule:ev.induct)
   case (evSS n)
@@ -174,7 +174,7 @@ qed
   
 subsection "Exercise 5.7"
   
-(* copied from exercise 4.5 *)
+  (* copied from exercise 4.5 *)
   
 datatype alpha = a | b
   
@@ -182,7 +182,7 @@ inductive gram_S :: "alpha list \<Rightarrow> bool" where
   empty: "gram_S []" |
   aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" |
   SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)"
-
+  
   (* end of copy-pasta *)
   
   (* Is the list a balanced list of parens? *)
@@ -193,9 +193,9 @@ fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
   "balanced n (a # rest) = balanced (Suc n) rest" |
   "balanced 0 (b # rest) = False" |
   "balanced (Suc n) (b # rest) = balanced n rest"
-
-    (* S \<rightarrow> \<epsilon> | aSb | SS *)
-    (* balanced n w is true IFF S (a\<^sup>n @ w) *)
+  
+  (* S \<rightarrow> \<epsilon> | aSb | SS *)
+  (* balanced n w is true IFF S (a\<^sup>n @ w) *)
   
 value "balanced 0 [a,a,b,b]"
 value "balanced 0 [a,b,a,b]"
@@ -204,172 +204,50 @@ value "balanced 0 [a,b,b,b]"
 value "balanced 0 [a,a,a,b,b]"
 value "balanced 0 [a,a,b,b,b]"
 value "balanced 0 [a,a,b]"
-  
-  (* empty: "gram_S []" | *)
-  (* aSb: "gram_S w \<Longrightarrow> gram_S (a # w @ [b])" | *)
-  (* SS: "gram_S w\<^sub>0 \<Longrightarrow> gram_S w\<^sub>1 \<Longrightarrow> gram_S (w\<^sub>0 @ w\<^sub>1)" *)
-lemma first_a_last_b: "gram_S (a # rest) \<Longrightarrow> last rest = b"
-proof(induction "(a # rest)" arbitrary:rest rule: gram_S.induct)
-  (* case empty then show ?case sorrynext *)
-  case (aSb w)
-  then show ?case 
-    by simp
-next
-  case (SS w\<^sub>0 w\<^sub>1)
-    (* I think I need to show this case is impossible? by contradiction? *)
-  then show ?case
-  proof(induction w\<^sub>1 rule:list.induct)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons x1 x1s)
-    then show ?case (* try *) sorry
-  qed
-qed
-(* proof -
-  (* rule inversion *)
-  assume "gram_S (a # rest)"
-  from this have "last rest = b"
-  proof cases
-    (* case empty then show ?case sorry next *)
-    case (aSb w)
-    then show ?thesis
-      by simp 
-  next
-    case (SS w\<^sub>0 w\<^sub>1)  
-    then show ?thesis
-      (* maybe proof by contradiction? *)
-    (* proof(cases w\<^sub>1) nope *)
-  qed
-  thus ?thesis by simp
-qed *)
-  
-(* proof(rule ccontr)
-  assume "hd (rev rest) \<noteq> b"
-  thus False
-  proof cases
-  qed
-qed *)
-  
-(* proof(induction rule:gram_S.induct) doesn't work *)
- 
-(* proof(induction rest)
-  case Nil
-  then show ?case try sorry
-next
-  case (Cons a rest)
-  then show ?case try sorry
-qed *)
 
-lemma last_n_elements_are_b: 
-  "gram_S (replicate n a @ rest) \<Longrightarrow> take n (rev rest) = replicate n b"
-proof(induction n)
-  case 0
-  then show ?case 
-    by simp 
-next
-  case (Suc n)
-(* using this:
-    gram_S (replicate n a @ rest) \<Longrightarrow> take n (rev rest) = replicate n b
-    gram_S (replicate (Suc n) a @ rest)
-
-goal (1 subgoal):
-    take (Suc n) (rev rest) = replicate (Suc n) b     *)
-
-  then show ?case (* sledgehammer *) sorry
-qed
-  
-  
-    
-(* The `a` and `b` are the constructors of datatype alpha *)
-lemma insert_ab_middle_of_S:
-  "gram_S (replicate n a @ rest) \<Longrightarrow> gram_S (replicate n a @ [a, b] @ rest)"
-  oops
-  (* TODO use advanced rule induction *)
-  (* This could be produced by S (a \<epsilon> b) S = S ab S *)
-(* proof -
-  assume prem:"gram_S (replicate n a @ rest)"
-  hence "gram_S (replicate n a @ [a, b] @ rest)"
-  proof cases
-    case empty
-    then show ?thesis
-      using prem aSb by fastforce
-  next
-    case (aSb w)
-    then show ?thesis (* sledgehammer *) sorry
-  next
-    case assms:(SS w\<^sub>0 w\<^sub>1)
-    moreover have "gram_S [a,b]"
-      using aSb empty by fastforce
-    moreover have "gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)" 
-      using SS calculation(2) calculation(3) calculation(4) by blast
-    ultimately show ?thesis (* sledgehammer *) sorry
-        (* The problem is I have not proved that w\<^sub>0 is `replicate n a` *)
-  qed
-  thus ?thesis by simp
-oops *)
-  
 lemma insert_ab_middle_of_S:  "gram_S (xs @ ys) \<Longrightarrow> gram_S (xs @ [a, b] @ ys)"
 proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
   case empty
   then show ?case
     using aSb gram_S.empty by force 
 next
-    fix w xs ys
-    let "?case" = "gram_S (xs @ [a, b] @ ys)"
-    assume hyps: 
-      "gram_S w" 
-      "\<And>fs gs. w = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
-      "a # w @ [b] = xs @ ys"
-      
-    then show ?case
-    proof(cases "length xs > 0")
-      case x_nontrivial:True
-      then show ?thesis
-      proof(cases "length ys > 0")
-        case y_nontrivial:True
-          
-        (* obtain len_fs where len_fs:"len_fs = (length xs - 1)" by simp *)
-        (* obtain fs gs where fsgs:"fs = take len_fs w \<and> gs = drop len_fs w" by simp *)
-        fix fs gs assume fs:"fs = drop 1 xs" and gs:"gs = butlast ys"
-        hence "gram_S (fs @ [a, b] @ gs)"
-          by (metis One_nat_def butlast_append butlast_snoc drop_0 drop_Suc hyps(2) hyps(3) length_greater_0_conv list.sel(3) tl_append2 x_nontrivial y_nontrivial)
-        hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])"
-          by (metis append.assoc gram_S.simps) 
-          
-        have "a # fs = xs"
-          using fs
-          by (metis Cons_nth_drop_Suc One_nat_def append_eq_Cons_conv drop_0 hyps(3) length_greater_0_conv nth_Cons_0 x_nontrivial)
-        have "gs @ [b] = ys"
-          using gs y_nontrivial
-          sledgehammer
-          sorry
-            
-            
-            
-        (* have "xs = a # (take (length xs - 1) w)" using hyps(3) x_nontrivial sledgehammer sorry *)
-(*         have "xs = a # fs" 
-          using fsgs
-          (* nitpick Nitpick found no counterexample *)
-          (* quickcheck[random] found no counterexample *)
-          (* sledgehammer  *)
-          sorry *)
-        then show ?thesis 
-          (* sledgehammer *)
-          by (metis len_fs append_Cons append_eq_append_conv_if fsgs gram_all hyps(3) length_tl list.sel(3) take_all)
-            sorry
-      next
-        case False
-        hence "length ys = 0" by simp
-        then show ?thesis 
-          by (metis False SS aSb append_Nil append_Nil2 empty hyps(1) hyps(3) length_greater_0_conv) 
-      qed
+  fix w xs ys
+  let "?case" = "gram_S (xs @ [a, b] @ ys)"
+  assume hyps: 
+    "gram_S w" 
+    "\<And>fs gs. w = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
+    "a # w @ [b] = xs @ ys"    
+  then show ?case
+  proof(cases "length xs > 0")
+    case x_nontrivial:True
+    then show ?thesis
+    proof(cases "length ys > 0")
+      case y_nontrivial:True
+      obtain fs gs where fs:"fs = drop 1 xs" and gs:"gs = butlast ys" by simp
+      hence "gram_S (fs @ [a, b] @ gs)"
+        by (metis One_nat_def butlast_append butlast_snoc drop_0 drop_Suc hyps(2) hyps(3) length_greater_0_conv list.sel(3) tl_append2 x_nontrivial y_nontrivial)
+      hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])"
+        by (metis append.assoc gram_S.simps) 
+      moreover have "a # fs = xs"
+        using fs x_nontrivial
+        by (metis Cons_nth_drop_Suc One_nat_def append_eq_Cons_conv drop_0 hyps(3)
+            length_greater_0_conv nth_Cons_0)
+      moreover have "gs @ [b] = ys"
+        using gs y_nontrivial
+        by (metis hyps(3) last.simps last_appendR length_greater_0_conv snoc_eq_iff_butlast)
+      ultimately show ?thesis by auto
     next
       case False
-      hence "length xs = 0" by simp
-      then show ?thesis
-        by (metis False SS aSb append_self_conv2 empty hyps(1) hyps(3) length_greater_0_conv) 
+      hence "length ys = 0" by simp
+      then show ?thesis 
+        by (metis False SS aSb append_Nil append_Nil2 empty hyps(1) hyps(3) length_greater_0_conv) 
     qed
+  next
+    case False
+    hence "length xs = 0" by simp
+    then show ?thesis
+      by (metis False SS aSb append_self_conv2 empty hyps(1) hyps(3) length_greater_0_conv) 
+  qed
 next
   fix w\<^sub>0 w\<^sub>1 xs ys
   let "?case" = "gram_S (xs @ [a, b] @ ys)"
@@ -420,11 +298,8 @@ next
   qed
 qed
   
-  (* https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
-  
+  (* Find hints at https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
 
-
-  
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
 lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
 proof(induction n string rule: balanced.induct)
@@ -456,7 +331,7 @@ next
 qed  
   
   
-(* lemma "balanced n w = gram_S (replicate n a @ w)"  
+  (* lemma "balanced n w = gram_S (replicate n a @ w)"  
   oops
  *)    
 end
