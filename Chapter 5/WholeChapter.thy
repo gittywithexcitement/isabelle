@@ -233,6 +233,22 @@ value "balanced 0 [a,a,a,b,b]"
 value "balanced 0 [a,a,b,b,b]"
 value "balanced 0 [a,a,b]"
   
+  (* The `a` and `b` are the constructors of datatype alpha *)
+lemma insert_ab_middle_of_S:
+  "gram_S (replicate n a @ rest) \<Longrightarrow> gram_S (replicate n a @ [a, b] @ rest)"
+proof(induction rule: gram_S.induct)
+  case empty
+  then show ?case (* try *) (* sledgehammer *) sorry
+next
+  case (aSb w)
+  then show ?case 
+    by simp 
+next
+  case (SS w\<^sub>0 w\<^sub>1)
+  then show ?case 
+    by simp 
+qed
+
 lemma balanced_implies_S:"balanced n w \<Longrightarrow> gram_S (replicate n a @ w)"
 (* proof(induction (* arbitrary: *) n w rule: balanced.induct) *)
 proof(induction n w rule: balanced.induct)
@@ -251,9 +267,16 @@ next
     using balanced.simps(4) by blast 
 next
   case (5 n rest)
+    (* "balanced (Suc n) (b # rest) = balanced n rest" *)
+
   then show ?case 
+    
     (* sledgehammer *) 
     sorry
 qed  
-
+  
+  
+(* lemma "balanced n w = gram_S (replicate n a @ w)"  
+  oops
+ *)    
 end
