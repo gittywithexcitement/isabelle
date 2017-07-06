@@ -321,6 +321,25 @@ next
       "gram_S w" 
       "\<And>fs gs. w = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
       "a # w @ [b] = xs @ ys"
+      
+      (* I think I need to do induction on xs and ys       *)
+
+    obtain len_fs where "len_fs = (length xs - 1)" by simp
+    (* obtain len_gs where "len_gs = (length ys - 1)" by simp *)
+    obtain fs gs where fsgs:"fs = take len_fs w \<and> gs = drop len_fs w" by simp
+    hence "gram_S (fs @ [a, b] @ gs)"
+      using hyps(2) by fastforce
+    have "xs = a # fs" sledgehammer sorry
+    (* hence "xs = a # fs \<and> ys = gs @ [b]" sledgehammer sorry *)
+    hence gram_all:"gram_S (a # fs @ [a, b] @ gs @ [b])" 
+      by (metis append_assoc gram_S.simps)
+        (*     have "a # w @ [b] = a # fs @ gs @ [b]"
+      by (simp add: fsgs) *)
+    (* hence "xs = a # fs" sledgehammer *)
+
+(*     have "a # w @ [b] = xs @ ys"
+      by (simp add: hyps(3)) *)
+      
 (* using this:
     gram_S w
     w = ?xs @ ?ys \<Longrightarrow> gram_S (?xs @ [a, b] @ ?ys)
@@ -328,10 +347,10 @@ next
 
 goal (1 subgoal):
  1. gram_S (xs @ [a, b] @ ys) *)    
-  then show ?case 
-    (* sledgehammer  *)
-    (* TODO *)
-    sorry
+    then show ?case 
+      (* sledgehammer Timed out *)
+        (* TODO *)
+      sorry
 next
   fix w\<^sub>0 w\<^sub>1 xs ys
   let "?case" = "gram_S (xs @ [a, b] @ ys)"
