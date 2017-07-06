@@ -311,12 +311,12 @@ next
   then show ?case sorry
 next
   case (SS w\<^sub>0 w\<^sub>1)
-  then obtain xp yp where xy:"xp = w\<^sub>0 \<and> yp = w\<^sub>1" by simp
+  (* then obtain xp yp where xy:"xp = w\<^sub>0 \<and> yp = w\<^sub>1" by simp *)
   (* hence "gram_S xp \<and> gram_S yp" by (simp add: SS.hyps(1) SS.hyps(3)) *)
   have "gram_S [a,b]"
     using aSb empty by fastforce
-  hence "gram_S (xp @ [a,b] @ yp)" 
-    using SS.hyps(1) SS.hyps(3) gram_S.SS xy by blast
+  hence "gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)" 
+    using SS.hyps(1) SS.hyps(3) gram_S.SS by blast
   thus ?case 
     try
     (* sledgehammer *)
