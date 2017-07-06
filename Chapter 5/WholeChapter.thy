@@ -344,7 +344,7 @@ next
     proof(cases "length w\<^sub>0 < length xs")
       case True
         (* Then if we inserted [a,b] after xs, we'd be inserting it into the middle of w\<^sub>1. Prove
-        that's ok. Can I use hyps(4) to help me with that? *)
+        that's ok. *)
       then obtain len_w1_prefix where lwp:"len_w1_prefix = length xs - length w\<^sub>0" by simp
       obtain lh rh where lhrh:"lh = w\<^sub>0 @ (take len_w1_prefix w\<^sub>1) \<and> rh = (drop len_w1_prefix w\<^sub>1)" by simp
       hence "gram_S (lh @ [a,b] @ rh)"
@@ -357,9 +357,16 @@ next
       case False
       hence "length w\<^sub>0 > length xs" 
         using neq by auto 
-      then show ?thesis 
-        (* sledgehammer  *)
-        sorry
+          (* Then if we inserted [a,b] after xs, we'd be inserting it into the middle of w\<^sub>0. Prove
+        that's ok. *)
+      then obtain len_xs where lxs:"len_xs = length xs" by simp
+      obtain lh rh where lhrh:"lh = (take len_xs w\<^sub>0) \<and> rh = (drop len_xs w\<^sub>0) @ w\<^sub>1" by simp
+      hence "gram_S (lh @ [a,b] @ rh)"
+        by (metis append.assoc append_take_drop_id gram_S.simps hyps(2) hyps(3))
+      moreover have "lh = xs \<and> rh = ys" 
+        by (metis False append_eq_append_conv_if hyps(5) le_neq_implies_less lhrh lxs)
+      ultimately show ?thesis 
+        by simp
     qed
   qed
 qed
