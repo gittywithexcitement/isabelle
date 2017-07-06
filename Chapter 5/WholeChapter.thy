@@ -315,9 +315,22 @@ proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
   then show ?case
     using aSb gram_S.empty by force 
 next
-  case (aSb w)
+    fix w xs ys
+    let "?case" = "gram_S (xs @ [a, b] @ ys)"
+    assume hyps: 
+      "gram_S w" 
+      "\<And>fs gs. w = fs @ gs \<Longrightarrow> gram_S (fs @ [a, b] @ gs)" 
+      "a # w @ [b] = xs @ ys"
+(* using this:
+    gram_S w
+    w = ?xs @ ?ys \<Longrightarrow> gram_S (?xs @ [a, b] @ ?ys)
+    a # w @ [b] = xs @ ys
+
+goal (1 subgoal):
+ 1. gram_S (xs @ [a, b] @ ys) *)    
   then show ?case 
     (* sledgehammer  *)
+    (* TODO *)
     sorry
 next
   fix w\<^sub>0 w\<^sub>1 xs ys
@@ -371,21 +384,7 @@ qed
   
   (* https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
   
-(*   Won't work:
-proof(induction rule: gram_S.induct)
-  case empty
-  then show ?case sorry
-next
-  case (aSb w)
-  then show ?case 
-    by simp 
-next
-  case (SS w\<^sub>0 w\<^sub>1)
-  then show ?case 
-    by simp 
-qed *)
-  
- 
+
 
   
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
