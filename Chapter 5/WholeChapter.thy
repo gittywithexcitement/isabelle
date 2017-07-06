@@ -217,7 +217,14 @@ proof(induction "(a # rest)" arbitrary:rest rule: gram_S.induct)
 next
   case (SS w\<^sub>0 w\<^sub>1)
     (* I think I need to show this case is impossible? by contradiction? *)
-  then show ?case sledgehammer sorry
+  then show ?case
+  proof(induction w\<^sub>1 rule:list.induct)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons x1 x1s)
+    then show ?case (* try *) sorry
+  qed
 qed
 (* proof -
   (* rule inversion *)
@@ -277,9 +284,10 @@ qed
 (* The `a` and `b` are the constructors of datatype alpha *)
 lemma insert_ab_middle_of_S:
   "gram_S (replicate n a @ rest) \<Longrightarrow> gram_S (replicate n a @ [a, b] @ rest)"
+  oops
   (* TODO use advanced rule induction *)
   (* This could be produced by S (a \<epsilon> b) S = S ab S *)
-proof -
+(* proof -
   assume prem:"gram_S (replicate n a @ rest)"
   hence "gram_S (replicate n a @ [a, b] @ rest)"
   proof cases
@@ -299,7 +307,7 @@ proof -
         (* The problem is I have not proved that w\<^sub>0 is `replicate n a` *)
   qed
   thus ?thesis by simp
-oops
+oops *)
   
 lemma insert_ab_middle_of_S:  "gram_S (xs @ ys) \<Longrightarrow> gram_S (xs @ [a, b] @ ys)"
 proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
@@ -317,6 +325,9 @@ next
     using aSb empty by fastforce
   hence "gram_S (w\<^sub>0 @ [a,b] @ w\<^sub>1)" 
     using SS.hyps(1) SS.hyps(3) gram_S.SS by blast
+  have "w\<^sub>0 = xs" 
+    sledgehammer
+      sorry
   thus ?case 
     try
     (* sledgehammer *)
