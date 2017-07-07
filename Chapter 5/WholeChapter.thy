@@ -193,7 +193,7 @@ fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
   "balanced n (a # rest) = balanced (Suc n) rest" |
   "balanced 0 (b # rest) = False" |
   "balanced (Suc n) (b # rest) = balanced n rest"
-    
+  
 value "balanced 0 [a,a,b,b]"
 value "balanced 0 [a,b,a,b]"
   
@@ -294,7 +294,7 @@ next
     qed
   qed
 qed
-    
+  
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
 lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
 proof(induction n string rule: balanced.induct)
@@ -360,27 +360,24 @@ proof(induction string arbitrary: n len_prefix)
 next
   case (Cons x xs)
   then show ?case
-  proof(induction len_prefix)
+  proof(induction n)
     case 0
     then show ?case 
-      using balanced.elims(2) by force
+      by (metis balanced.elims(2) balanced.simps(3) balanced.simps(4) drop_Cons' list.inject
+          list.simps(3) take_Cons')
   next
-    case (Suc len_prefix)
-    then show ?case 
+    case (Suc n)
+    then show ?case
     proof(cases x)
       case a
       then show ?thesis
-        using Cons.IH Suc.prems(2) Suc.prems(3) by auto 
+        by (metis Cons.IH Suc.prems(2) Suc.prems(3) balanced.simps(2) balanced.simps(3) drop_Cons'
+            take_Cons')
     next
       case b
-      hence "balanced (n-1) xs"
-        by (metis Cons.IH Suc.prems(2) Suc.prems(3) balanced.simps(4) balanced.simps(5) diff_Suc_1
-            drop_Suc_Cons old.nat.exhaust take_Suc_Cons)  
-      moreover have "balanced (n-1) xs = balanced n (b # xs)"
-        by (metis Suc.prems(3) Suc_diff_1 alpha.distinct(1) b balanced.elims(2) balanced.simps(5)
-            less_Suc_eq_0_disj list.distinct(1) list.inject take_Suc_Cons)
-      ultimately show ?thesis 
-        using b by blast
+      then show ?thesis 
+        by (metis Cons.IH Suc.prems(2) Suc.prems(3) balanced.elims(2) balanced.simps(5) drop_Cons'
+            list.simps(3) take_Cons')
     qed
   qed
 qed 
