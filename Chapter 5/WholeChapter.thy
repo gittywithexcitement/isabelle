@@ -383,7 +383,44 @@ next
 next
   case (SS w\<^sub>0 w\<^sub>1)
   then show ?case
-    sorry
+  proof(cases "length w\<^sub>0 = n")
+    case True
+    then show ?thesis 
+      by (metis SS.hyps(2) SS.hyps(4) SS.hyps(5) append.right_neutral append_eq_append_conv
+          append_self_conv2 balanced.simps(2) gr0_conv_Suc length_greater_0_conv length_replicate)
+  next
+    case len_ne:False
+    then show ?thesis 
+    proof(cases "length w\<^sub>0 < n")
+      case len_w_lt:True
+      hence "w\<^sub>0 = take (length w\<^sub>0) (replicate n a @ string)"
+        using SS.hyps(5) append_eq_conv_conj by blast
+      hence "w\<^sub>0 = take (length w\<^sub>0) (replicate n a)"
+        using len_w_lt by fastforce
+      hence "w\<^sub>0 = replicate (length w\<^sub>0) a"
+        by (metis length_replicate take_replicate)
+      hence "w\<^sub>0 = replicate (length w\<^sub>0) a @ []"
+        by simp
+      hence bal_0:"balanced (length w\<^sub>0) []"
+        using SS.hyps(2) by blast
+          (* Now work on w\<^sub>1 *)
+      hence "w\<^sub>1 = drop (length w\<^sub>0) (replicate n a @ string)"
+        using SS.hyps(5) append_eq_conv_conj by blast
+      hence "w\<^sub>1 = replicate (n - length w\<^sub>0) a @ string"
+        using len_w_lt by simp
+      hence "balanced (n - length w\<^sub>0) string"
+        by (simp add: SS.hyps(4))
+      then show ?thesis 
+        by (metis Nitpick.size_list_simp(2) SS.hyps(4) SS.hyps(5) bal_0 balanced.simps(2)
+            self_append_conv2) 
+    next
+      case False
+      hence "length w\<^sub>0 > n"
+        using len_ne by auto
+      then show ?thesis 
+        sledgehammer sorry
+    qed
+  qed
 qed
   
   
