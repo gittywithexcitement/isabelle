@@ -357,16 +357,39 @@ next
 qed
   
 lemma balanced_append_string:
-  "balanced 0 (drop prefix string) \<Longrightarrow> balanced n (take prefix string)
+  "balanced 0 (drop len_prefix string) \<Longrightarrow> balanced n (take len_prefix string)
     \<Longrightarrow> balanced n string"  
-  proof(induction string)(* arbitrary? *)
-    case Nil
-    then show ?case by simp
+proof(induction string arbitrary: n len_prefix)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+  then show ?case
+  proof(induction len_prefix)
+    case 0
+    then show ?case 
+      using balanced.elims(2) by force
   next
-    case (Cons a string)
-    then show ?case sorry
-  qed 
-
+    case (Suc len_prefix)
+    then show ?case 
+    proof(cases x)
+      case a
+      then show ?thesis
+        using Cons.IH Suc.prems(2) Suc.prems(3) by auto 
+    next
+      case b
+      hence "balanced (n-1) xs"
+        by (metis Cons.IH Suc.prems(2) Suc.prems(3) balanced.simps(4) balanced.simps(5) diff_Suc_1
+            drop_Suc_Cons old.nat.exhaust take_Suc_Cons)  
+      moreover have "balanced (n-1) xs = balanced n (b # xs)"
+        by (metis Suc.prems(3) Suc_diff_1 alpha.distinct(1) b balanced.elims(2) balanced.simps(5)
+            less_Suc_eq_0_disj list.distinct(1) list.inject take_Suc_Cons)
+      ultimately show ?thesis 
+        using b by blast
+    qed
+  qed
+qed 
+  
 lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
 proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.induct)
   case empty
@@ -442,9 +465,7 @@ next
       hence "balanced 0 (drop (length w\<^sub>0 - n) string)"
         by (simp add: SS.hyps(4))
       then show ?thesis 
-        using bal_w0 SS.hyps balanced.simps
-        sledgehammer
-        sorry
+        using bal_w0 balanced_append_string by blast
     qed
   qed
 qed
