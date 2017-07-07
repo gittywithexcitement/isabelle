@@ -379,15 +379,11 @@ a,b to a balanced string is also balanced.  *)
     
     
     (* hence "balanced n string" try0 *)
-  moreover hence "gram_S (a # w @ [b])"
-    using gram_S.aSb by blast
-  ultimately show ?case
+  show ?case
   proof(cases n)
     case 0
     then show ?thesis
-      (* nitpick  *)
-      (* sledgehammer *)
-      sorry
+      using aSb.hyps(2) aSb.hyps(3) balanced_ab by auto
   next
     case (Suc n_minus_1)
     moreover have 0:"string = butlast string @ [b]"
@@ -397,21 +393,13 @@ a,b to a balanced string is also balanced.  *)
     hence "balanced n_minus_1 (butlast string)"
       using aSb.hyps(2) by blast
     hence "balanced n string"
-      using 0
-      sledgehammer
-(*     moreover have "last string = b"
-      sorry *)
-    thus ?thesis 
-      sledgehammer
-      (* nitpick *)
-      sorry
+      using 0 Suc balanced_ab by fastforce
+    thus ?thesis by simp
   qed
 next
   case (SS w\<^sub>0 w\<^sub>1)
-  then show ?case 
-    (* sledgehammer  *)
+  then show ?case
     sorry
-      
 qed
   
   
