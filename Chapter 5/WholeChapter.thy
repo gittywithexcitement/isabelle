@@ -186,7 +186,7 @@ inductive gram_S :: "alpha list \<Rightarrow> bool" where
   (* end of copy-pasta *)
   
   (* Is the list a balanced list of parens? *)
-  (* n (first arg) is number of open parens (number of unmatched a's) *)
+  (* n (the first arg) is number of open parens (number of unmatched a's) *)
 fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
   "balanced 0 [] = True" |
   "balanced _ [] = False" |
@@ -328,7 +328,62 @@ next
     by (simp add: replicate_app_Cons_same)
   thus ?case
     by simp 
-qed  
+qed
+  
+lemma balanced_ab:"balanced n string \<Longrightarrow> balanced (Suc n) (string @ [b])"
+  (* proof - *)
+  (* proof(cases rule: balanced.cases) Illegal schematic variable? *)
+  
+  (* using rule: balanced.induct creates False conclusions because the [b] disappears *)
+  (* apply(induction arbitrary: n string rule: balanced.induct) *)
+  (* apply(induction arbitrary: n rule: balanced.induct) *)
+  (* apply(induction arbitrary: string rule: balanced.induct) *)
+  (* apply(induction rule: balanced.induct) *)
+  
+  (* apply(cases rule:balanced.cases) *)
+  
+  (* apply(induction n arbitrary: string) *)
+(* proof(induction n) *)
+(* proof(induction string) *)
+proof(induction string arbitrary: n)
+  case Nil
+  then show ?case
+    by simp 
+next
+  case (Cons x xs)
+(*   moreover hence "balanced (Suc n) string"
+      nitpick *)
+  then show ?case
+     (* by (smt append_Cons balanced.elims(2) balanced.simps(3) balanced.simps(5) list.inject self_append_conv2) *)
+
+(*   proof -
+    have f1: "\<forall>n as. \<not> balanced n as \<or> n = 0 \<and> as = [] \<or> (\<exists>na asa. n = na \<and> as = a # asa \<and> balanced (Suc na) asa) \<or> (\<exists>na asa. n = Suc na \<and> as = b # asa \<and> balanced na asa)"
+      by (metis balanced.elims(2))
+    obtain nn :: "alpha list \<Rightarrow> nat \<Rightarrow> nat" and aas :: "alpha list \<Rightarrow> nat \<Rightarrow> alpha list" where
+      f2: "\<forall>x0 x1. (\<exists>v2 v3. x1 = Suc v2 \<and> x0 = b # v3 \<and> balanced v2 v3) = (x1 = Suc (nn x0 x1) \<and> x0 = b # aas x0 x1 \<and> balanced (nn x0 x1) (aas x0 x1))"
+      by moura
+    obtain nna :: "alpha list \<Rightarrow> nat \<Rightarrow> nat" and aasa :: "alpha list \<Rightarrow> nat \<Rightarrow> alpha list" where
+      "\<forall>x0 x1. (\<exists>v2 v3. x1 = v2 \<and> x0 = a # v3 \<and> balanced (Suc v2) v3) = (x1 = nna x0 x1 \<and> x0 = a # aasa x0 x1 \<and> balanced (Suc (nna x0 x1)) (aasa x0 x1))"
+      by moura
+    then have f3: "n = 0 \<and> x # xs = [] \<or> n = nna (x # xs) n \<and> x # xs = a # aasa (x # xs) n \<and> balanced (Suc (nna (x # xs) n)) (aasa (x # xs) n) \<or> n = Suc (nn (x # xs) n) \<and> x # xs = b # aas (x # xs) n \<and> balanced (nn (x # xs) n) (aas (x # xs) n)"
+      using f2 f1 Cons.prems by presburger
+    { assume "n \<noteq> Suc (nn (x # xs) n) \<or> x # xs \<noteq> b # aas (x # xs) n \<or> \<not> balanced (nn (x # xs) n) (aas (x # xs) n)"
+      then have "x # xs = [] \<or> n = nna (x # xs) n \<and> x # xs = a # aasa (x # xs) n \<and> balanced (Suc (nna (x # xs) n)) (aasa (x # xs) n)"
+        using f3 by meson
+    moreover
+    { assume "x # xs = []"
+      then have ?thesis
+        by blast }
+    ultimately have ?thesis
+      using Cons.IH by auto }
+  then show ?thesis
+    using Cons.IH by fastforce
+qed  *)
+    (* sledgehammer *)
+    (* by (smt Suc_inject Suc_neq_Zero alpha.distinct(1) append_Cons balanced.elims(2) balanced.elims(3) list.inject list.sel(2) list.sel(3) not_Cons_self2)   *)
+  sorry
+qed
+
   
 lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
 proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.induct)
@@ -337,9 +392,49 @@ proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.indu
     by simp
 next
   case (aSb w)
-  then show ?case 
-    (* sledgehammer  *)
-    sorry
+(* this:
+    gram_S w
+    w = replicate ?n a @ ?string \<Longrightarrow> balanced ?n ?string
+    a # w @ [b] = replicate n a @ string
+
+goal (2 subgoals):
+ 1. \<And>w n string. gram_S w \<Longrightarrow> (\<And>n string. w = replicate n a @ string \<Longrightarrow> balanced n string) \<Longrightarrow> a # w @ [b] = replicate n a @ string \<Longrightarrow> balanced n string 
+show:
+balanced n string  
+
+Strip off the a,b from replicate n a @ string. To create (replicate (n-1) a @ (but laststring)),
+which equals w. Use hyps(2) to show that this is balanced. Maybe also show that prefixing/appending
+a,b to a balanced string is also balanced.  *)
+    
+    
+    (* hence "balanced n string" try0 *)
+  moreover hence "gram_S (a # w @ [b])"
+    using gram_S.aSb by blast
+  ultimately show ?case
+  proof(cases n)
+    case 0
+    then show ?thesis
+      (* nitpick  *)
+      (* sledgehammer *)
+      sorry
+  next
+    case (Suc n_minus_1)
+    moreover have 0:"string = butlast string @ [b]"
+      by (metis Suc_neq_Zero aSb.hyps(3) alpha.distinct(1) calculation last_ConsR last_appendL last_appendR last_replicate snoc_eq_iff_butlast)
+    ultimately have "w = replicate n_minus_1 a @ (butlast string)"
+      by (metis aSb.hyps(3) butlast_append list.sel(3) replicate_Suc replicate_append_same snoc_eq_iff_butlast tl_append2)
+    hence "balanced n_minus_1 (butlast string)"
+      using aSb.hyps(2) by blast
+    hence "balanced n string"
+      using 0
+      sledgehammer
+(*     moreover have "last string = b"
+      sorry *)
+    thus ?thesis 
+      sledgehammer
+      (* nitpick *)
+      sorry
+  qed
 next
   case (SS w\<^sub>0 w\<^sub>1)
   then show ?case 
