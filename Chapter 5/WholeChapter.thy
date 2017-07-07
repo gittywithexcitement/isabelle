@@ -331,6 +331,26 @@ next
 qed
   
 lemma balanced_ab:"balanced n string \<Longrightarrow> balanced (Suc n) (string @ [b])"
+proof(induction "(Suc n)" "(string @ [b])" arbitrary: n string rule: balanced.induct)
+  (* case 1 then show ?case sorry next *)
+  case (2 v)
+  then show ?case by simp
+next
+  case (3 rest)
+  then show ?case 
+    by (metis Cons_eq_append_conv alpha.distinct(1) balanced.simps(3) list.inject)
+      (* next case 4 then show ?case sorry *)
+next
+  case (5 n rest)
+  moreover hence "balanced (Suc n) (b # string)"
+    using balanced.simps(5) by simp
+  ultimately show ?case 
+    sledgehammer
+    sorry
+qed
+
+  
+  
   (* proof - *)
   (* proof(cases rule: balanced.cases) Illegal schematic variable? *)
   
@@ -345,44 +365,6 @@ lemma balanced_ab:"balanced n string \<Longrightarrow> balanced (Suc n) (string 
   (* apply(induction n arbitrary: string) *)
 (* proof(induction n) *)
 (* proof(induction string) *)
-proof(induction string arbitrary: n)
-  case Nil
-  then show ?case
-    by simp 
-next
-  case (Cons x xs)
-(*   moreover hence "balanced (Suc n) string"
-      nitpick *)
-  then show ?case
-     (* by (smt append_Cons balanced.elims(2) balanced.simps(3) balanced.simps(5) list.inject self_append_conv2) *)
-
-(*   proof -
-    have f1: "\<forall>n as. \<not> balanced n as \<or> n = 0 \<and> as = [] \<or> (\<exists>na asa. n = na \<and> as = a # asa \<and> balanced (Suc na) asa) \<or> (\<exists>na asa. n = Suc na \<and> as = b # asa \<and> balanced na asa)"
-      by (metis balanced.elims(2))
-    obtain nn :: "alpha list \<Rightarrow> nat \<Rightarrow> nat" and aas :: "alpha list \<Rightarrow> nat \<Rightarrow> alpha list" where
-      f2: "\<forall>x0 x1. (\<exists>v2 v3. x1 = Suc v2 \<and> x0 = b # v3 \<and> balanced v2 v3) = (x1 = Suc (nn x0 x1) \<and> x0 = b # aas x0 x1 \<and> balanced (nn x0 x1) (aas x0 x1))"
-      by moura
-    obtain nna :: "alpha list \<Rightarrow> nat \<Rightarrow> nat" and aasa :: "alpha list \<Rightarrow> nat \<Rightarrow> alpha list" where
-      "\<forall>x0 x1. (\<exists>v2 v3. x1 = v2 \<and> x0 = a # v3 \<and> balanced (Suc v2) v3) = (x1 = nna x0 x1 \<and> x0 = a # aasa x0 x1 \<and> balanced (Suc (nna x0 x1)) (aasa x0 x1))"
-      by moura
-    then have f3: "n = 0 \<and> x # xs = [] \<or> n = nna (x # xs) n \<and> x # xs = a # aasa (x # xs) n \<and> balanced (Suc (nna (x # xs) n)) (aasa (x # xs) n) \<or> n = Suc (nn (x # xs) n) \<and> x # xs = b # aas (x # xs) n \<and> balanced (nn (x # xs) n) (aas (x # xs) n)"
-      using f2 f1 Cons.prems by presburger
-    { assume "n \<noteq> Suc (nn (x # xs) n) \<or> x # xs \<noteq> b # aas (x # xs) n \<or> \<not> balanced (nn (x # xs) n) (aas (x # xs) n)"
-      then have "x # xs = [] \<or> n = nna (x # xs) n \<and> x # xs = a # aasa (x # xs) n \<and> balanced (Suc (nna (x # xs) n)) (aasa (x # xs) n)"
-        using f3 by meson
-    moreover
-    { assume "x # xs = []"
-      then have ?thesis
-        by blast }
-    ultimately have ?thesis
-      using Cons.IH by auto }
-  then show ?thesis
-    using Cons.IH by fastforce
-qed  *)
-    (* sledgehammer *)
-    (* by (smt Suc_inject Suc_neq_Zero alpha.distinct(1) append_Cons balanced.elims(2) balanced.elims(3) list.inject list.sel(2) list.sel(3) not_Cons_self2)   *)
-  sorry
-qed
 
   
 lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
