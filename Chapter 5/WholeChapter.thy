@@ -355,6 +355,17 @@ next
       using pop_b bal_sn by (metis Cons_eq_append_conv balanced.simps(5))
   qed
 qed
+  
+lemma balanced_append_string:
+  "balanced 0 (drop prefix string) \<Longrightarrow> balanced n (take prefix string)
+    \<Longrightarrow> balanced n string"  
+  proof(induction string)(* arbitrary? *)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a string)
+    then show ?case sorry
+  qed 
 
 lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
 proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.induct)
