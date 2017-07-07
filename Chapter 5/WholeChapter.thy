@@ -204,7 +204,7 @@ value "balanced 0 [a,b,b,b]"
 value "balanced 0 [a,a,a,b,b]"
 value "balanced 0 [a,a,b,b,b]"
 value "balanced 0 [a,a,b]"
-
+  
 lemma insert_ab_middle_of_S:  "gram_S (xs @ ys) \<Longrightarrow> gram_S (xs @ [a, b] @ ys)"
 proof(induction "(xs @ ys)" arbitrary: xs ys rule: gram_S.induct)
   case empty
@@ -299,7 +299,7 @@ next
 qed
   
   (* Find hints at https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
-
+  
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
 lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
 proof(induction n string rule: balanced.induct)
@@ -329,6 +329,24 @@ next
   thus ?case
     by simp 
 qed  
+  
+lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
+proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.induct)
+  case empty
+  then show ?case
+    by simp
+next
+  case (aSb w)
+  then show ?case 
+    (* sledgehammer  *)
+    sorry
+next
+  case (SS w\<^sub>0 w\<^sub>1)
+  then show ?case 
+    (* sledgehammer  *)
+    sorry
+      
+qed
   
   
   (* lemma "balanced n w = gram_S (replicate n a @ w)"  
