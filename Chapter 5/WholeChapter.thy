@@ -193,10 +193,7 @@ fun balanced :: "nat \<Rightarrow> alpha list \<Rightarrow> bool" where
   "balanced n (a # rest) = balanced (Suc n) rest" |
   "balanced 0 (b # rest) = False" |
   "balanced (Suc n) (b # rest) = balanced n rest"
-  
-  (* S \<rightarrow> \<epsilon> | aSb | SS *)
-  (* balanced n w is true IFF S (a\<^sup>n @ w) *)
-  
+    
 value "balanced 0 [a,a,b,b]"
 value "balanced 0 [a,b,a,b]"
   
@@ -297,9 +294,7 @@ next
     qed
   qed
 qed
-  
-  (* Find hints at https://github.com/tarc/concrete-semantics-book/blob/master/Chap5.thy *)
-  
+    
   (* The `a` in `replicate n a` is the first constructor of datatype alpha *)
 lemma balanced_implies_S:"balanced n string \<Longrightarrow> gram_S (replicate n a @ string)"
 proof(induction n string rule: balanced.induct)
@@ -470,8 +465,7 @@ next
   qed
 qed
   
-  
-  (* lemma "balanced n w = gram_S (replicate n a @ w)"  
-  oops
- *)    
+theorem "balanced n w = gram_S (replicate n a @ w)"
+  using S_implies_balanced balanced_implies_S by blast
+    
 end
