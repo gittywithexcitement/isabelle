@@ -332,41 +332,30 @@ qed
   
 lemma balanced_ab:"balanced n string \<Longrightarrow> balanced (Suc n) (string @ [b])"
 proof(induction "(Suc n)" "(string @ [b])" arbitrary: n string rule: balanced.induct)
-  (* case 1 then show ?case sorry next *)
   case (2 v)
   then show ?case by simp
 next
   case (3 rest)
   then show ?case 
     by (metis Cons_eq_append_conv alpha.distinct(1) balanced.simps(3) list.inject)
-      (* next case 4 then show ?case sorry *)
 next
-  case (5 n rest)
-  moreover hence "balanced (Suc n) (b # string)"
+  case pop_b:(5 n rest)
+  moreover hence bal_sn:"balanced (Suc n) (b # string)"
     using balanced.simps(5) by simp
-  ultimately show ?case 
-    sledgehammer
-    sorry
+  ultimately show ?case
+  proof(cases n)
+    case 0
+    moreover have "balanced (Suc n) (b # string)"
+      by (metis bal_sn)
+    ultimately show ?thesis
+      using pop_b balanced.simps(4) by (metis butlast.simps(2) butlast_snoc)
+  next
+    case (Suc pred_n)
+    then show ?thesis 
+      using pop_b bal_sn by (metis Cons_eq_append_conv balanced.simps(5))
+  qed
 qed
 
-  
-  
-  (* proof - *)
-  (* proof(cases rule: balanced.cases) Illegal schematic variable? *)
-  
-  (* using rule: balanced.induct creates False conclusions because the [b] disappears *)
-  (* apply(induction arbitrary: n string rule: balanced.induct) *)
-  (* apply(induction arbitrary: n rule: balanced.induct) *)
-  (* apply(induction arbitrary: string rule: balanced.induct) *)
-  (* apply(induction rule: balanced.induct) *)
-  
-  (* apply(cases rule:balanced.cases) *)
-  
-  (* apply(induction n arbitrary: string) *)
-(* proof(induction n) *)
-(* proof(induction string) *)
-
-  
 lemma S_implies_balanced:"gram_S (replicate n a @ string) \<Longrightarrow> balanced n string"
 proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.induct)
   case empty
