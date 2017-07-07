@@ -401,7 +401,7 @@ next
         by (metis length_replicate take_replicate)
       hence "w\<^sub>0 = replicate (length w\<^sub>0) a @ []"
         by simp
-      hence bal_0:"balanced (length w\<^sub>0) []"
+      hence bal:"balanced (length w\<^sub>0) []"
         using SS.hyps(2) by blast
           (* Now work on w\<^sub>1 *)
       hence "w\<^sub>1 = drop (length w\<^sub>0) (replicate n a @ string)"
@@ -410,15 +410,30 @@ next
         using len_w_lt by simp
       hence "balanced (n - length w\<^sub>0) string"
         by (simp add: SS.hyps(4))
-      then show ?thesis 
-        by (metis Nitpick.size_list_simp(2) SS.hyps(4) SS.hyps(5) bal_0 balanced.simps(2)
+      thus ?thesis 
+        by (metis Nitpick.size_list_simp(2) SS.hyps(4) SS.hyps(5) bal balanced.simps(2)
             self_append_conv2) 
     next
       case False
-      hence "length w\<^sub>0 > n"
+      hence len_w_gt:"length w\<^sub>0 > n"
         using len_ne by auto
+      hence "w\<^sub>0 = take (length w\<^sub>0) (replicate n a @ string)"
+        using SS.hyps(5) append_eq_conv_conj by blast
+      hence "w\<^sub>0 = replicate n a @ take (length w\<^sub>0 - n) string"
+        by (metis len_w_gt length_replicate less_imp_le_nat take_all take_append)
+      hence bal_w0:"balanced n (take (length w\<^sub>0 - n) string)"
+        using SS.hyps(2) by blast
+          (* Now work on w\<^sub>1 *)
+      hence "w\<^sub>1 = drop (length w\<^sub>0) (replicate n a @ string)"
+        using SS.hyps(5) append_eq_conv_conj by blast
+      hence "w\<^sub>1 = drop (length w\<^sub>0 - n) string"
+        using len_w_gt by simp
+      hence "balanced 0 (drop (length w\<^sub>0 - n) string)"
+        by (simp add: SS.hyps(4))
       then show ?thesis 
-        sledgehammer sorry
+        using bal_w0 SS.hyps balanced.simps
+        sledgehammer
+        sorry
     qed
   qed
 qed
