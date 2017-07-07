@@ -330,7 +330,7 @@ next
     by simp 
 qed
   
-lemma balanced_ab:"balanced n string \<Longrightarrow> balanced (Suc n) (string @ [b])"
+lemma balanced_append_b:"balanced n string \<Longrightarrow> balanced (Suc n) (string @ [b])"
 proof(induction "(Suc n)" "(string @ [b])" arbitrary: n string rule: balanced.induct)
   case (2 v)
   then show ?case by simp
@@ -363,27 +363,11 @@ proof(induction "(replicate n a @ string)" arbitrary: n string rule: gram_S.indu
     by simp
 next
   case (aSb w)
-(* this:
-    gram_S w
-    w = replicate ?n a @ ?string \<Longrightarrow> balanced ?n ?string
-    a # w @ [b] = replicate n a @ string
-
-goal (2 subgoals):
- 1. \<And>w n string. gram_S w \<Longrightarrow> (\<And>n string. w = replicate n a @ string \<Longrightarrow> balanced n string) \<Longrightarrow> a # w @ [b] = replicate n a @ string \<Longrightarrow> balanced n string 
-show:
-balanced n string  
-
-Strip off the a,b from replicate n a @ string. To create (replicate (n-1) a @ (but laststring)),
-which equals w. Use hyps(2) to show that this is balanced. Maybe also show that prefixing/appending
-a,b to a balanced string is also balanced.  *)
-    
-    
-    (* hence "balanced n string" try0 *)
   show ?case
   proof(cases n)
     case 0
     then show ?thesis
-      using aSb.hyps(2) aSb.hyps(3) balanced_ab by auto
+      using aSb.hyps(2) aSb.hyps(3) balanced_append_b by auto
   next
     case (Suc n_minus_1)
     moreover have 0:"string = butlast string @ [b]"
@@ -393,7 +377,7 @@ a,b to a balanced string is also balanced.  *)
     hence "balanced n_minus_1 (butlast string)"
       using aSb.hyps(2) by blast
     hence "balanced n string"
-      using 0 Suc balanced_ab by fastforce
+      using 0 Suc balanced_append_b by fastforce
     thus ?thesis by simp
   qed
 next
