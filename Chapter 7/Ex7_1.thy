@@ -71,38 +71,34 @@ next
     by simp 
 next
   case (Seq c1 c2)
+    (* let "?case" = "deskip (c1_;; c2_) \<sim> c1_;; c2_" *)
+    (* assume IH : "deskip c1_ \<sim> c1_" "deskip c2_ \<sim> c2_"*)
   then show ?case
-  proof(cases c1)
-    case SKIP
-    then show ?thesis using Seq.IH(2) by auto
-  next
-    case (Assign c1a1 c1a2)
+  proof(cases "c1 = SKIP")
+    case True
     then show ?thesis
-      apply(cases c2) 
-          apply auto[1]
-        apply simp
-        apply simp
-        sledgehammer
-        try0
-          (* apply(simp split:com.split) *)
+      using Seq.IH(2) by auto 
+  next
+    case c1f:False
+    then show ?thesis 
+    proof(cases "c2 = SKIP")
+      case c2t:True
+        (* c1 \<noteq> SKIP \<Longrightarrow> c2 = SKIP \<Longrightarrow> 
+            deskip_seq (deskip c1) SKIP \<sim> c1;; SKIP *)
+      hence "deskip (c1;; c2) = deskip_seq (deskip c1) SKIP" by simp
           
-      (* using Seq.IH sledgehammer  *)
-      sorry
-  next
-    case (Seq x31 x32)
-    then show ?thesis 
-      (* using Seq.IH sledgehammer  *)
-      sorry
-  next
-    case (If x41 x42 x43)
-    then show ?thesis 
-            (* using Seq.IH sledgehammer  *)
-      sorry
-  next
-    case (While x51 x52)
-    then show ?thesis 
-            (* using Seq.IH sledgehammer  *)
-      sorry
+          (* Ahh, the problem is that we don't know if (deskip c1) is SKIP or not. *)
+      also have "... = (deskip c1)" 
+      then show ?thesis 
+        using Seq.IH c1f
+     (* sledgehammer *)
+        sorry
+    next
+      case False
+      then show ?thesis 
+        (* sledgehammer *)
+        sorry
+    qed
   qed
 next
   case (If x1 c1 c2)
