@@ -37,7 +37,7 @@ next
   then show ?case by fastforce
 next
   case (If bexp c1 c2)
-  then show ?case 
+  then show ?case
     by (meson Big_Step.IfE big_step.IfFalse big_step.IfTrue skip.simps(4))
 next
   case (While bexp c)
@@ -46,5 +46,16 @@ next
   using [[simp_trace_new mode=full]]
     by simp
 qed
-  
+
+subsection "7.3"
+
+fun deskip :: "com \<Rightarrow> com" where
+  "deskip (SKIP) = SKIP" |
+  "deskip (Assign v a)  = Assign v a" |
+  "deskip (Seq  SKIP c) = c" |
+  "deskip (Seq  c SKIP) = c" |
+  "deskip (Seq  c0 c1)  = Seq c0 c1" |
+  "deskip (If   b c0 c1) = If b c0 c1" |
+  "deskip (While b c) = While b c" 
+
 end
