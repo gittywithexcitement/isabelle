@@ -22,7 +22,8 @@ fun skip :: "com \<Rightarrow> bool" where
   "skip (Assign _ _) = False" |
   "skip (Seq  c0 c1) = (skip c0 \<and> skip c1)" |
   "skip (If   _ c0 c1) = (skip c0 \<and> skip c1)" |
-  "skip (While  _ com) = skip com"
+  (* I think we'd also need to know that While terminated, then this would be: = skip com *)
+  "skip (While _ com) = False" 
   
 lemma skip_like_SKIP: "skip c \<Longrightarrow> c \<sim> SKIP"
 proof(induction c)
@@ -40,9 +41,10 @@ next
     by (meson Big_Step.IfE big_step.IfFalse big_step.IfTrue skip.simps(4))
 next
   case (While bexp c)
-  then show ?case 
-    using Big_Step.WhileE big_step.WhileFalse big_step.WhileTrue skip.simps(5)
-    sledgehammer sorry
+  then show ?case
+    (* Note: this is how you view the simplifier steps *)
+  using [[simp_trace_new mode=full]]
+    by simp
 qed
   
 end
