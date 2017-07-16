@@ -53,7 +53,11 @@ fun deskip_seq :: "com \<Rightarrow> com \<Rightarrow> com" where
   "deskip_seq SKIP c = c" |
   "deskip_seq c SKIP = c" |
   "deskip_seq c0 c1 = Seq c0 c1"
-
+  
+lemma deskip_seq_2skip:"a \<noteq> SKIP \<Longrightarrow> deskip_seq a SKIP = a"
+  apply(cases a)
+  by(auto)
+    
 fun deskip :: "com \<Rightarrow> com" where
   "deskip (SKIP) = SKIP" |
   "deskip (Assign v a)  = Assign v a" |
