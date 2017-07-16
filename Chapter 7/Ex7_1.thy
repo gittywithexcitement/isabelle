@@ -53,7 +53,7 @@ fun deskip_seq :: "com \<Rightarrow> com \<Rightarrow> com" where
   "deskip_seq SKIP c = c" |
   "deskip_seq c SKIP = c" |
   "deskip_seq c0 c1 = Seq c0 c1"
-  
+
 lemma deskip_seq_notskip2:"a \<noteq> SKIP \<Longrightarrow> deskip_seq a SKIP = a"
   apply(cases a)
   by(auto)
@@ -87,9 +87,12 @@ next
   then show ?case
   proof(cases "(deskip c0) = SKIP")
     case True
-    then show ?thesis
-      by (metis (no_types, lifting) Big_Step.SeqE Big_Step.SkipE Seq.IH Skip big_iff_small
-          deskip.simps(3) deskip_seq.simps(1) seq_comp) 
+    hence 0:"deskip (c0;; c1) = deskip c1"
+      by simp
+    moreover have "c0;; c1 \<sim> c1" 
+      using Big_Step.SkipE Seq.IH(1) Skip True by fastforce
+    ultimately show ?thesis
+      by (simp add: Seq.IH(2))
   next
     case c0f:False
     then show ?thesis 
@@ -104,8 +107,7 @@ next
     next
       case False
       then show ?thesis
-        using c0f deskip_seq_notskip12
-        using Seq.IH(1) Seq.IH(2) by auto
+        using c0f deskip_seq_notskip12 Seq.IH(1) Seq.IH(2) by auto
     qed
   qed
 next
