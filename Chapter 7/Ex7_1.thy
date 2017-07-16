@@ -71,7 +71,39 @@ next
     by simp 
 next
   case (Seq c1 c2)
-  then show ?case try0 sorry
+  then show ?case
+  proof(cases c1)
+    case SKIP
+    then show ?thesis using Seq.IH(2) by auto
+  next
+    case (Assign c1a1 c1a2)
+    then show ?thesis
+      apply(cases c2) 
+          apply auto[1]
+        apply simp
+        apply simp
+        sledgehammer
+        try0
+          (* apply(simp split:com.split) *)
+          
+      (* using Seq.IH sledgehammer  *)
+      sorry
+  next
+    case (Seq x31 x32)
+    then show ?thesis 
+      (* using Seq.IH sledgehammer  *)
+      sorry
+  next
+    case (If x41 x42 x43)
+    then show ?thesis 
+            (* using Seq.IH sledgehammer  *)
+      sorry
+  next
+    case (While x51 x52)
+    then show ?thesis 
+            (* using Seq.IH sledgehammer  *)
+      sorry
+  qed
 next
   case (If x1 c1 c2)
   then show ?case 
