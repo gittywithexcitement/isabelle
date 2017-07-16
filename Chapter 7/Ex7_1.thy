@@ -74,29 +74,26 @@ next
   then show ?case 
     by simp 
 next
-  case (Seq c1 c2)
+  case (Seq c0 c1)
     (* let "?case" = "deskip (c1_;; c2_) \<sim> c1_;; c2_" *)
     (* assume IH : "deskip c1_ \<sim> c1_" "deskip c2_ \<sim> c2_"*)
   then show ?case
-  proof(cases "c1 = SKIP")
+  proof(cases "(deskip c0) = SKIP")
     case True
     then show ?thesis
-      using Seq.IH(2) by auto 
+      by (metis (no_types, lifting) Big_Step.SeqE Big_Step.SkipE Seq.IH Skip big_iff_small
+          deskip.simps(3) deskip_seq.simps(1) seq_comp) 
   next
-    case c1f:False
+    case c0f:False
     then show ?thesis 
-    proof(cases "c2 = SKIP")
-      case c2t:True
-        (* c1 \<noteq> SKIP \<Longrightarrow> c2 = SKIP \<Longrightarrow> 
-            deskip_seq (deskip c1) SKIP \<sim> c1;; SKIP *)
-      hence "deskip (c1;; c2) = deskip_seq (deskip c1) SKIP" by simp
-          
-          (* Ahh, the problem is that we don't know if (deskip c1) is SKIP or not. *)
-      also have "... = (deskip c1)" 
-      then show ?thesis 
-        using Seq.IH c1f
-     (* sledgehammer *)
-        sorry
+    proof(cases "(deskip c1) = SKIP")
+      case c1t:True
+      hence "deskip (c0;; c1) = deskip_seq (deskip c0) SKIP" 
+        by simp
+      have "deskip_seq (deskip c0) SKIP = deskip c0"
+        using c0f deskip_seq_2skip by simp
+      then show ?thesis
+        using Big_Step.SkipE Seq.IH(1) Seq.IH(2) Skip c1t by fastforce
     next
       case False
       then show ?thesis 
