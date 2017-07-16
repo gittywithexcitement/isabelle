@@ -36,17 +36,13 @@ next
   then show ?case by fastforce
 next
   case (If bexp c1 c2)
-  then show ?case
-    proof(cases "bval bexp s")
-      case True
-      then show ?thesis     try0 sorry
-    next
-      case False
-      then show ?thesis     try0 sorry
-    qed
+  then show ?case 
+    by (meson Big_Step.IfE big_step.IfFalse big_step.IfTrue skip.simps(4))
 next
-  case (While x1 c)
-  then show ?case try0 sorry
+  case (While bexp c)
+  then show ?case 
+    using Big_Step.WhileE big_step.WhileFalse big_step.WhileTrue skip.simps(5)
+    sledgehammer sorry
 qed
   
 end
