@@ -54,9 +54,18 @@ fun deskip_seq :: "com \<Rightarrow> com \<Rightarrow> com" where
   "deskip_seq c SKIP = c" |
   "deskip_seq c0 c1 = Seq c0 c1"
   
-lemma deskip_seq_2skip:"a \<noteq> SKIP \<Longrightarrow> deskip_seq a SKIP = a"
+lemma deskip_seq_notskip2:"a \<noteq> SKIP \<Longrightarrow> deskip_seq a SKIP = a"
   apply(cases a)
   by(auto)
+    
+lemma deskip_seq_notskip12:"\<lbrakk>a \<noteq> SKIP ; b \<noteq> SKIP\<rbrakk> \<Longrightarrow> deskip_seq a b = Seq a b"
+  apply(cases a)
+      apply auto
+     apply(cases b) apply(auto)
+    apply(cases b) apply(auto)
+   apply(cases b) apply(auto)
+  apply(cases b) apply(auto)
+  done
     
 fun deskip :: "com \<Rightarrow> com" where
   "deskip (SKIP) = SKIP" |
@@ -75,8 +84,6 @@ next
     by simp 
 next
   case (Seq c0 c1)
-    (* let "?case" = "deskip (c1_;; c2_) \<sim> c1_;; c2_" *)
-    (* assume IH : "deskip c1_ \<sim> c1_" "deskip c2_ \<sim> c2_"*)
   then show ?case
   proof(cases "(deskip c0) = SKIP")
     case True
@@ -91,14 +98,14 @@ next
       hence "deskip (c0;; c1) = deskip_seq (deskip c0) SKIP" 
         by simp
       have "deskip_seq (deskip c0) SKIP = deskip c0"
-        using c0f deskip_seq_2skip by simp
+        using c0f deskip_seq_notskip2 by simp
       then show ?thesis
         using Big_Step.SkipE Seq.IH(1) Seq.IH(2) Skip c1t by fastforce
     next
       case False
-      then show ?thesis 
-        (* sledgehammer *)
-        sorry
+      then show ?thesis
+        using c0f deskip_seq_notskip12
+        using Seq.IH(1) Seq.IH(2) by auto
     qed
   qed
 next
