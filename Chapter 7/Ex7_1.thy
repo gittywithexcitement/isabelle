@@ -48,14 +48,37 @@ next
 qed
 
 subsection "7.3"
+  
+fun deskip_seq :: "com \<Rightarrow> com \<Rightarrow> com" where
+  "deskip_seq SKIP c = c" |
+  "deskip_seq c SKIP = c" |
+  "deskip_seq c0 c1 = Seq c0 c1"
 
 fun deskip :: "com \<Rightarrow> com" where
   "deskip (SKIP) = SKIP" |
   "deskip (Assign v a)  = Assign v a" |
-  "deskip (Seq  SKIP c) = c" |
-  "deskip (Seq  c SKIP) = c" |
-  "deskip (Seq  c0 c1)  = Seq c0 c1" |
-  "deskip (If   b c0 c1) = If b c0 c1" |
-  "deskip (While b c) = While b c" 
+  "deskip (Seq c0 c1)   = deskip_seq (deskip c0) (deskip c1)" | 
+  "deskip (If b c0 c1)  = If b (deskip c0) (deskip c1)" | 
+  "deskip (While b c) = While b (deskip c)"
+
+lemma deskip_nochange:"deskip c \<sim> c"
+proof(induction c)
+  case SKIP
+  then show ?case by simp
+next
+  case (Assign x1 x2)
+  then show ?case 
+    by simp 
+next
+  case (Seq c1 c2)
+  then show ?case try0 sorry
+next
+  case (If x1 c1 c2)
+  then show ?case 
+    by auto 
+next
+  case (While x1 c)
+  then show ?case using sim_while_cong by auto
+qed  
 
 end
