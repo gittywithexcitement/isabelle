@@ -106,20 +106,21 @@ lemma positive_larger_fraction_is_larger:
     and fin0:"is_finite fmt (0, e, fs)"
     and fin1:"is_finite fmt (0, e, fl)"
   shows "fl > fs \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
-proof(induction "fl - fs" arbitrary: fl fs)
-  case 0
-  then show ?case by simp
+proof(cases "fl = Suc fs")
+  case True
+  then show ?thesis 
+    using fin0 fin1 positive_next_larger_fraction by auto
 next
-  case (Suc diff)
-  obtain diff' :: nat where "diff' = fl - fs" by simp
-  (* have "fs < fl" using lgts try *)
-    (* apply_end simp *)
-  then show ?case 
-    using positive_next_larger_fraction
+  case False
+  hence "fl > Suc fs"
+    using Suc_lessI lgts by blast
+  then show ?thesis
+    using fin0 fin1 positive_next_larger_fraction
     sledgehammer
     sorry
 qed
-    
+  
+  
   
 (*   TODO 
 definition float_format :: format
