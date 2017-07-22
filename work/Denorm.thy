@@ -54,27 +54,26 @@ lemma SmallestPositiveDenorm:
 proof(rule ccontr)
   assume "\<not>(\<nexists>x. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x)"
   hence 0:"(\<exists>x. x < SmallPositiveDenorm \<and> x > Plus_zero  \<and> Finite x)" by auto
-  then obtain y where y:"y > Plus_zero \<and> Finite y" by auto
+  then obtain y where y:"y < SmallPositiveDenorm \<and> y > Plus_zero \<and> Finite y" by auto
   have "Sign y < 2"
     using Sign_def is_valid_defloat is_valid by auto
   hence 1:"Sign y = 0 \<or> Sign y = 1"
     by (simp add: less_2_cases)
-  hence "Sign y = 0"
+  hence ypos:"Sign y = 0"
   proof(cases "Sign y = 0")
     case True
     then show ?thesis by simp
   next
     case False
-      (* If sign is 1, then it's negative, which means it breaks larger than zero *)
     hence "Sign y = 1" 
       using 1 by simp
     hence "y \<le> Plus_zero"
-      try
-    then show ?thesis try sorry
+      by (simp add: negative_lt_zero y)
+    then show ?thesis 
+      using Finite_def float_le_neg float_zero1 y by blast 
   qed
     
-    try
-    sorry
+
   then show False sorry
 qed
 
