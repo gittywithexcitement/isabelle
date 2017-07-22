@@ -4,6 +4,14 @@ theory Denorm
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
   
+lemma Val_zero:"Val Plus_zero = (0 :: real)"
+proof -
+  have "(0,0,0) = Rep_float Plus_zero"
+    using Abs_float_inverse Plus_zero_def is_valid_special(5) by fastforce
+  moreover have "valof float_format (0,0,0) = 0" by simp
+  ultimately show ?thesis 
+    by (simp add: Val_def)
+qed
   
   (* Negative (finite) numbers are \<le> 0 *)
 lemma negative_lt_zero:
@@ -12,14 +20,6 @@ lemma negative_lt_zero:
     and negative:"Sign x = 1"
   shows "x \<le> Plus_zero"
 proof -
-  have zero:"Val Plus_zero = (0 :: real)"
-  proof -
-    have "(0,0,0) = Rep_float Plus_zero"
-      using Abs_float_inverse Plus_zero_def is_valid_special(5) by fastforce
-    moreover have "valof float_format (0,0,0) = 0" by simp
-    ultimately show ?thesis 
-      by (simp add: Val_def)
-  qed
   obtain s e f where sef:"(s, e, f) = Rep_float x"
     by (metis Abs_float_inverse finite_nan float_double_neg_eq float_neg_def fneg_def
         is_valid_defloat local.finite mem_Collect_eq neg_valid)
@@ -30,7 +30,7 @@ proof -
   hence "valof float_format (s, e, f) \<le> 0"
     using s1 by simp
   thus ?thesis 
-    using Finite_def Val_def float_zero1 local.finite sef zero by auto
+    using Finite_def Val_def float_zero1 local.finite sef Val_zero by auto
 qed
     
   
