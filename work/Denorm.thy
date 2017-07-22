@@ -98,7 +98,23 @@ next
       using l0 r0 by auto      
   qed
 qed
-  
+
+lemma positive_larger_fraction_is_larger:
+  fixes fmt :: format
+    and fl :: nat
+    and fs :: nat
+  assumes lgts:"fl > fs" 
+    and fin0:"is_finite fmt (0, e, fs)"
+    and fin1:"is_finite fmt (0, e, fl)"
+  shows "fl > fs \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
+proof(induction fl)
+  case 0
+  then show ?case by simp
+next
+  case (Suc fl)
+  then show ?case sledgehammer
+    sorry
+qed
     
   
 (*   TODO 
