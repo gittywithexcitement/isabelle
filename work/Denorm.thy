@@ -37,7 +37,6 @@ lemma positive_next_larger_fraction:
   fixes fmt :: format
   assumes fin0:"is_finite fmt (0, ye, yf)"
     and fin1:"is_finite fmt (0, ye, Suc yf)"
-    and frac_gt0:"fracwidth fmt > 0"
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
 proof(cases "ye = 0")
   case ye0:True
