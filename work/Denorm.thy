@@ -33,7 +33,7 @@ proof -
     using Finite_def Val_def float_zero1 local.finite sef Val_zero by auto
 qed
   
-lemma positive_larger_fraction_is_larger:
+lemma positive_next_larger_fraction:
   fixes fmt :: format
   assumes fin0:"is_finite fmt (0, ye, yf)"
     and fin1:"is_finite fmt (0, ye, Suc yf)"
@@ -79,9 +79,23 @@ next
     then show ?case by simp
   next
     case (Suc yf)
+    obtain plus1 :: real where plus1:"plus1 = (1 + (1 + real yf) / 2 ^ fracwidth fmt)"
+      by simp
+    obtain plus2 :: real where plus2:"plus2 = (1 + (2 + real yf) / 2 ^ fracwidth fmt)"
+      by simp
+    have l0:"valof fmt (0, ye, Suc yf) = exp * plus1"
+      by (simp add: False exp plus1)
+    have r0:"valof fmt (0, ye, Suc (Suc yf)) = exp * plus2"
+      by (simp add: False exp plus2)
+    have i0:"(1 + (1 + real yf) / 2 ^ fracwidth fmt) < (1 + (2 + real yf) / 2 ^ fracwidth fmt)"
+      by (simp add: divide_strict_right_mono)
+    have "plus1 < plus2"
+      using i0 plus1 plus2 by simp
+    hence "exp * plus1 < exp * plus2"
+      by (metis divide_pos_pos exp zero_less_power
+          linordered_comm_semiring_strict_class.comm_mult_strict_left_mono rel_simps(51))
     then show ?case 
-      (* try *)
-      sorry
+      using l0 r0 by auto      
   qed
 qed
   
