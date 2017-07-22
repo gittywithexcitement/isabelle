@@ -32,6 +32,31 @@ proof -
   thus ?thesis 
     using Finite_def Val_def float_zero1 local.finite sef Val_zero by auto
 qed
+  
+lemma positive_larger_fraction_is_larger:
+  fixes fmt :: format
+  assumes fin0:"is_finite fmt (0, ye, yf)"
+    and fin1:"is_finite fmt (0, ye, Suc yf)"
+  shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
+proof(cases "ye = 0")
+  case ye0:True
+  have l0:"valof fmt (0, ye, yf) = (2 / (2^bias fmt)) * (real yf/2^(fracwidth fmt))"
+    using ye0 by simp
+  have r0:"valof fmt (0, ye, Suc yf) = (2 / (2^bias fmt)) * (real (Suc yf)/2^(fracwidth fmt))"
+    using ye0 by simp
+  have "(real yf/2^(fracwidth fmt)) < (real (Suc yf)/2^(fracwidth fmt))"
+    by (simp add: divide_strict_right_mono)
+  hence "(2 / (2^bias fmt)) * (real yf/2^(fracwidth fmt)) < (2 / (2^bias fmt)) * (real (Suc yf)/2^(fracwidth fmt))"
+    by (simp add: pos_less_divide_eq)
+  hence "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
+    using l0 r0 by linarith
+  thus ?thesis by simp
+next
+  case False
+    (* Induction on yf with arbitrary ye? *)
+  then show ?thesis sorry
+qed
+  
     
   
 (*   TODO 
