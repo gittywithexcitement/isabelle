@@ -60,18 +60,18 @@ proof(rule ccontr)
   hence fesy:"Sign y = ys \<and> Exponent y = ye \<and> Fraction y = yf"
     by (metis Exponent_def Fraction_def Sign_def exponent.simps fraction.simps sign.simps)
 
-  have "Sign y < 2"
-    using Sign_def is_valid_defloat is_valid by auto
-  hence 1:"Sign y = 0 \<or> Sign y = 1"
-    by (simp add: less_2_cases)
-  hence ypos:"Sign y = 0"
+  have ypos:"Sign y = 0"
   proof(cases "Sign y = 0")
     case True
     then show ?thesis by simp
   next
     case False
-    hence "Sign y = 1" 
-      using 1 by simp
+    have "Sign y < 2"
+      using Sign_def is_valid_defloat is_valid by auto
+    hence "Sign y = 0 \<or> Sign y = 1"
+      by (simp add: less_2_cases)
+    hence "Sign y = 1"
+      by (simp add: False)
     hence "y \<le> Plus_zero"
       by (simp add: negative_lt_zero y)
     then show ?thesis 
@@ -91,14 +91,10 @@ proof(rule ccontr)
     hence "Exponent y > 0" by simp
     hence yegt0:"ye > 0"
       by (simp add: fesy)
-        
     obtain mul_exp :: real where mul_exp:"mul_exp = (1 / (2^bias float_format))" by simp    
+    hence megt0:"mul_exp > 0" by simp 
     obtain part_frac :: real where part_frac:"part_frac = 1/2^(fracwidth float_format)" by simp    
-        
-    have megt0:"mul_exp > 0" 
-      using mul_exp by simp
-    have pfgt0:"part_frac > 0" 
-      using part_frac by simp
+    hence pfgt0:"part_frac > 0" by simp
         
     have i0:"valof float_format (0, ye, 1) = ((2^ye) / (2^bias float_format)) * (1 + real 1/2^fracwidth float_format)"
       using yegt0 by auto
