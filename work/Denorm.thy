@@ -81,44 +81,6 @@ proof(rule ccontr)
   hence valof:"valof float_format (0, ye, yf) > 0"
     using Val_def fesy ypos ysef by auto
 
-  have "Fraction y > 0"
-  proof(rule ccontr)
-    assume "\<not>(Fraction y > 0)"
-    hence "Fraction y \<le> 0" by simp
-    hence "yf \<le> 0"
-      by (simp add: fesy)
-    hence "yf = 0" by simp 
-    hence "valof float_format (0, ye, 0) > 0"      
-      using valof by auto
-        
-    have "\<forall>exp. valof float_format (0, exp, 0) = 0"
-    proof
-      fix exp
-      have "valof float_format (0, exp, 0) = 0"
-      proof(cases "exp = 0")
-        case True
-        then show ?thesis 
-          by simp 
-      next
-        case False
-          (* Crap, I forgot about the implicit 1 *)
-        hence "valof float_format (0, exp, 0) = ((2^exp) / (2^bias float_format)) * (1 + 0)"
-          by simp
-        then show ?thesis try
-      qed
-        
-      show ?thesis
-        proof
-      have "valof float_format (0, exp, 0) = (-1::real)^0 * (2 / (2^bias float_format)) * (real 0/2^(fracwidth float_format))"
-      (* have "valof float_format (0, exp, 0) = 1 * (2 / (2^bias float_format)) * (real 0)" *)
-        sledgehammer
-          sorry
-    qed
-(*     hence "valof float_format (0, ye, yf) > 0"
-      try *)
-    then show False 
-      sledgehammer sorry
-  qed
     
   have "Exponent y = 0"
   proof(rule ccontr)
