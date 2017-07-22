@@ -96,20 +96,36 @@ proof(rule ccontr)
     obtain part_frac :: real where part_frac:"part_frac = 1/2^(fracwidth float_format)" by simp    
     hence pfgt0:"part_frac > 0" by simp
         
-    have i0:"valof float_format (0, ye, 1) = ((2^ye) / (2^bias float_format)) * (1 + real 1/2^fracwidth float_format)"
+    have i0:"valof float_format (0, ye, 0) = ((2^ye) / (2^bias float_format)) * 1"
       using yegt0 by auto
-    have i1:"... = (2^ye) * mul_exp * (1 + part_frac)"
+    have i1:"... = (2^ye) * mul_exp * 1"
       by (simp add: mul_exp part_frac)
         
     have i2:"valof float_format (0, 0, 1) = (2 / (2^bias float_format)) * (real 1/2^(fracwidth float_format))"
       by auto
     have i3:"... = 2 * mul_exp * part_frac"
       by (simp add: mul_exp part_frac)
-        
-    have "(2^ye) * mul_exp * (1 + part_frac) > (2^ye) * mul_exp * part_frac"
-      by (simp add: megt0)
-    moreover have "(2^ye) * mul_exp * part_frac \<ge> 2 * mul_exp * part_frac"
-      using yegt0 pfgt0 megt0
+
+    have i4:"(2^ye) * mul_exp * 1 > (2^ye) * mul_exp * part_frac"
+      using megt0
+    proof -
+      have "1 > part_frac"
+      proof -
+        have "1 > (1/2^52 :: real)"
+          by simp
+        have "fracwidth float_format = 52"
+          by (simp add: float_format_def)
+        hence "1 > (1/2^(fracwidth float_format) :: real)"
+          by simp
+        thus ?thesis
+          by (simp add: part_frac)
+      qed
+      thus ?thesis
+        by (simp add: megt0)
+    qed
+      
+    have i5:"(2^ye) * mul_exp * part_frac \<ge> 2 * mul_exp * part_frac"
+      using yegt0 pfgt0 megt0 i4
     proof(induction ye)
       case 0
       then show ?case 
@@ -118,8 +134,8 @@ proof(rule ccontr)
       case (Suc ye)
       then show ?case by simp
     qed
-    ultimately have "(2^ye) * mul_exp * (1 + part_frac) > 2 * mul_exp * part_frac"
-      by linarith
+    hence "(2^ye) * mul_exp * 1 \<ge> 2 * mul_exp * part_frac"
+      using i4 by linarith
         
     hence "valof float_format (0, ye, 1) > valof float_format (0, 0, 1)"
       using i0 i1 i2 i3 by linarith
