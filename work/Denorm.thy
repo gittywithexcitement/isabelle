@@ -92,48 +92,48 @@ proof(rule ccontr)
     hence yegt0:"ye > 0"
       by (simp add: fesy)
         
-    obtain mul_exp :: real where mul_exp:"mul_exp = (2 / (2^bias float_format))" by simp    
+    obtain mul_exp :: real where mul_exp:"mul_exp = (1 / (2^bias float_format))" by simp    
     obtain part_frac :: real where part_frac:"part_frac = 1/2^(fracwidth float_format)" by simp    
         
-    have "valof float_format (0, ye, 1) = ((2^ye) / (2^bias float_format)) * (1 + real 1/2^fracwidth float_format)"
+    have megt0:"mul_exp > 0" 
+      using mul_exp by simp
+    have pfgt0:"part_frac > 0" 
+      using part_frac by simp
+        
+    have i0:"valof float_format (0, ye, 1) = ((2^ye) / (2^bias float_format)) * (1 + real 1/2^fracwidth float_format)"
       using yegt0 by auto
-    have "... = (2^(ye-1)) * mul_exp * (1 + part_frac)" 
-      by (metis mul_exp neq0_conv of_nat_1 part_frac power_commutes realpow_num_eq_if 
-          times_divide_eq_right yegt0)
+    have i1:"... = (2^ye) * mul_exp * (1 + part_frac)"
+      by (simp add: mul_exp part_frac)
         
-    have "valof float_format (0, 0, 1) = (2 / (2^bias float_format)) * (real 1/2^(fracwidth float_format))"
+    have i2:"valof float_format (0, 0, 1) = (2 / (2^bias float_format)) * (real 1/2^(fracwidth float_format))"
       by auto
-    have "... = mul_exp * part_frac"
-      by (simp add: mul_exp part_frac) 
+    have i3:"... = 2 * mul_exp * part_frac"
+      by (simp add: mul_exp part_frac)
         
-    have "(2^(ye-1)) * mul_exp * (1 + part_frac) > mul_exp * part_frac"
-      using yegt0 
-        (* sledgehammer *)
+    have "(2^ye) * mul_exp * (1 + part_frac) > (2^ye) * mul_exp * part_frac"
+      by (simp add: megt0)
+    moreover have "(2^ye) * mul_exp * part_frac \<ge> 2 * mul_exp * part_frac"
+      using yegt0 pfgt0 megt0
     proof(induction ye)
       case 0
-      then show ?case by simp
+      then show ?case 
+        by simp
     next
       case (Suc ye)
-      hence "mul_exp * part_frac < 2 ^ (ye - 1) * mul_exp * (1 + part_frac)" try
-      (* moreover  have "2 ^ Suc ye / 2 ^ bias float_format * (1 + real 1 / 2 ^ fracwidth float_format) = 2 * (2 ^ ye / 2 ^ bias float_format * (1 + real 1 / 2 ^ fracwidth float_format))" *)
-        (* by simp *)
-      show ?case 
-        sledgehammer sorry
-      qed
-    hence "(-1::real)^s * ((2^e) / (2^bias x)) * (1 + real f/2^fracwidth x)) > "        
+      then show ?case by simp
+    qed
+    ultimately have "(2^ye) * mul_exp * (1 + part_frac) > 2 * mul_exp * part_frac"
+      by linarith
         
     hence "valof float_format (0, ye, 1) > valof float_format (0, 0, 1)"
-    proof(induction ye)
-      case 0
-      then show ?case by simp
-    next
-      case (Suc ye)
-      then show ?case try
-      qed
+      using i0 i1 i2 i3 by linarith
+        (* Using above, and 
+      y < SmallPositiveDenorm
+      show false *)
         
-      (* try *)
-    (* hence 0:"(\<exists>x. x < SmallPositiveDenorm \<and> x > Plus_zero  \<and> Finite x)" by auto *)
-    then show False sorry
+
+    then show False 
+      try sorry
   qed
 
     (* using 0 *)
