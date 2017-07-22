@@ -106,18 +106,20 @@ lemma positive_larger_fraction_is_larger:
     and fin0:"is_finite fmt (0, e, fs)"
     and fin1:"is_finite fmt (0, e, fl)"
   shows "fl > fs \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
-proof(cases "fl = Suc fs")
-  case True
-  then show ?thesis 
-    using fin0 fin1 positive_next_larger_fraction by auto
+proof(induction fl (* arbitrary: fs *))
+  case 0
+  then show ?case by simp
 next
-  case False
-  hence "fl > Suc fs"
-    using Suc_lessI lgts by blast
-  then show ?thesis
-    using fin0 fin1 positive_next_larger_fraction
-    sledgehammer
-    sorry
+  case flIH:(Suc fli)
+  then show ?case
+  proof(cases e)
+    case 0
+      apply_end simp
+    then show ?thesis sorry
+  next
+    case (Suc ei)
+    then show ?thesis sorry
+  qed
 qed
   
   
