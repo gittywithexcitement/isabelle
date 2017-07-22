@@ -66,7 +66,7 @@ next
         using "0.prems" by simp
           
       {
-        obtain fw :: nat where fw:"fw = fracwidth fmt"
+        hence "(1 / 2 ^ fracwidth fmt :: real) > 0"
           by simp
         hence "1 / 2 ^ fw > 0" 
           using frac_gt0  
@@ -78,11 +78,10 @@ next
           then show ?case 
             sorry
         qed 
-        have "(1 + 1 / 2 ^ fracwidth fmt) > 0"
-          sledgehammer
-          sorry
+        hence "(1 + 1 / 2 ^ fracwidth fmt :: real) > 0"
+          by (simp add: add_pos_pos)
       }
-      have "2 ^ ye / 2 ^ bias fmt < 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
+      hence "2 ^ ye / 2 ^ bias fmt < 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
         (* sledgehammer *)
         sorry
 
