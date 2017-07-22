@@ -137,12 +137,31 @@ proof(rule ccontr)
     hence "(2^ye) * mul_exp * 1 \<ge> 2 * mul_exp * part_frac"
       using i4 by linarith
         
-    hence "valof float_format (0, ye, 1) > valof float_format (0, 0, 1)"
-      using i0 i1 i2 i3 by linarith
+    hence "valof float_format (0, ye, 0) > valof float_format (0, 0, 1)"
+      using i0 i1 i2 i3 i4 i5 by linarith
+    hence "valof float_format (0, ye, yf) > valof float_format (0, 0, 1)"
+    proof(induction yf)
+      case 0
+      then show ?case by simp
+    next
+      case (Suc yf)
+      have ii1:"valof float_format (0, 0, 1) < valof float_format (0, ye, yf)"
+        using Suc.IH Suc.prems by auto
+          
+          (* TODO return here *)
+      have "valof float_format (0, ye, yf) < valof float_format (0, ye, Suc yf)"
+        sledgehammer
+          
+      have "valof float_format (0, ye, yf) = ((2^ye) / (2^bias float_format)) * (1 + real yf/2^fracwidth float_format)"
+        using yegt0 by simp
+          
+      then show ?case 
+        sledgehammer
+        sorry
+      qed
         (* Using above, and 
       y < SmallPositiveDenorm
       show false *)
-        
 
     then show False 
       try sorry
