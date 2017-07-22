@@ -47,10 +47,7 @@ definition SmallPositiveDenorm :: "float"
   where "SmallPositiveDenorm = Abs_float (small_positive_denorm float_format)"
 
 lemma SmallestPositiveDenorm:
-  fixes x :: float
-    (* I could probably use \<not>Isnan x *)
-  (* assumes finite:"Finite x"  *)
-  shows "\<nexists>x. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x"
+  shows "\<nexists>x :: float. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x"
 proof(rule ccontr)
   assume "\<not>(\<nexists>x. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x)"
   hence 0:"(\<exists>x. x < SmallPositiveDenorm \<and> x > Plus_zero  \<and> Finite x)" by auto
@@ -76,13 +73,6 @@ proof(rule ccontr)
 
   then show False sorry
 qed
-
- (* by contradiction *)
-  have "x > Plus_zero" 
-    (* 1. \<exists>x<SmallPositiveDenorm. Plus_zero < x \<Longrightarrow> False *)
-  try
-    
-  oops
   
 value "is_denormal float_format (0,0,1)"
 value "is_valid float_format (0,0,1)"
