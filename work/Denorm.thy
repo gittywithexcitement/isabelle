@@ -37,6 +37,7 @@ lemma positive_larger_fraction_is_larger:
   fixes fmt :: format
   assumes fin0:"is_finite fmt (0, ye, yf)"
     and fin1:"is_finite fmt (0, ye, Suc yf)"
+    and frac_gt0:"fracwidth fmt > 0"
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
 proof(cases "ye = 0")
   case ye0:True
@@ -53,8 +54,59 @@ proof(cases "ye = 0")
   thus ?thesis by simp
 next
   case False
-    (* Induction on yf with arbitrary ye? *)
-  then show ?thesis sorry
+  hence yegt0:"ye > 0"
+    by auto
+  then show ?thesis 
+  proof(induction yf arbitrary: ye)
+    case 0
+    {
+      have l0:"valof fmt (0, ye, 0) = 2 ^ ye / 2 ^ bias fmt"
+        using "0.prems" by simp
+      have r0:"valof fmt (0, ye, Suc 0) = 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
+        using "0.prems" by simp
+          
+      {
+        obtain fw :: nat where fw:"fw = fracwidth fmt"
+          by simp
+        hence "1 / 2 ^ fw > 0" 
+          using frac_gt0  
+        proof(induction fw)
+          case 0
+          then show ?case by simp
+        next
+          case (Suc fw)
+          then show ?case 
+            sorry
+        qed 
+        have "(1 + 1 / 2 ^ fracwidth fmt) > 0"
+          sledgehammer
+          sorry
+      }
+      have "2 ^ ye / 2 ^ bias fmt < 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
+        (* sledgehammer *)
+        sorry
+
+       (* apply_end simp *)
+
+      have "(real yf/2^(fracwidth fmt)) < (real (Suc yf)/2^(fracwidth fmt))"
+        by (simp add: divide_strict_right_mono)
+      hence "(2 / (2^bias fmt)) * (real yf/2^(fracwidth fmt)) < (2 / (2^bias fmt)) * (real (Suc yf)/2^(fracwidth fmt))"
+        by (simp add: pos_less_divide_eq)
+      hence "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
+        using l0 r0 by linarith
+    }
+      
+      
+      
+    then show ?case
+      try
+      sorry
+  next
+    case (Suc yf)
+    then show ?case 
+      (* try *)
+      sorry
+  qed
 qed
   
     
