@@ -64,42 +64,21 @@ next
         using "0.prems" by simp
       have r0:"valof fmt (0, ye, Suc 0) = 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
         using "0.prems" by simp
-          
-      {
-        hence "(1 / 2 ^ fracwidth fmt :: real) > 0"
-          by simp
-        hence "1 / 2 ^ fw > 0" 
-          using frac_gt0  
-        proof(induction fw)
-          case 0
-          then show ?case by simp
-        next
-          case (Suc fw)
-          then show ?case 
-            sorry
-        qed 
-        hence "(1 + 1 / 2 ^ fracwidth fmt :: real) > 0"
-          by (simp add: add_pos_pos)
-      }
-      hence "2 ^ ye / 2 ^ bias fmt < 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
-        (* sledgehammer *)
-        sorry
-
-       (* apply_end simp *)
-
-      have "(real yf/2^(fracwidth fmt)) < (real (Suc yf)/2^(fracwidth fmt))"
-        by (simp add: divide_strict_right_mono)
-      hence "(2 / (2^bias fmt)) * (real yf/2^(fracwidth fmt)) < (2 / (2^bias fmt)) * (real (Suc yf)/2^(fracwidth fmt))"
-        by (simp add: pos_less_divide_eq)
-      hence "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
-        using l0 r0 by linarith
+      obtain exp :: real where exp:"exp = 2 ^ ye / 2 ^ bias fmt"
+        by simp
+      hence "1 / 2 ^ fracwidth fmt > (0 :: real)"
+        by simp
+      hence i0:"1 + 1 / 2 ^ fracwidth fmt > (1 :: real)"
+        by simp
+      hence "exp < (exp + exp * 1 / 2 ^ fracwidth fmt :: real)"
+        by (simp add: exp)
+      hence "exp < exp * (1 + 1 / 2 ^ fracwidth fmt :: real)"
+        by (metis i0 add_pos_pos divide_less_eq_1_pos divide_pos_pos less_numeral_extra(1) exp
+            mult_pos_pos nonzero_divide_mult_cancel_left r0 zero_less_numeral zero_less_power)
+      hence "2 ^ ye / 2 ^ bias fmt < (2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt) :: real)"
+        using exp by blast
     }
-      
-      
-      
-    then show ?case
-      try
-      sorry
+    then show ?case by simp
   next
     case (Suc yf)
     then show ?case 
