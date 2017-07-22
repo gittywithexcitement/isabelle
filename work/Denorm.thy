@@ -56,28 +56,26 @@ next
   case False
   hence yegt0:"ye > 0"
     by auto
-  then show ?thesis 
-  proof(induction yf arbitrary: ye)
+  moreover obtain exp :: real where exp:"exp = 2 ^ ye / 2 ^ bias fmt"
+    by simp
+  ultimately show ?thesis 
+  proof(induction yf (* arbitrary: ye *))
     case 0
-    {
-      have l0:"valof fmt (0, ye, 0) = 2 ^ ye / 2 ^ bias fmt"
-        using "0.prems" by simp
-      have r0:"valof fmt (0, ye, Suc 0) = 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
-        using "0.prems" by simp
-      obtain exp :: real where exp:"exp = 2 ^ ye / 2 ^ bias fmt"
-        by simp
-      hence "1 / 2 ^ fracwidth fmt > (0 :: real)"
-        by simp
-      hence i0:"1 + 1 / 2 ^ fracwidth fmt > (1 :: real)"
-        by simp
-      hence "exp < (exp + exp * 1 / 2 ^ fracwidth fmt :: real)"
-        by (simp add: exp)
-      hence "exp < exp * (1 + 1 / 2 ^ fracwidth fmt :: real)"
-        by (metis i0 add_pos_pos divide_less_eq_1_pos divide_pos_pos less_numeral_extra(1) exp
-            mult_pos_pos nonzero_divide_mult_cancel_left r0 zero_less_numeral zero_less_power)
-      hence "2 ^ ye / 2 ^ bias fmt < (2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt) :: real)"
-        using exp by blast
-    }
+    have l0:"valof fmt (0, ye, 0) = exp"
+      using "0.prems" by simp
+    have r0:"valof fmt (0, ye, Suc 0) = 2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt)"
+      using "0.prems" by simp
+    hence "1 / 2 ^ fracwidth fmt > (0 :: real)"
+      by simp
+    hence i0:"1 + 1 / 2 ^ fracwidth fmt > (1 :: real)"
+      by simp
+    hence "exp < (exp + exp * 1 / 2 ^ fracwidth fmt :: real)"
+      by (simp add: exp)
+    hence "exp < exp * (1 + 1 / 2 ^ fracwidth fmt :: real)"
+      by (metis i0 add_pos_pos divide_less_eq_1_pos divide_pos_pos less_numeral_extra(1) exp
+          mult_pos_pos nonzero_divide_mult_cancel_left r0 zero_less_numeral zero_less_power)
+    hence "2 ^ ye / 2 ^ bias fmt < (2 ^ ye / 2 ^ bias fmt * (1 + 1 / 2 ^ fracwidth fmt) :: real)"
+      using exp by blast
     then show ?case by simp
   next
     case (Suc yf)
