@@ -46,6 +46,8 @@ definition small_positive_denorm :: "format \<Rightarrow> representation"
 definition SmallPositiveDenorm :: "float"
   where "SmallPositiveDenorm = Abs_float (small_positive_denorm float_format)"
 
+(*     Note: `Finite x` is not necessary, I believe \<not>Isnan x is the minimal requirement.
+    I think I'm using `Finite x` so that I can use `lemma float_le` *)
 lemma SmallestPositiveDenorm:
   shows "\<nexists>x :: float. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x"
 proof(rule ccontr)
