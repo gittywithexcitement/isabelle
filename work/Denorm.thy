@@ -8,6 +8,25 @@ subsection \<open>Special values\<close>
 
 definition topfraction :: "format \<Rightarrow> nat"
   where "topfraction x = 2^(fracwidth x) - 1"
+    
+subsection \<open>Properties of Special values\<close>
+  
+lemma topfraction_largest:
+  assumes valid:"is_valid fmt a"
+  shows "fraction a \<le> topfraction fmt"
+proof (rule ccontr)
+  assume "\<not> fraction a \<le> topfraction fmt"
+  hence "fraction a > topfraction fmt"
+    by simp
+  hence "fraction a > 2^(fracwidth fmt) - 1"
+    by (simp add: topfraction_def)
+  hence "fraction a \<ge> 2^(fracwidth fmt)"
+    by linarith 
+  moreover have "fraction a < 2^(fracwidth fmt)"
+    using is_valid_def valid by simp
+  thus False
+    using calculation not_le by blast
+qed
 
 lemma Val_zero:"Val Plus_zero = 0"
 proof -
@@ -17,6 +36,9 @@ proof -
   ultimately show ?thesis 
     by (simp add: Val_def)
 qed
+  
+  
+subsection \<open>Properties about ordering and bounding\<close>
   
   (* Negative (finite) numbers are \<le> 0 *)
 lemma negative_lt_zero:
