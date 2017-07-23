@@ -24,8 +24,6 @@ proof -
     by (metis fraction.cases)
   hence s1:"s = 1"
     by (metis negative sign.simps)
-  hence "valof fmt (1, e, f) \<le> 0"
-    by simp
   hence "valof fmt (s, e, f) \<le> 0"
     using s1 by simp
   moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
@@ -168,7 +166,8 @@ proof(rule ccontr)
     hence "Sign y = 1"
       by (simp add: False)
     hence "y \<le> Plus_zero"
-      by (simp add: negative_lt_zero y)
+      by (metis Abs_float_inverse Finite_def Plus_zero_def Sign_def Val_def float_le float_zero1 
+          is_valid_defloat is_valid_special(5) mem_Collect_eq negative_lt_zero y)
     then show ?thesis 
       using Finite_def float_le_neg float_zero1 y by blast 
   qed
