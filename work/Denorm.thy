@@ -35,8 +35,6 @@ qed
   
 lemma positive_next_larger_fraction:
   fixes fmt :: format
-  assumes fin0:"is_finite fmt (0, ye, yf)"
-    and fin1:"is_finite fmt (0, ye, Suc yf)"
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
 proof(cases "ye = 0")
   case ye0:True
@@ -103,9 +101,7 @@ lemma positive_larger_fraction_is_larger:
     and fl :: nat
     and fs :: nat
   assumes lgts:"fl > fs" 
-    and fin0:"is_finite fmt (0, e, fs)"
-    and fin1:"is_finite fmt (0, e, fl)"
-  shows "\<lbrakk>fl > fs; is_finite fmt (0, e, fs); is_finite fmt (0, e, fl)\<rbrakk> 
+  shows "\<lbrakk>fl > fs\<rbrakk> 
       \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
 proof(induction fl arbitrary: fs)
   case 0
@@ -115,17 +111,11 @@ next
   then show ?case
   proof(cases "fli > fs")
     case True
-    have "is_valid fmt (0, e, fli)"
-      by (metis Suc.prems(3) Suc_lessD exponent.simps finite_valid fraction.simps is_valid_def sign.simps)
-    moreover have "is_normal fmt (0, e, fli) \<or> is_denormal fmt (0, e, fli) \<or> is_zero fmt (0, e, fli)"
-      using fin0 is_denormal_def is_finite_def is_normal_def is_zero_def by auto
-    ultimately have fin_pred:"is_finite fmt (0, e, fli)"
-      using is_finite_def by auto
 
     hence "valof fmt (0, e, fs) < valof fmt (0, e, fli)"
       using Suc.IH Suc.prems by (simp add: True)
     moreover have "... < valof fmt (0, e, Suc fli)"
-      using positive_next_larger_fraction Suc.prems(3) fin_pred by auto 
+      using positive_next_larger_fraction Suc.prems by auto 
     ultimately show ?thesis 
       by linarith
   next
@@ -133,7 +123,7 @@ next
     hence "fli = fs"
       by (simp add: Suc.prems(1) less_antisym)
     then show ?thesis 
-      using Suc.prems(2) Suc.prems(3) positive_next_larger_fraction by auto
+      using Suc.prems positive_next_larger_fraction by auto
   qed
 qed
   
