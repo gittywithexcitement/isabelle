@@ -111,7 +111,6 @@ next
   then show ?case
   proof(cases "fli > fs")
     case True
-
     hence "valof fmt (0, e, fs) < valof fmt (0, e, fli)"
       using Suc.IH Suc.prems by (simp add: True)
     moreover have "... < valof fmt (0, e, Suc fli)"
@@ -154,7 +153,7 @@ proof(rule ccontr)
         is_valid_defloat mem_Collect_eq neg_valid y)
   hence fesy:"Sign y = ys \<and> Exponent y = ye \<and> Fraction y = yf"
     by (metis Exponent_def Fraction_def Sign_def exponent.simps fraction.simps sign.simps)
-
+      
   have ypos:"Sign y = 0"
   proof(cases "Sign y = 0")
     case True
@@ -175,11 +174,11 @@ proof(rule ccontr)
     
   have "Val y > 0"
     using Finite_def Val_zero float_zero1 y by auto
-
-(*       We can't say
+      
+      (*       We can't say
       Fraction y > 0
       because of the implicit leading 1 in the significand *)
-    
+      
   have "Exponent y = 0"
   proof(rule ccontr)
     assume "Exponent y \<noteq> 0"
@@ -200,7 +199,7 @@ proof(rule ccontr)
       by auto
     have i3:"... = 2 * mul_exp * part_frac"
       by (simp add: mul_exp part_frac)
-
+        
     have i4:"(2^ye) * mul_exp * 1 > (2^ye) * mul_exp * part_frac"
       using megt0
     proof -
