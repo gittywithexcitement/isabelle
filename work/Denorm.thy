@@ -4,7 +4,7 @@ theory Denorm
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
   
-lemma Val_zero:"Val Plus_zero = (0 :: real)"
+lemma Val_zero:"Val Plus_zero = 0"
 proof -
   have "(0,0,0) = Rep_float Plus_zero"
     using Abs_float_inverse Plus_zero_def is_valid_special(5) by fastforce
