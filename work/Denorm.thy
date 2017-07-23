@@ -152,6 +152,19 @@ next
   qed
 qed
   
+lemma positive_next_larger_exponent:
+  fixes fmt :: format
+  assumes valid0:"is_valid fmt (0, e, f0)"
+    and valid1:"is_valid fmt (0, Suc e, f1)"
+  shows "valof fmt (0, e, f0) < valof fmt (0, Suc e, f1)"
+proof(cases e)
+  case 0
+  then show ?thesis sorry
+next
+  case (Suc nat)
+  then show ?thesis sorry
+qed
+  
   
   
 (*   TODO 
