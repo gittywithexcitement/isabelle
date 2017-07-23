@@ -147,7 +147,7 @@ lemma SmallestPositiveDenorm:
 proof(rule ccontr)
   assume "\<not>(\<nexists>x. x < SmallPositiveDenorm \<and> x > Plus_zero \<and> Finite x)"
   hence 0:"(\<exists>x. x < SmallPositiveDenorm \<and> x > Plus_zero  \<and> Finite x)" by auto
-  then obtain y where y:"y < SmallPositiveDenorm \<and> y > Plus_zero \<and> Finite y" by auto
+  then obtain y :: float where y:"y < SmallPositiveDenorm \<and> y > Plus_zero \<and> Finite y" by auto
   obtain ys ye yf where ysef:"(ys, ye, yf) = Rep_float y" 
     by (metis Abs_float_inverse finite_nan float_double_neg_eq float_neg_def fneg_def 
         is_valid_defloat mem_Collect_eq neg_valid y)
@@ -171,6 +171,8 @@ proof(rule ccontr)
     then show ?thesis 
       using Finite_def float_le_neg float_zero1 y by blast 
   qed
+  hence ys0:"ys = 0"
+    by (simp add: fesy)
     
   have "Val y > 0"
     using Finite_def Val_zero float_zero1 y by auto
@@ -243,16 +245,29 @@ proof(rule ccontr)
         using Suc.IH Suc.prems by auto
       have ii2:"valof float_format (0, ye, yf) < valof float_format (0, ye, Suc yf)"
         using positive_next_larger_fraction by blast
-          
-          (*       have "valof float_format (0, ye, yf) = ((2^ye) / (2^bias float_format)) * (1 + real yf/2^fracwidth float_format)"
-        using yegt0 by simp
- *)          
       then show ?case 
         using Suc.IH Suc.prems ii2 by linarith
     qed
-      (* Using above, and 
-      y < SmallPositiveDenorm
-      show false *)
+    hence "valof float_format (ys, ye, yf) > valof float_format (0, 0, 1)"
+      using ys0 by auto
+    hence "y > SmallPositiveDenorm"
+    proof -
+      have "Isdenormal SmallPositiveDenorm"
+        sledgehammer
+        sorry
+      have "Finite SmallPositiveDenorm"
+        sledgehammer
+        sorry
+          
+    qed
+    using SmallPositiveDenorm_def ysef ypos ys0 float_lt
+      sledgehammer
+      sorry
+      
+(*       Now we have both:
+      x < SmallPositiveDenorm
+      valof float_format (0, 0, 1) < valof float_format (0, ye, yf)
+      So we can show false *)
       
     then show False 
       sledgehammer
