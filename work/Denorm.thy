@@ -156,9 +156,13 @@ lemma positive_next_larger_exponent:
   fixes fmt :: format
   assumes valid0:"is_valid fmt (0, e, f0)"
     and valid1:"is_valid fmt (0, Suc e, f1)"
-  shows "valof fmt (0, e, f0) < valof fmt (0, Suc e, f1)"
+    (* \<lbrakk>is_valid fmt (0, e, f0); is_valid fmt (0, Suc e, f1)\<rbrakk> \<Longrightarrow> *)
+  shows "valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
 proof(cases e)
   case 0
+    (* obtain  *)
+ (* apply_end simp *)
+     (* 2 * real fa / (2 ^ bias fmt * 2 ^ fracwidth fmt) < (2 + 2 * real fb / 2 ^ fracwidth fmt) / 2 ^ bias fmt *)
   then show ?thesis sorry
 next
   case (Suc nat)
