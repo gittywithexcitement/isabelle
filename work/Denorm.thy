@@ -241,31 +241,24 @@ proof(rule ccontr)
       case (Suc yf)
       have ii1:"valof float_format (0, 0, 1) < valof float_format (0, ye, yf)"
         using Suc.IH Suc.prems by auto
+      have ii2:"valof float_format (0, ye, yf) < valof float_format (0, ye, Suc yf)"
+        using positive_next_larger_fraction by blast
           
-          (* TODO return here *)
-      have "valof float_format (0, ye, yf) < valof float_format (0, ye, Suc yf)"
-        sledgehammer
-          
-      have "valof float_format (0, ye, yf) = ((2^ye) / (2^bias float_format)) * (1 + real yf/2^fracwidth float_format)"
+          (*       have "valof float_format (0, ye, yf) = ((2^ye) / (2^bias float_format)) * (1 + real yf/2^fracwidth float_format)"
         using yegt0 by simp
-          
+ *)          
       then show ?case 
-        sledgehammer
-        sorry
-      qed
-        (* Using above, and 
+        using Suc.IH Suc.prems ii2 by linarith
+    qed
+      (* Using above, and 
       y < SmallPositiveDenorm
       show false *)
-
+      
     then show False 
-      try sorry
+      sledgehammer
+      sorry
   qed
-
-    (* using 0 *)
-    (* try *)
     
-    
-
   then show False sorry
 qed
   
