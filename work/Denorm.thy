@@ -15,22 +15,23 @@ qed
   
   (* Negative (finite) numbers are \<le> 0 *)
 lemma negative_lt_zero:
-  fixes x :: float
-  assumes finite:"Finite x"
-    and negative:"Sign x = 1"
-  shows "x \<le> Plus_zero"
+  fixes x :: representation
+  assumes finite:"is_valid fmt x"
+    and negative:"sign x = 1"
+  shows "valof fmt x \<le> valof fmt (plus_zero fmt) \<and> valof fmt x \<le> valof fmt (minus_zero fmt)"
 proof -
-  obtain s e f where sef:"(s, e, f) = Rep_float x"
-    by (metis Abs_float_inverse finite_nan float_double_neg_eq float_neg_def fneg_def
-        is_valid_defloat local.finite mem_Collect_eq neg_valid)
+  obtain s e f where sef:"(s, e, f) = x"
+    by (metis fraction.cases)
   hence s1:"s = 1"
-    by (metis Sign_def negative sign.simps)
-  hence "valof float_format (1, e, f) \<le> 0"
+    by (metis negative sign.simps)
+  hence "valof fmt (1, e, f) \<le> 0"
     by simp
-  hence "valof float_format (s, e, f) \<le> 0"
+  hence "valof fmt (s, e, f) \<le> 0"
     using s1 by simp
-  thus ?thesis 
-    using Finite_def Val_def float_zero1 local.finite sef Val_zero by auto
+  moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
+    by simp
+  ultimately show ?thesis
+    by (simp add: sef)
 qed
   
 lemma positive_next_larger_fraction:
