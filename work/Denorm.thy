@@ -105,20 +105,35 @@ lemma positive_larger_fraction_is_larger:
   assumes lgts:"fl > fs" 
     and fin0:"is_finite fmt (0, e, fs)"
     and fin1:"is_finite fmt (0, e, fl)"
-  shows "fl > fs \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
-proof(induction fl (* arbitrary: fs *))
+  shows "\<lbrakk>fl > fs; is_finite fmt (0, e, fs); is_finite fmt (0, e, fl)\<rbrakk> 
+      \<Longrightarrow> valof fmt (0, e, fl) > valof fmt (0, e, fs)"
+proof(induction fl arbitrary: fs)
   case 0
   then show ?case by simp
 next
-  case flIH:(Suc fli)
+  case (Suc fli)
   then show ?case
-  proof(cases e)
-    case 0
-      apply_end simp
-    then show ?thesis sorry
+  proof(cases "fli > fs")
+    case True
+
+    have "is_finite fmt (0, e, Suc fli)"
+      by (simp add: Suc.prems(3))
+    hence 0:"is_finite fmt (0, e, fli)"
+      (* sledgehammer *)
+      sorry
+        
+    hence "valof fmt (0, e, fs) < valof fmt (0, e, fli)"
+      using Suc.IH Suc.prems by (simp add: True)
+    moreover have "valof fmt (0, e, fli) < valof fmt (0, e, Suc fli)"
+      using positive_next_larger_fraction 0 Suc.prems(3) by auto 
+    ultimately show ?thesis 
+      by linarith
   next
-    case (Suc ei)
-    then show ?thesis sorry
+    case False
+    hence "fli = fs"
+      by (simp add: Suc.prems(1) less_antisym)
+    then show ?thesis 
+      using Suc.prems(2) Suc.prems(3) positive_next_larger_fraction by auto
   qed
 qed
   
