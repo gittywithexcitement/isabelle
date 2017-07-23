@@ -4,6 +4,11 @@ theory Denorm
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
   
+subsection \<open>Special values\<close>
+
+definition topfraction :: "format \<Rightarrow> nat"
+  where "topfraction x = 2^(fracwidth x) - 1"
+
 lemma Val_zero:"Val Plus_zero = 0"
 proof -
   have "(0,0,0) = Rep_float Plus_zero"
