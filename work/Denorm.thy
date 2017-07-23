@@ -115,17 +115,17 @@ next
   then show ?case
   proof(cases "fli > fs")
     case True
+    have "is_valid fmt (0, e, fli)"
+      by (metis Suc.prems(3) Suc_lessD exponent.simps finite_valid fraction.simps is_valid_def sign.simps)
+    moreover have "is_normal fmt (0, e, fli) \<or> is_denormal fmt (0, e, fli) \<or> is_zero fmt (0, e, fli)"
+      using fin0 is_denormal_def is_finite_def is_normal_def is_zero_def by auto
+    ultimately have fin_pred:"is_finite fmt (0, e, fli)"
+      using is_finite_def by auto
 
-    have "is_finite fmt (0, e, Suc fli)"
-      by (simp add: Suc.prems(3))
-    hence 0:"is_finite fmt (0, e, fli)"
-      (* sledgehammer *)
-      sorry
-        
     hence "valof fmt (0, e, fs) < valof fmt (0, e, fli)"
       using Suc.IH Suc.prems by (simp add: True)
-    moreover have "valof fmt (0, e, fli) < valof fmt (0, e, Suc fli)"
-      using positive_next_larger_fraction 0 Suc.prems(3) by auto 
+    moreover have "... < valof fmt (0, e, Suc fli)"
+      using positive_next_larger_fraction Suc.prems(3) fin_pred by auto 
     ultimately show ?thesis 
       by linarith
   next
