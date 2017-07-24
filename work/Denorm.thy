@@ -154,17 +154,17 @@ qed
   
 lemma positive_next_larger_exponent:
   fixes fmt :: format
-  assumes valida:"is_valid fmt (0, e, fa)"
-    and validb:"is_valid fmt (0, Suc e, fb)"
-    and fw_gte1:"fracwidth fmt \<ge> 1"
-    (* \<lbrakk>is_valid fmt (0, e, f0); is_valid fmt (0, Suc e, f1)\<rbrakk> \<Longrightarrow> *)
-  shows "valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)" (is "?L < ?R")
-proof(cases e)
+  assumes fw_gte1:"fracwidth fmt \<ge> 1"
+  shows "\<lbrakk>is_valid fmt (0, e, fa); is_valid fmt (0, Suc e, fb)\<rbrakk> 
+      \<Longrightarrow> valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
+proof(induction e)
   case 0
+  let ?L = "valof fmt (0, 0, fa)"
+  let ?R = "valof fmt (0, Suc 0, fb)"
   obtain exp :: real where exp:"exp = 2 / (2^bias fmt)"
     by simp
   have "?L = (2 / (2^bias fmt)) * (real fa/2^(fracwidth fmt))"
-    using 0 by auto
+    using 0 by simp
   hence l1:"?L = exp * (real fa/2^(fracwidth fmt))"
     using exp by simp
   have "?R = (2 / (2^bias fmt)) * (1 + real fb/2^(fracwidth fmt))"
@@ -176,7 +176,7 @@ proof(cases e)
     have "real 2^(fracwidth fmt) > 0"
       using fw_gte1 by simp
     hence "real fa /  2^(fracwidth fmt) < 1"
-      using is_valid_def valida by auto
+      using is_valid_def 0 by auto
     moreover have "real fb/2^(fracwidth fmt) \<ge> 0"
       by simp
     ultimately show ?thesis
@@ -189,11 +189,13 @@ proof(cases e)
     thus ?thesis
       using linordered_comm_semiring_strict_class.comm_mult_strict_left_mono lt0 by blast
   qed
-  then show ?thesis
+  then show ?case
     using l1 r1 by linarith
 next
   case (Suc nat)
-  then show ?thesis sorry
+  then show ?case
+    try0 sledgehammer
+      sorry
 qed
   
   
