@@ -154,8 +154,8 @@ qed
   
 lemma positive_next_larger_exponent:
   fixes fmt :: format
-  assumes valid0:"is_valid fmt (0, e, fa)"
-    and valid1:"is_valid fmt (0, Suc e, fb)"
+  assumes valida:"is_valid fmt (0, e, fa)"
+    and validb:"is_valid fmt (0, Suc e, fb)"
     and fw_gte1:"fracwidth fmt \<ge> 1"
     (* \<lbrakk>is_valid fmt (0, e, f0); is_valid fmt (0, Suc e, f1)\<rbrakk> \<Longrightarrow> *)
   shows "valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)" (is "?L < ?R")
@@ -163,21 +163,24 @@ proof(cases e)
   case 0
   obtain exp :: real where exp:"exp = 2 / (2^bias fmt)"
     by simp
-      
   have "?L = (2 / (2^bias fmt)) * (real fa/2^(fracwidth fmt))"
     using 0 by auto
   hence l1:"?L = exp * (real fa/2^(fracwidth fmt))"
     using exp by simp
-
   have "?R = (2 / (2^bias fmt)) * (1 + real fb/2^(fracwidth fmt))"
     using 0 by simp
   hence r1:"?R = exp * (1 + real fb/2^(fracwidth fmt))"
     using exp by simp
-      
   have lt0:"real fa/2^(fracwidth fmt) < 1 + real fb/2^(fracwidth fmt)"
   proof -
-    show ?thesis
-      sorry
+    have "real 2^(fracwidth fmt) > 0"
+      using fw_gte1 by simp
+    hence "real fa /  2^(fracwidth fmt) < 1"
+      using is_valid_def valida by auto
+    moreover have "real fb/2^(fracwidth fmt) \<ge> 0"
+      by simp
+    ultimately show ?thesis
+       by linarith
   qed
   hence "exp * (real fa/2^(fracwidth fmt)) < exp * (1 + real fb/2^(fracwidth fmt))"
   proof -
