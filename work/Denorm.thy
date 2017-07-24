@@ -236,14 +236,21 @@ next
       by (simp add: s1)
     have r0:"?R = (4 / (2^bias fmt)) * (1 + real fb/2^fracwidth fmt)"
       by (simp add: ss2)
-        
+    obtain exp :: real where exp:"exp = (2 / (2^bias fmt))"
+      by simp
+    hence l1:"?L = exp * (1 + real fa/2^fracwidth fmt)"
+      using l0 by blast
+    have r1:"?R = 2 * exp * (1 + real fb/2^fracwidth fmt)"
+      using exp r0 by auto
+
     have "1 + real fa/2^fracwidth fmt < 2"
     proof -
-      have "real fa < 2^fracwidth fmt"
-        (* TODO use new lemma *)
-        sorry
-      thus ?thesis
-        sorry
+      have "is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        using is_denormal_def is_finite_def is_zero_def sucout.prems(1) by auto
+      moreover have "is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        by (simp add: finite_valid sucout.prems(1))
+      ultimately show ?thesis
+        using normalized_frac_lt2 by (simp add: is_valid_def)
     qed
       
       
