@@ -219,16 +219,31 @@ next
     then show ?thesis sorry
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
-      
-    
       (* TODO here use exponent_doubles to prove that L and R are doubled, then use prem_gt *)
-    have "?Lp * 2 = ?L"
-    proof -
-      show ?thesis
-          sorry
-    qed
+    then show ?thesis 
+    proof(cases "Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) < emax fmt")
+      case True
+      have "?Lp * 2 = ?L"
+      proof -
+        have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+          by (simp add: \<open>is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)\<close>)  
+        moreover have "is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+          by (simp add: sucout.prems(1))  
+        moreover have "is_normal fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+          using True is_normal_def sucin by auto
+        moreover have "is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+          using True is_normal_def sucin by auto
+        ultimately show ?thesis
+          using exponent_doubles by blast
+      qed 
+      have "?Rp * 2 = ?R"
         
-    then show ?thesis sorry
+      then show ?thesis sorry
+    next
+      case False
+        (* Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt *)
+      then show ?thesis sorry
+    qed
   qed
 qed
   
