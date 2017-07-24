@@ -37,6 +37,12 @@ proof -
     by (simp add: Val_def)
 qed
   
+subsection \<open>Properties of fields\<close>
+  
+definition reasonable_format :: "format \<Rightarrow> bool"
+  where "reasonable_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
+
+  
   
 subsection \<open>Properties about ordering and bounding\<close>
   
