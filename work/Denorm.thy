@@ -197,7 +197,7 @@ next
   let ?R = "valof fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
   have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
     using Suc_lessD exponent.simps fraction.simps is_valid_def sucout.prems(1) sign.simps by auto
-  hence "valof fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa) < valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)" (is "?Lp < ?Rp")
+  hence prem_gt:"valof fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa) < valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)" (is "?Lp < ?Rp")
     using sucout.IH sucout.prems(1) sucout.prems(2) is_valid_def by auto
   then show ?case
   proof(cases "e\<^sub>p\<^sub>r\<^sub>e\<^sub>v")
@@ -205,10 +205,14 @@ next
     then show ?thesis sorry
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
-
+      
+    
+      (* TODO here use exponent_doubles to prove that L and R are doubled, then use prem_gt *)
     have "?Lp * 2 = ?L"
-      quickcheck nitpick
-      sorry
+    proof -
+      show ?thesis
+          sorry
+    qed
         
     then show ?thesis sorry
   qed
