@@ -219,26 +219,33 @@ next
     then show ?thesis sorry
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
-      (* TODO here use exponent_doubles to prove that L and R are doubled, then use prem_gt *)
     then show ?thesis 
     proof(cases "Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) < emax fmt")
       case True
+      have vs:"is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        by (simp add: sucout.prems(1))  
+      have ns:"is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        using True is_normal_def sucin by auto      
       have "?Lp * 2 = ?L"
       proof -
         have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
           by (simp add: \<open>is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)\<close>)  
-        moreover have "is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-          by (simp add: sucout.prems(1))  
         moreover have "is_normal fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
           using True is_normal_def sucin by auto
-        moreover have "is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        ultimately show ?thesis
+          using exponent_doubles vs ns by blast
+      qed 
+      moreover have "?Rp * 2 = ?R"
+      proof -
+        have "is_valid fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
+          using is_valid_def sucout.prems(2) vs by auto
+        moreover have "is_normal fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
           using True is_normal_def sucin by auto
         ultimately show ?thesis
-          using exponent_doubles by blast
-      qed 
-      have "?Rp * 2 = ?R"
-        
-      then show ?thesis sorry
+          using exponent_doubles vs ns by force
+      qed         
+      ultimately show ?thesis 
+        using prem_gt by linarith
     next
       case False
         (* Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt *)
