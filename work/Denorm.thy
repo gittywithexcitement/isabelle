@@ -192,10 +192,26 @@ proof(induction e)
   then show ?case
     using l1 r1 by linarith
 next
-  case (Suc nat)
+  case sucout:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v)
+  let ?L = "valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+  let ?R = "valof fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
+  have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+    using Suc_lessD exponent.simps fraction.simps is_valid_def sucout.prems(1) sign.simps by auto
+  hence "valof fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa) < valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)" (is "?Lp < ?Rp")
+    using sucout.IH sucout.prems(1) sucout.prems(2) is_valid_def by auto
   then show ?case
-    try0 sledgehammer
+  proof(cases "e\<^sub>p\<^sub>r\<^sub>e\<^sub>v")
+    case 0
+    then show ?thesis sorry
+  next
+    case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
+
+    have "?Lp * 2 = ?L"
+      quickcheck nitpick
       sorry
+        
+    then show ?thesis sorry
+  qed
 qed
   
   
