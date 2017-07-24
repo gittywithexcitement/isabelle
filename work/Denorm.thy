@@ -152,6 +152,20 @@ next
   qed
 qed
   
+lemma exponent_doubles:
+  shows "\<lbrakk>is_valid fmt (s, e, f); is_normal fmt (s, e, f); 
+          is_valid fmt (s, Suc e, f); is_normal fmt (s, Suc e, f)\<rbrakk>  
+      \<Longrightarrow> valof fmt (s, e, f) * 2 = valof fmt (s, Suc e, f)"
+proof(induction e)
+  case 0
+  then show ?case 
+     by (simp add: is_normal_def)
+next
+  case (Suc e)
+  show ?case     
+    by simp 
+qed  
+  
 lemma positive_next_larger_exponent:
   fixes fmt :: format
   assumes fw_gte1:"fracwidth fmt \<ge> 1"
