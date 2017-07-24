@@ -70,7 +70,7 @@ proof -
     by (simp add: sef)
 qed
   
-lemma positive_next_larger_fraction:
+lemma pos_gt_suc_frac:
   fixes fmt :: format
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
 proof(cases "ye = 0")
@@ -133,7 +133,7 @@ next
   qed
 qed
 
-lemma positive_larger_fraction_is_larger:
+lemma pos_gt_if_frac_gt:
   fixes fmt :: format
     and fl :: nat
     and fs :: nat
@@ -151,7 +151,7 @@ next
     hence "valof fmt (0, e, fs) < valof fmt (0, e, fli)"
       using Suc.IH Suc.prems by (simp add: True)
     moreover have "... < valof fmt (0, e, Suc fli)"
-      using positive_next_larger_fraction Suc.prems by auto 
+      using pos_gt_suc_frac Suc.prems by auto 
     ultimately show ?thesis 
       by linarith
   next
@@ -159,7 +159,7 @@ next
     hence "fli = fs"
       by (simp add: Suc.prems(1) less_antisym)
     then show ?thesis 
-      using Suc.prems positive_next_larger_fraction by auto
+      using Suc.prems pos_gt_suc_frac by auto
   qed
 qed
   
@@ -177,7 +177,7 @@ next
     by simp 
 qed  
   
-lemma positive_next_larger_exponent:
+lemma pos_gt_suc_exp:
   fixes fmt :: format
   assumes fw_gte1:"fracwidth fmt \<ge> 1"
   shows "\<lbrakk>is_finite fmt (0, e, fa); is_finite fmt (0, Suc e, fb)\<rbrakk> 
@@ -296,8 +296,7 @@ next
   qed
 qed
 
-  (* TODO rename larger \<rightarrow> gt *)
-lemma positive_larger_exponent_is_larger:
+lemma pos_gt_if_exp_gt:
   assumes lgts:"el > es" 
     and fw_gte1:"fracwidth fmt \<ge> 1"
   shows "\<lbrakk>el > es; is_finite fmt (0, el, fa); is_finite fmt (0, es, fb)\<rbrakk> 
@@ -317,7 +316,7 @@ next
     ultimately have "valof fmt (0, es, fb) < valof fmt (0, eli, fa)"
       using Suc.IH True by blast
     moreover have "... < valof fmt (0, Suc eli, fa)"
-      using positive_next_larger_exponent fw_gte1 Suc.prems(2) fineli by blast
+      using pos_gt_suc_exp fw_gte1 Suc.prems(2) fineli by blast
     ultimately show ?thesis 
       by linarith
   next
@@ -325,7 +324,7 @@ next
     hence "eli = es"
       by (simp add: Suc.prems(1) less_antisym)
     then show ?thesis 
-      using Suc.prems positive_next_larger_fraction fw_gte1 positive_next_larger_exponent by blast
+      using Suc.prems pos_gt_suc_frac fw_gte1 pos_gt_suc_exp by blast
   qed
 qed
 
@@ -446,7 +445,7 @@ proof(rule ccontr)
       have ii1:"valof float_format (0, 0, 1) < valof float_format (0, ye, yf)"
         using Suc.IH Suc.prems by auto
       have ii2:"valof float_format (0, ye, yf) < valof float_format (0, ye, Suc yf)"
-        using positive_next_larger_fraction by blast
+        using pos_gt_suc_frac by blast
       then show ?case 
         using Suc.IH Suc.prems ii2 by linarith
     qed
