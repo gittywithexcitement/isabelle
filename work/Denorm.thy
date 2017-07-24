@@ -169,8 +169,7 @@ qed
 lemma positive_next_larger_exponent:
   fixes fmt :: format
   assumes fw_gte1:"fracwidth fmt \<ge> 1"
-  shows "\<lbrakk>is_valid fmt (0, e, fa); is_valid fmt (0, Suc e, fb);
-          \<not>is_nan fmt (0, e, fa); \<not>is_nan fmt (0, Suc e, fb)\<rbrakk> 
+  shows "\<lbrakk>is_finite fmt (0, e, fa); is_finite fmt (0, Suc e, fb)\<rbrakk> 
       \<Longrightarrow> valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
 proof(induction e)
   case 0
@@ -191,7 +190,8 @@ proof(induction e)
     have "real 2^(fracwidth fmt) > 0"
       using fw_gte1 by simp
     hence "real fa /  2^(fracwidth fmt) < 1"
-      using is_valid_def 0 by auto
+      by (metis "0"(1) divide_less_eq_1_pos finite_valid fraction.simps is_valid_def 
+          numeral_2_eq_2 of_nat_numeral real_of_nat_less_numeral_power_cancel_iff)
     moreover have "real fb/2^(fracwidth fmt) \<ge> 0"
       by simp
     ultimately show ?thesis
@@ -210,66 +210,41 @@ next
   case sucout:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v)
   let ?L = "valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
   let ?R = "valof fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
-  have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-    using Suc_lessD exponent.simps fraction.simps is_valid_def sucout.prems(1) sign.simps by auto
+  have "is_finite fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+    using fraction.simps is_denormal_def is_finite_def is_normal_def is_valid_def is_zero_def sucout.prems(1) by auto
   hence prem_gt:"valof fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa) < valof fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)" (is "?Lp < ?Rp")
-    using sucout.IH sucout.prems(1) sucout.prems(2) is_valid_def by auto
+    using is_denormal_def is_finite_def is_normal_def is_valid_def is_zero_def sucout.IH sucout.prems(2) by auto
   then show ?case
   proof(cases "e\<^sub>p\<^sub>r\<^sub>e\<^sub>v")
     case 0
     then show ?thesis sorry
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
-    then show ?thesis 
-    proof(cases "Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) < emax fmt")
-      case True
-      have vs:"is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-        by (simp add: sucout.prems(1))  
-      have ns:"is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-        using True is_normal_def sucin by auto      
-      have "?Lp * 2 = ?L"
-      proof -
-        have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-          by (simp add: \<open>is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)\<close>)  
-        moreover have "is_normal fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
-          using True is_normal_def sucin by auto
-        ultimately show ?thesis
-          using exponent_doubles vs ns by blast
-      qed 
-      moreover have "?Rp * 2 = ?R"
-      proof -
-        have "is_valid fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
-          using is_valid_def sucout.prems(2) vs by auto
-        moreover have "is_normal fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
-          using True is_normal_def sucin by auto
-        ultimately show ?thesis
-          using exponent_doubles vs ns by force
-      qed         
-      ultimately show ?thesis 
-        using prem_gt by linarith
-    next
-      case False
-      have infss:"is_infinity fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
-      proof -
-        have "Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt"
-          using One_nat_def Suc_diff_Suc diff_zero emax_def exponent.simps is_valid_def 
-            less_antisym sucout.prems(2) zero_less_numeral zero_less_power False
-          by metis
-        moreover have "\<not>is_nan fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
-          by (simp add: sucout.prems(4))
-        ultimately show ?thesis
-          by (simp add: is_infinity_def is_nan_def)
-      qed
-        
-      moreover have "\<not>is_infinity fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)"
-         using infss is_infinity_def by auto
-
-        (* Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt *)
-       then show ?thesis 
-         using fcompare_def flt_def
-          sledgehammer quickcheck nitpick
-           sorry
-    qed
+    have vs:"is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+      by (simp add: finite_valid sucout.prems(1))
+    have ns:"is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+      using is_denormal_def is_finite_def is_zero_def sucout.prems(1) by auto
+    have "?Lp * 2 = ?L"
+    proof -
+      have "is_valid fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        by (simp add: \<open>is_finite fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)\<close> finite_valid)
+      moreover have "is_normal fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
+        using is_normal_def sucin \<open>is_finite fmt (0, e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)\<close> is_denormal_def is_finite_def 
+          is_zero_def by auto
+      ultimately show ?thesis
+        using exponent_doubles vs ns by blast
+    qed 
+    moreover have "?Rp * 2 = ?R"
+    proof -
+      have "is_valid fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
+        by (metis exponent.simps finite_valid fraction.simps is_valid_def prod.sel(1) sign sucout.prems(2) vs)
+      moreover have "is_normal fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fa)"
+        using is_normal_def sucin is_denormal_def is_finite_def is_zero_def sucout.prems(2) by auto
+      ultimately show ?thesis
+        using exponent_doubles vs ns by force
+    qed         
+    ultimately show ?thesis 
+      using prem_gt by linarith
   qed
 qed
   
