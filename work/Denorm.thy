@@ -41,9 +41,14 @@ subsection \<open>Properties of fields\<close>
   
 definition reasonable_format :: "format \<Rightarrow> bool"
   where "reasonable_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
+    
+lemma normalized_frac_lt2:
+  assumes "is_normal fmt (s, e, f)"
+    and "is_valid fmt (s, e, f)"
+    and "reasonable_format fmt"
+  shows "1 + real f/2^fracwidth fmt < 2"
+  using assms(2) is_valid_def by auto
 
-  
-  
 subsection \<open>Properties about ordering and bounding\<close>
   
   (* Negative (finite) numbers are \<le> 0 *)
