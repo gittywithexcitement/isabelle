@@ -242,7 +242,6 @@ next
       using l0 by blast
     have r1:"?R = 2 * exp * (1 + real fb/2^fracwidth fmt)"
       using exp r0 by auto
-
     have "1 + real fa/2^fracwidth fmt < 2"
     proof -
       have "is_normal fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
@@ -252,11 +251,21 @@ next
       ultimately show ?thesis
         using normalized_frac_lt2 by (simp add: is_valid_def)
     qed
-      
-      
+    moreover have "exp > 0"
+      by (simp add: exp)
+    ultimately have lt0:"exp * (1 + real fa/2^fracwidth fmt) < 2 * exp"
+      by auto
+    hence "exp * (1 + real fa/2^fracwidth fmt) < 2 * exp * (1 + real fb/2^fracwidth fmt)"
+    proof -
+      have "real fb/2^fracwidth fmt \<ge> 0"
+        by simp
+      hence "2 * exp * (1 + real fb/2^fracwidth fmt) \<ge> 2 * exp"
+        by (simp add: \<open>0 < exp\<close>)
+      thus ?thesis 
+        using lt0 by linarith
+    qed
     then show ?thesis 
-      (* sledgehammer *)
-        sorry
+      using l1 r1 by linarith
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
     have vs:"is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
