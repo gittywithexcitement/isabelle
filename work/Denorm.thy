@@ -217,7 +217,28 @@ next
   then show ?case
   proof(cases "e\<^sub>p\<^sub>r\<^sub>e\<^sub>v")
     case 0
-    then show ?thesis sorry
+    hence s1:"Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v = 1"
+      by simp
+    hence ss2:"Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = 2"
+      by simp
+    have l0:"?L = (2 / (2^bias fmt)) * (1 + real fa/2^fracwidth fmt)"
+      by (simp add: s1)
+    have r0:"?R = (4 / (2^bias fmt)) * (1 + real fb/2^fracwidth fmt)"
+      by (simp add: ss2)
+        
+    have "1 + real fa/2^fracwidth fmt < 2"
+    proof -
+      have "real fa < 2^fracwidth fmt"
+        (* TODO use new lemma *)
+        sorry
+      thus ?thesis
+        sorry
+    qed
+      
+      
+    then show ?thesis 
+      (* sledgehammer *)
+        sorry
   next
     case sucin:(Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v\<^sub>g\<^sub>t\<^sub>0)
     have vs:"is_valid fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fa)"
