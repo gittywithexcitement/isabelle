@@ -154,16 +154,19 @@ qed
   
 lemma positive_next_larger_exponent:
   fixes fmt :: format
-  assumes valid0:"is_valid fmt (0, e, f0)"
-    and valid1:"is_valid fmt (0, Suc e, f1)"
+  assumes valid0:"is_valid fmt (0, e, fa)"
+    and valid1:"is_valid fmt (0, Suc e, fb)"
     (* \<lbrakk>is_valid fmt (0, e, f0); is_valid fmt (0, Suc e, f1)\<rbrakk> \<Longrightarrow> *)
-  shows "valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
+  shows "valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)" (is "?L < ?R")
 proof(cases e)
   case 0
+    
     (* obtain  *)
  (* apply_end simp *)
      (* 2 * real fa / (2 ^ bias fmt * 2 ^ fracwidth fmt) < (2 + 2 * real fb / 2 ^ fracwidth fmt) / 2 ^ bias fmt *)
-  then show ?thesis sorry
+  then show ?thesis 
+    try
+    sorry
 next
   case (Suc nat)
   then show ?thesis sorry
