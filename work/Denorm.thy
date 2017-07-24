@@ -169,7 +169,8 @@ qed
 lemma positive_next_larger_exponent:
   fixes fmt :: format
   assumes fw_gte1:"fracwidth fmt \<ge> 1"
-  shows "\<lbrakk>is_valid fmt (0, e, fa); is_valid fmt (0, Suc e, fb)\<rbrakk> 
+  shows "\<lbrakk>is_valid fmt (0, e, fa); is_valid fmt (0, Suc e, fb);
+          \<not>is_nan fmt (0, e, fa); \<not>is_nan fmt (0, Suc e, fb)\<rbrakk> 
       \<Longrightarrow> valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
 proof(induction e)
   case 0
@@ -248,8 +249,26 @@ next
         using prem_gt by linarith
     next
       case False
+      have infss:"is_infinity fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
+      proof -
+        have "Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt"
+          using One_nat_def Suc_diff_Suc diff_zero emax_def exponent.simps is_valid_def 
+            less_antisym sucout.prems(2) zero_less_numeral zero_less_power False
+          by metis
+        moreover have "\<not>is_nan fmt (0, Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v), fb)"
+          by (simp add: sucout.prems(4))
+        ultimately show ?thesis
+          by (simp add: is_infinity_def is_nan_def)
+      qed
+        
+      moreover have "\<not>is_infinity fmt (0, Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v, fb)"
+         using infss is_infinity_def by auto
+
         (* Suc (Suc e\<^sub>p\<^sub>r\<^sub>e\<^sub>v) = emax fmt *)
-      then show ?thesis sorry
+       then show ?thesis 
+         using fcompare_def flt_def
+          sledgehammer quickcheck nitpick
+           sorry
     qed
   qed
 qed
