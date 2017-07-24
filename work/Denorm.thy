@@ -330,9 +330,29 @@ next
   qed
 qed
   
-section \<open>Polynomial evaluation\<close>
-  
+subsection \<open>Properties of multiplication\<close>
 
+  (* What about To_nearest? 
+What about showing that magnitude of x decreased?*)
+lemma mult_lt_1_smaller:  
+  assumes "is_valid fmt x \<and> (is_normal fmt x \<or> is_denormal fmt x)"
+    and "is_valid fmt y \<and> (is_normal fmt y \<or> is_denormal fmt y)"
+    and "valof fmt y > 0 \<and> valof fmt y < 1"
+    (* TODO get rid of this requirement: *)
+    and "valof fmt x > 0"
+  shows "valof fmt (fmul fmt float_To_zero x y) < valof fmt x"
+
+  
+section \<open>Polynomial evaluation\<close>
+
+  
+(* lemma denorm_result:  
+  assumes "is_valid fmt d \<and> is_denormal fmt d "
+    and "is_valid fmt x"
+    and "valof fmt x > 0 \<and> valof fmt x < 1"
+  shows "is_denorm fmt (fmul float_format To_nearest d x)"
+ *)
+  
 (*   TODO 
 definition float_format :: format
   where "float_format = (8, 23)" *)
