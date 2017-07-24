@@ -295,9 +295,40 @@ next
       using prem_gt by linarith
   qed
 qed
-  
-  
-  
+
+  (* TODO rename larger \<rightarrow> gt *)
+lemma positive_larger_exponent_is_larger:
+  assumes lgts:"el > es" 
+    and fw_gte1:"fracwidth fmt \<ge> 1"
+  shows "\<lbrakk>el > es; is_finite fmt (0, el, fa); is_finite fmt (0, es, fb)\<rbrakk> 
+      \<Longrightarrow> valof fmt (0, el, fa) > valof fmt (0, es, fb)"
+proof(induction el arbitrary: es)
+  case 0
+  then show ?case by simp
+next
+  case (Suc eli)
+  then show ?case
+  proof(cases "eli > es")
+    case True
+    have fineli:"is_finite fmt (0, eli, fa)"
+      using Suc.prems(2) is_denormal_def is_finite_def is_normal_def is_valid_def is_zero_def by auto
+    moreover have "is_finite fmt (0, es, fb)"
+      by (simp add: Suc.prems(3))
+    ultimately have "valof fmt (0, es, fb) < valof fmt (0, eli, fa)"
+      using Suc.IH True by blast
+    moreover have "... < valof fmt (0, Suc eli, fa)"
+      using positive_next_larger_exponent fw_gte1 Suc.prems(2) fineli by blast
+    ultimately show ?thesis 
+      by linarith
+  next
+    case False
+    hence "eli = es"
+      by (simp add: Suc.prems(1) less_antisym)
+    then show ?thesis 
+      using Suc.prems positive_next_larger_fraction fw_gte1 positive_next_larger_exponent by blast
+  qed
+qed
+
 (*   TODO 
 definition float_format :: format
   where "float_format = (8, 23)" *)
