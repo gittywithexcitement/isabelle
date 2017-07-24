@@ -3,6 +3,8 @@ theory Denorm
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE"
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
+
+section \<open>Helpers\<close>
   
 subsection \<open>Special values\<close>
 
@@ -51,7 +53,7 @@ lemma normalized_frac_lt2:
 
 subsection \<open>Properties about ordering and bounding\<close>
   
-  (* Negative (finite) numbers are \<le> 0 *)
+  (* Negative (valid) numbers are \<le> 0 *)
 lemma negative_lt_zero:
   fixes x :: representation
   assumes finite:"is_valid fmt x"
@@ -327,6 +329,9 @@ next
       using Suc.prems pos_gt_suc_frac fw_gte1 pos_gt_suc_exp by blast
   qed
 qed
+  
+section \<open>Polynomial evaluation\<close>
+  
 
 (*   TODO 
 definition float_format :: format
