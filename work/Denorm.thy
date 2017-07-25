@@ -354,7 +354,7 @@ text "Negative numbers are \<le> 0"
 lemma negative_lt_zero:
   fixes x :: representation
   assumes negative:"sign x = 1"
-  shows "valof fmt x \<le> valof fmt (plus_zero fmt) \<and> valof fmt x \<le> valof fmt (minus_zero fmt)"
+  shows "valof fmt x \<le> 0"
 proof -
   obtain s e f where sef:"(s, e, f) = x"
     by (metis fraction.cases)
