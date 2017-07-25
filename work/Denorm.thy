@@ -574,29 +574,16 @@ proof(rule ccontr)
           sorry
       next
         case False
-        hence "ea < ee"
+        hence elt:"ea < ee"
           using expneq antisym_conv3 by blast
-            (* TODO is_finite proof for 1-epsilon *)
-        moreover have "is_finite fmt (sa, ea, fa)"
-          by (metis (mono_tags, lifting) False One_nat_def Suc_1 Suc_diff_Suc asef emax_def esef 
-              expneq exponent.simps is_denormal_def is_finite_def is_normal_def is_valid_def 
-              is_zero_def less_antisym minus_nat.diff_0 sa0 valid valid_one_minus_eps zero_less_Suc 
-              zero_less_power) 
         moreover have "is_finite fmt (se, ee, fe)"
-          using False Suc_diff_Suc asef emax_def esef 
-              expneq exponent.simps is_denormal_def is_finite_def is_normal_def is_valid_def 
-              is_zero_def less_antisym minus_nat.diff_0 sa0 valid valid_one_minus_eps zero_less_Suc 
-              zero_less_power
-          sledgehammer[timeout=120]
-           
-            sorry
+          using esef finite_eps rsnbl by auto
+        moreover have "is_finite fmt (sa, ea, fa)"
+          using elt asef calculation(2) is_denormal_def is_finite_def is_normal_def is_zero_def valid by auto
         hence "valof fmt (sa,ea,fa) < valof fmt (se,ee,fe)"
-          using pos_gt_if_exp_gt
-          sledgehammer 
-            sorry
+          using pos_gt_if_exp_gt calculation(2) elt sa0 se0 by blast
         then show ?thesis
-          (* sledgehammer quickcheck *)
-            sorry
+          using asef asm0 esef by auto
       qed
     qed
   next
@@ -607,7 +594,7 @@ proof(rule ccontr)
       using negative_lt_zero
       by (simp add: negative_lt_zero)
     then show ?thesis 
-      using eps_gt_zero asef asm rsnbl by fastforce
+      using eps_gt_zero asef asm1 rsnbl by fastforce
   qed
 qed
 
