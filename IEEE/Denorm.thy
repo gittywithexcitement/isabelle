@@ -515,7 +515,6 @@ text "one_minus_eps is the largest value that's less than 1"
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
-  and rsnbl:"reasonable_format fmt"
 shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
 proof(rule ccontr)
   assume asm0:"\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
@@ -585,7 +584,7 @@ proof(rule ccontr)
         hence elt:"ea < ee"
           using expneq antisym_conv3 by blast
         moreover have "is_finite fmt (se, ee, fe)"
-          using esef finite_eps rsnbl by auto
+          using esef finite_eps by auto
         moreover have "is_finite fmt (sa, ea, fa)"
           using elt asef calculation(2) is_denormal_def is_finite_def is_normal_def is_zero_def valid by auto
         hence "valof fmt (sa,ea,fa) < valof fmt (se,ee,fe)"
@@ -601,8 +600,16 @@ proof(rule ccontr)
     hence "valof fmt (sa,ea,fa) \<le> 0"
       using negative_lt_zero
       by (simp add: negative_lt_zero)
-    then show ?thesis 
-      using eps_gt_zero asef asm1 rsnbl by fastforce
+    hence "valof fmt (sa,ea,fa) \<le> valof fmt (se,ee,fe)"
+      proof(cases "ea = 0")
+        case True
+        then show ?thesis sorry
+      next
+        case False
+        then show ?thesis sorry
+      qed
+    then show ?thesis
+      by (simp add: asef asm0 esef)
   qed
 qed
 
