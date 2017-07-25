@@ -437,6 +437,24 @@ proof (rule ccontr)
     using calculation not_le by blast
 qed
   
+lemma valid_one_minus_eps:"is_valid fmt (one_minus_eps fmt)"
+proof -
+  have "sign (one_minus_eps fmt) = 0"
+    by (simp add: one_minus_eps_def)
+    moreover have "fraction (one_minus_eps fmt) = 2^(fracwidth fmt) - 1"
+      by (simp add: one_minus_eps_def topfraction_def)  
+    moreover have "exponent (one_minus_eps fmt) < 2^(expwidth fmt)"
+    proof -
+      have "exponent (one_minus_eps fmt) = bias fmt - 1"
+        by (simp add: one_minus_eps_def)
+      thus ?thesis
+        by (metis bias_def diff_less less_imp_diff_less less_numeral_extra(1) neq0_conv 
+            one_less_numeral_iff power_0 power_strict_increasing_iff semiring_norm(76) zero_diff)
+    qed
+    ultimately show ?thesis
+      by (simp add: is_valid)
+qed
+  
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
