@@ -40,6 +40,19 @@ lemma one_minus_eps_largest:
 shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
 proof(rule ccontr)
   assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+  hence "valof fmt a > valof fmt (one_minus_eps fmt)"
+    by simp
+  obtain sa ea fa where asef:"(sa,ea,fa) = a"
+    by (metis fraction.cases) 
+  obtain es ee fe where esef:"(es,ee,fe) = one_minus_eps fmt"
+    by (metis fraction.cases)
+  hence "es = 0"
+    using one_minus_eps_def by auto
+  have "valof fmt (one_minus_eps fmt) > 0"
+    (* sledgehammer quickcheck *)
+    (* TODO here *)
+      sorry
+      
   show False sorry
 qed
   
