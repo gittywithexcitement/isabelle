@@ -14,48 +14,7 @@ definition topfraction :: "format \<Rightarrow> nat"
     
 definition one_minus_eps :: "format \<Rightarrow> representation"
   where "one_minus_eps x = (0, bias x - 1, topfraction x)"
-    
-subsection \<open>Properties of Special values\<close>
-  
-lemma topfraction_largest:
-  assumes valid:"is_valid fmt a"
-  shows "fraction a \<le> topfraction fmt"
-proof (rule ccontr)
-  assume "\<not> fraction a \<le> topfraction fmt"
-  hence "fraction a > topfraction fmt"
-    by simp
-  hence "fraction a > 2^(fracwidth fmt) - 1"
-    by (simp add: topfraction_def)
-  hence "fraction a \<ge> 2^(fracwidth fmt)"
-    by linarith 
-  moreover have "fraction a < 2^(fracwidth fmt)"
-    using is_valid_def valid by simp
-  thus False
-    using calculation not_le by blast
-qed
-  
-lemma one_minus_eps_largest:
-  assumes valid:"is_valid fmt a"
-  and "valof fmt a < 1"
-shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
-proof(rule ccontr)
-  assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
-  hence "valof fmt a > valof fmt (one_minus_eps fmt)"
-    by simp
-  obtain sa ea fa where asef:"(sa,ea,fa) = a"
-    by (metis fraction.cases) 
-  obtain es ee fe where esef:"(es,ee,fe) = one_minus_eps fmt"
-    by (metis fraction.cases)
-  hence "es = 0"
-    using one_minus_eps_def by auto
-  have "valof fmt (one_minus_eps fmt) > 0"
-    (* sledgehammer quickcheck *)
-    (* TODO here *)
-      sorry
       
-  show False sorry
-qed
-  
 lemma Val_zero:"Val Plus_zero = 0"
 proof -
   have "(0,0,0) = Rep_float Plus_zero"
@@ -458,6 +417,26 @@ proof -
     qed
   qed
 qed
+
+subsection \<open>Properties of Special values\<close>
+  
+lemma topfraction_largest:
+  assumes valid:"is_valid fmt a"
+  shows "fraction a \<le> topfraction fmt"
+proof (rule ccontr)
+  assume "\<not> fraction a \<le> topfraction fmt"
+  hence "fraction a > topfraction fmt"
+    by simp
+  hence "fraction a > 2^(fracwidth fmt) - 1"
+    by (simp add: topfraction_def)
+  hence "fraction a \<ge> 2^(fracwidth fmt)"
+    by linarith 
+  moreover have "fraction a < 2^(fracwidth fmt)"
+    using is_valid_def valid by simp
+  thus False
+    using calculation not_le by blast
+qed
+  
 
 subsection \<open>Properties of multiplication\<close>
 
