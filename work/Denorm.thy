@@ -66,6 +66,8 @@ lemma normalized_frac_lt2:
 
 subsection \<open>Properties about ordering and bounding\<close>
   
+subsubsection \<open>Relation to zero\<close>
+
 lemma sign0_if_gt_zero:
   fixes e :: nat
   assumes xgt0:"valof fmt (s,e,f) > 0"
@@ -118,11 +120,10 @@ next
     using calculation by auto
 qed
 
-  (* Negative (valid) numbers are \<le> 0 *)
+text "Negative numbers are \<le> 0"
 lemma negative_lt_zero:
   fixes x :: representation
-  assumes finite:"is_valid fmt x"
-    and negative:"sign x = 1"
+  assumes negative:"sign x = 1"
   shows "valof fmt x \<le> valof fmt (plus_zero fmt) \<and> valof fmt x \<le> valof fmt (minus_zero fmt)"
 proof -
   obtain s e f where sef:"(s, e, f) = x"
