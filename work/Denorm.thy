@@ -54,6 +54,59 @@ lemma normalized_frac_lt2:
 
 subsection \<open>Properties about ordering and bounding\<close>
   
+lemma sign0_if_gt_zero:
+  fixes e :: nat
+  assumes xgt0:"valof fmt (s,e,f) > 0"
+    and valid:"is_valid fmt (s,e,f)"
+    and rsnbl:"reasonable_format fmt"
+  shows "sign (s,e,f) = 0 \<and> s = 0"
+proof(cases e)
+  case 0
+  obtain fe ::real where fe:"2 / (2^bias fmt) = fe"
+    by simp
+  obtain fp ::real where fp:"real f/2^(fracwidth fmt) = fp"
+    by simp
+  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
+    by (simp add: "0" fe fp)
+  hence "... > 0"
+    using xgt0 by linarith
+  moreover have "fe > 0"
+    using fe by auto
+  moreover have "fp > 0"
+    using fp
+    by (metis calculation(1) divide_less_0_iff linorder_neqE_linordered_idom mult.commute 
+        mult_zero_left not_numeral_less_zero of_nat_less_0_iff power_less_zero_eq)
+  ultimately have "(-1::real)^s > 0"
+    using zero_less_mult_pos2 by blast
+  moreover have "s = 0 \<or> s = 1"
+    using is_valid_def valid by auto
+  then show ?thesis
+    using calculation by auto
+next
+  case (Suc nat)
+  obtain fe ::real where fe:"((2^e) / (2^bias fmt)) = fe"
+    by simp
+  obtain fp ::real where fp:"1 + real f/2^fracwidth fmt = fp"
+    by simp
+  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
+    using Suc fe fp by auto
+  hence "... > 0"
+    using xgt0 by linarith
+  moreover have "fe > 0"
+    using fe by auto
+  moreover have "fp > 0"
+    using fp
+    by (metis add_less_same_cancel1 add_pos_pos divide_less_0_iff less_add_same_cancel1 
+        less_numeral_extra(1) linorder_neqE_linordered_idom not_numeral_less_zero 
+        of_nat_less_0_iff power_less_zero_eq)
+  ultimately have "(-1::real)^s > 0"
+    using zero_less_mult_pos2 by blast
+  moreover have "s = 0 \<or> s = 1"
+    using is_valid_def valid by auto
+  then show ?thesis
+    using calculation by auto
+qed
+
   (* Negative (valid) numbers are \<le> 0 *)
 lemma negative_lt_zero:
   fixes x :: representation
