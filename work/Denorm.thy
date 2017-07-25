@@ -479,7 +479,41 @@ proof -
     by (metis divide_eq_0_iff exponent.simps fgt0 fraction.simps mult_cancel_right2 of_nat_0 
         plus_zero_def sef valid_one_minus_eps valof_eq)
 qed
-    
+  
+lemma finite_eps:
+  assumes rsnbl:"reasonable_format fmt"
+  shows "is_finite fmt (one_minus_eps fmt)"
+proof -
+  have 0:"one_minus_eps fmt = (0, bias fmt - 1, topfraction fmt)"
+    by (simp add: one_minus_eps_def)
+  have valid:"is_valid fmt (0, bias fmt - 1, topfraction fmt)"
+    by (metis 0 valid_one_minus_eps)
+  have frac:"topfraction fmt > 0"
+    by (metis Suc_diff_1 Suc_le_lessD fraction.simps gr0I is_valid_def not_less_eq 
+        one_less_numeral_iff one_less_power reasonable_format_def rsnbl semiring_norm(76) 
+        topfraction_def valid zero_less_one)
+  show ?thesis 
+  proof(cases "bias fmt - 1 = 0")
+    case True
+    have "is_denormal fmt (0, bias fmt - 1, topfraction fmt)"
+      using True frac is_denormal_def by auto
+    then show ?thesis
+      using "0" is_finite_def valid by auto
+  next
+    case False
+    hence egt0:"bias fmt - 1 > 0"
+      by simp
+    hence "bias fmt - 1 < emax fmt"
+      by (metis (no_types, lifting) Suc_diff_1 bias_def diff_less_Suc emax_def exponent.simps 
+          is_valid_def less_antisym not_less_eq one_less_numeral_iff pos2 power_less_power_Suc 
+          realpow_num_eq_if semiring_norm(76) valid zero_less_diff zero_less_power)
+    hence "is_normal fmt (0, bias fmt - 1, topfraction fmt)"
+      using egt0 is_normal_def by auto
+    then show ?thesis
+      by (metis "0" is_finite_def valid_one_minus_eps)
+  qed
+qed
+
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
