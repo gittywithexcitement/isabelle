@@ -481,22 +481,17 @@ proof -
 qed
   
 lemma finite_eps:
-  assumes rsnbl:"reasonable_format fmt"
   shows "is_finite fmt (one_minus_eps fmt)"
 proof -
   have 0:"one_minus_eps fmt = (0, bias fmt - 1, topfraction fmt)"
     by (simp add: one_minus_eps_def)
   have valid:"is_valid fmt (0, bias fmt - 1, topfraction fmt)"
     by (metis 0 valid_one_minus_eps)
-  have frac:"topfraction fmt > 0"
-    by (metis Suc_diff_1 Suc_le_lessD fraction.simps gr0I is_valid_def not_less_eq 
-        one_less_numeral_iff one_less_power reasonable_format_def rsnbl semiring_norm(76) 
-        topfraction_def valid zero_less_one)
   show ?thesis 
   proof(cases "bias fmt - 1 = 0")
     case True
-    have "is_denormal fmt (0, bias fmt - 1, topfraction fmt)"
-      using True frac is_denormal_def by auto
+    have "is_denormal fmt (0, bias fmt - 1, topfraction fmt) \<or> is_zero fmt (0, bias fmt - 1, topfraction fmt)"
+      using True is_denormal_def is_zero_def by auto
     then show ?thesis
       using "0" is_finite_def valid by auto
   next
