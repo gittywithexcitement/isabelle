@@ -151,6 +151,46 @@ proof -
     by (simp add: sef)
 qed
   
+text "Positive numbers are > 0"
+lemma positive_gt_zero:
+  assumes val:"is_valid fmt (s, e, f)"
+    and neg:"s = 0"
+    and e_or_f_gt0:"e > 0 \<or> f > 0"
+  shows "valof fmt (s, e, f) > 0"
+proof -
+  have "valof fmt (0, e, f) \<ge> 0"
+    using neg by simp 
+  then show ?thesis
+  proof(cases "e = 0")
+    case True
+    hence fgt0:"f > 0"
+      using e_or_f_gt0 by fastforce
+    then show ?thesis
+    proof(induction f)
+      case 0
+      then show ?case 
+        by blast
+    next
+      case (Suc f)
+      have "f > 0"
+        using fgt0
+          sorry
+      then show ?case
+        sorry
+    qed
+  next
+    case False
+    hence "e > 0"
+      by auto
+    then show ?thesis
+      (* sledgehammer quickcheck *)
+        sorry
+  qed
+qed
+
+  
+subsubsection \<open>Ordering between floating point values\<close>
+
 lemma pos_gt_suc_frac:
   fixes fmt :: format
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
