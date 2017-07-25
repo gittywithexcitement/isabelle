@@ -58,7 +58,6 @@ lemma sign0_if_gt_zero:
   fixes e :: nat
   assumes xgt0:"valof fmt (s,e,f) > 0"
     and valid:"is_valid fmt (s,e,f)"
-    and rsnbl:"reasonable_format fmt"
   shows "sign (s,e,f) = 0 \<and> s = 0"
 proof(cases e)
   case 0
@@ -400,7 +399,7 @@ proof(cases "is_normal fmt x")
   obtain s e f where sef:"(s,e,f) = x"
     by (metis fraction.cases)
   have "sign x = 0"
-    (* sledgehammer quickcheck *)
+    sledgehammer quickcheck
       sorry
   then show ?thesis sorry
 next
