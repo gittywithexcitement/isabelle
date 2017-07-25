@@ -471,7 +471,6 @@ proof(rule ccontr)
   hence se0:"se = 0"
     using one_minus_eps_def by auto
   have "valof fmt (one_minus_eps fmt) > 0"
-    using rsnbl
   proof -
     have fegt0:"fe > 0"
     proof -
@@ -484,34 +483,12 @@ proof(rule ccontr)
       thus ?thesis
         using esef one_minus_eps_def by auto
     qed
-    moreover have "real 2^bias fmt > 0"
-      by simp
-    ultimately have "((2^ee) / (2^bias fmt)) > real 0"
-      by simp        
-    moreover have "(1 + real fe/2^fracwidth fmt) > 0"
-    proof -
-      have "fracwidth fmt > 0"
-        using reasonable_format_def rsnbl by auto
-      thus ?thesis 
-        using fegt0
-        by (simp add: add_pos_pos)
-    qed
-    ultimately have "((2^ee) / (2^bias fmt)) * (1 + real fe/2^fracwidth fmt) > 0" (is "?L > 0")
-      by simp
-        
-    moreover have "valof fmt (one_minus_eps fmt) = ?L"
-    proof -
-      have "one_minus_eps fmt = (se,ee,fe)"
-        by (simp add: esef)
-      hence "valof fmt (one_minus_eps fmt) = (-1::real)^se * ((2^ee) / (2^bias fmt)) * (1 + real fe/2^fracwidth fmt)"
-        (* sledgehammer quickcheck *)
-        sorry
-    qed
-      
-    show ?thesis
-      (* sledgehammer quickcheck *)
-      sorry
+    then show ?thesis
+      using positive_gt_zero se0
+      by (metis divide_eq_0_iff esef exponent.simps fraction.simps mult_cancel_right2 of_nat_0 
+          plus_zero_def valid_one_minus_eps valof_eq)
   qed
+
   show False sorry
 qed
 
