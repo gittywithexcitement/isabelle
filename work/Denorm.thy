@@ -12,6 +12,9 @@ subsection \<open>Special values\<close>
 definition topfraction :: "format \<Rightarrow> nat"
   where "topfraction x = 2^(fracwidth x) - 1"
     
+definition one_minus_eps :: "format \<Rightarrow> representation"
+  where "one_minus_eps x = (0, bias x - 1, topfraction x)"
+    
 subsection \<open>Properties of Special values\<close>
   
 lemma topfraction_largest:
