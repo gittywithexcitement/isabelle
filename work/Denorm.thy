@@ -345,9 +345,10 @@ lemma mult_lt_1_smaller:
 proof(cases "is_normal fmt x")
   case True
   obtain s e f where sef:"(s,e,f) = x"
-    by simp
-(*     obtain plus1 :: real where plus1:"plus1 = (1 + (1 + real yf) / 2 ^ fracwidth fmt)"
-      by simp *)
+    by (metis fraction.cases)
+  have "sign x = 0"
+    (* sledgehammer quickcheck *)
+      sorry
   then show ?thesis sorry
 next
   case False
