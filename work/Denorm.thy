@@ -26,8 +26,9 @@ qed
   
 subsection \<open>Properties of fields\<close>
   
+  (* expwidth = 1 results in bias = 0 which causes a divide by 0 *)
 definition reasonable_format :: "format \<Rightarrow> bool"
-  where "reasonable_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
+  where "reasonable_format fmt = (expwidth fmt \<ge> 2 \<and> fracwidth fmt \<ge> 1)"
     
 lemma normalized_frac_lt2:
   assumes "is_normal fmt (s, e, f)"
@@ -437,6 +438,73 @@ proof (rule ccontr)
     using calculation not_le by blast
 qed
   
+lemma one_minus_eps_largest:
+  assumes valid:"is_valid fmt a"
+  and "valof fmt a < 1"
+  and rsnbl:"reasonable_format fmt"
+shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+proof(rule ccontr)
+  assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+  hence "valof fmt a > valof fmt (one_minus_eps fmt)"
+    by simp
+  obtain sa ea fa where asef:"(sa,ea,fa) = a"
+    by (metis fraction.cases) 
+  obtain se ee fe where esef:"(se,ee,fe) = one_minus_eps fmt"
+    by (metis fraction.cases)
+  hence se0:"se = 0"
+    using one_minus_eps_def by auto
+  have "valof fmt (one_minus_eps fmt) > 0"
+    using rsnbl
+  proof -
+    have fegt0:"fe > 0"
+    proof -
+      have "fracwidth fmt \<ge> 1"
+        using reasonable_format_def rsnbl by auto
+      hence "real 2^(fracwidth fmt) - 1 \<ge> 1"
+        using exp_less by fastforce
+      hence "topfraction fmt > real 0"
+        by (simp add: of_nat_diff topfraction_def)
+      thus ?thesis
+        using esef one_minus_eps_def by auto
+    qed
+    moreover have "real (bias fmt) > 0"
+    proof -
+      have "real 2^(expwidth fmt - 1) - 1 > 0"
+        using reasonable_format_def rsnbl by auto
+      thus ?thesis
+        using bias_def
+        by (metis cancel_comm_monoid_add_class.diff_cancel less_add_same_cancel2 less_irrefl 
+            less_numeral_extra(1) neq0_conv of_nat_0_less_iff one_add_one one_less_power 
+            realpow_num_eq_if zero_less_diff) 
+    qed
+    ultimately have "((2^ee) / (2^bias fmt)) > real 0"
+      by simp        
+    moreover have "(1 + real fe/2^fracwidth fmt) > 0"
+    proof -
+      have "fracwidth fmt > 0"
+        using reasonable_format_def rsnbl by auto
+      thus ?thesis 
+        using fegt0
+        by (simp add: add_pos_pos)
+    qed
+    ultimately have "((2^ee) / (2^bias fmt)) * (1 + real fe/2^fracwidth fmt) > 0" (is "?L > 0")
+      by simp
+        
+    moreover have "valof fmt (one_minus_eps fmt) = ?L"
+    proof -
+      have "one_minus_eps fmt = (se,ee,fe)"
+        by (simp add: esef)
+      hence "valof fmt (one_minus_eps fmt) = (-1::real)^se * ((2^ee) / (2^bias fmt)) * (1 + real fe/2^fracwidth fmt)"
+        (* sledgehammer quickcheck *)
+        sorry
+    qed
+      
+    show ?thesis
+      (* sledgehammer quickcheck *)
+      sorry
+  qed
+  show False sorry
+qed
 
 subsection \<open>Properties of multiplication\<close>
 
