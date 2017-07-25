@@ -1,5 +1,6 @@
 theory Denorm
-  imports Main "~~/src/HOL/Library/Code_Target_Nat" 
+  imports Main 
+    "~~/src/HOL/Library/Code_Target_Nat"
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE"
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
@@ -335,13 +336,25 @@ subsection \<open>Properties of multiplication\<close>
   (* What about To_nearest? 
 What about showing that magnitude of x decreased?*)
 lemma mult_lt_1_smaller:  
-  assumes "is_valid fmt x \<and> (is_normal fmt x \<or> is_denormal fmt x)"
-    and "is_valid fmt y \<and> (is_normal fmt y \<or> is_denormal fmt y)"
-    and "valof fmt y > 0 \<and> valof fmt y < 1"
-    (* TODO get rid of this requirement: *)
-    and "valof fmt x > 0"
+  assumes vndx:"is_valid fmt x \<and> (is_normal fmt x \<or> is_denormal fmt x)"
+    and vndy:"is_valid fmt y \<and> (is_normal fmt y \<or> is_denormal fmt y)"
+    and ylt1:"valof fmt y > 0 \<and> valof fmt y < 1"
+    (* TODO get rid of this requirement, use magnitude: *)
+    and xgt0:"valof fmt x > 0"
   shows "valof fmt (fmul fmt float_To_zero x y) < valof fmt x"
-
+proof(cases "is_normal fmt x")
+  case True
+  obtain s e f where sef:"(s,e,f) = x"
+    by simp
+(*     obtain plus1 :: real where plus1:"plus1 = (1 + (1 + real yf) / 2 ^ fracwidth fmt)"
+      by simp *)
+  then show ?thesis sorry
+next
+  case False
+  hence "is_denormal fmt x"
+    using vndx by auto
+  then show ?thesis sorry
+qed
   
 section \<open>Polynomial evaluation\<close>
 
@@ -479,15 +492,12 @@ proof(rule ccontr)
     hence "y > SmallPositiveDenorm"
     proof -
       have "Isdenormal SmallPositiveDenorm"
-        sledgehammer
         sorry
       have "Finite SmallPositiveDenorm"
-        sledgehammer
         sorry
           
     qed
     using SmallPositiveDenorm_def ysef ypos ys0 float_lt
-      sledgehammer
       sorry
       
 (*       Now we have both:
@@ -496,7 +506,6 @@ proof(rule ccontr)
       So we can show false *)
       
     then show False 
-      sledgehammer
       sorry
   qed
     
