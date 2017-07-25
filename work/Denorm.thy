@@ -441,20 +441,45 @@ lemma valid_one_minus_eps:"is_valid fmt (one_minus_eps fmt)"
 proof -
   have "sign (one_minus_eps fmt) = 0"
     by (simp add: one_minus_eps_def)
-    moreover have "fraction (one_minus_eps fmt) = 2^(fracwidth fmt) - 1"
-      by (simp add: one_minus_eps_def topfraction_def)  
-    moreover have "exponent (one_minus_eps fmt) < 2^(expwidth fmt)"
-    proof -
-      have "exponent (one_minus_eps fmt) = bias fmt - 1"
-        by (simp add: one_minus_eps_def)
-      thus ?thesis
-        by (metis bias_def diff_less less_imp_diff_less less_numeral_extra(1) neq0_conv 
-            one_less_numeral_iff power_0 power_strict_increasing_iff semiring_norm(76) zero_diff)
-    qed
-    ultimately show ?thesis
-      by (simp add: is_valid)
+  moreover have "fraction (one_minus_eps fmt) = 2^(fracwidth fmt) - 1"
+    by (simp add: one_minus_eps_def topfraction_def)  
+  moreover have "exponent (one_minus_eps fmt) < 2^(expwidth fmt)"
+  proof -
+    have "exponent (one_minus_eps fmt) = bias fmt - 1"
+      by (simp add: one_minus_eps_def)
+    thus ?thesis
+      by (metis bias_def diff_less less_imp_diff_less less_numeral_extra(1) neq0_conv 
+          one_less_numeral_iff power_0 power_strict_increasing_iff semiring_norm(76) zero_diff)
+  qed
+  ultimately show ?thesis
+    by (simp add: is_valid)
 qed
   
+lemma eps_gt_zero:
+  assumes rsnbl:"reasonable_format fmt"
+  shows "valof fmt (one_minus_eps fmt) > 0"
+proof -
+  obtain s e f where sef:"(s,e,f) = one_minus_eps fmt"
+    by (simp add: one_minus_eps_def)
+  hence fgt0:"f > 0"
+  proof -
+    have "fracwidth fmt \<ge> 1"
+      using reasonable_format_def rsnbl by auto
+    hence "real 2^(fracwidth fmt) - 1 \<ge> 1"
+      using exp_less by fastforce
+    hence "topfraction fmt > real 0"
+      by (simp add: of_nat_diff topfraction_def)
+    thus ?thesis
+      using sef one_minus_eps_def by auto
+  qed
+  moreover have s0:"s = 0"
+    using one_minus_eps_def sef by auto
+  then show ?thesis
+    using positive_gt_zero s0
+    by (metis divide_eq_0_iff exponent.simps fgt0 fraction.simps mult_cancel_right2 of_nat_0 
+        plus_zero_def sef valid_one_minus_eps valof_eq)
+qed
+    
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
@@ -470,24 +495,6 @@ proof(rule ccontr)
     by (metis fraction.cases)
   hence se0:"se = 0"
     using one_minus_eps_def by auto
-  have epsgt0:"valof fmt (one_minus_eps fmt) > 0" (* TODO move this? *)
-  proof -
-    have fegt0:"fe > 0"
-    proof -
-      have "fracwidth fmt \<ge> 1"
-        using reasonable_format_def rsnbl by auto
-      hence "real 2^(fracwidth fmt) - 1 \<ge> 1"
-        using exp_less by fastforce
-      hence "topfraction fmt > real 0"
-        by (simp add: of_nat_diff topfraction_def)
-      thus ?thesis
-        using esef one_minus_eps_def by auto
-    qed
-    then show ?thesis
-      using positive_gt_zero se0
-      by (metis divide_eq_0_iff esef exponent.simps fraction.simps mult_cancel_right2 of_nat_0 
-          plus_zero_def valid_one_minus_eps valof_eq)
-  qed
   show False 
   proof(cases "sa = 0")
     case True
@@ -500,7 +507,7 @@ proof(rule ccontr)
       using negative_lt_zero
       by (simp add: negative_lt_zero)
     then show ?thesis 
-      using epsgt0 asef asm by auto
+      using eps_gt_zero asef asm rsnbl by fastforce
   qed
 qed
 
