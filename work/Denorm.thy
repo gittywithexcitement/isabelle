@@ -563,16 +563,23 @@ proof(rule ccontr)
           using esef one_minus_eps_def by auto
         hence "ea \<ge> bias fmt"
           using egt by linarith
-        moreover have "ea > 1"
-          sledgehammer quickcheck
-            sorry
-        hence "valof fmt (sa,ea,fa) > 1"
-          (* TODO here *)
-          (* sledgehammer quickcheck *)
-          sorry
-            (*         have "valof fmt (sa,ea,fa) > valof fmt (se,ee,fe)" (is "?L > ?R")
-          using asef asm0 esef by auto *)
-            (* hence "?L > " *)
+        hence "((2^ea) / (2^bias fmt)) \<ge> real 1" (is "?Exp \<ge> real 1")
+          by simp
+        then obtain exp :: real where exp:"exp = ?Exp \<and> exp \<ge> 1"
+          by fastforce
+        have "(1 + real fa/2^fracwidth fmt) \<ge> 1" (is "?Frac \<ge> 1")
+          by simp
+        then obtain frac :: real where frac:"frac = ?Frac \<and> frac \<ge> 1"
+          by fastforce
+        have "exp * frac \<ge> 1"
+          by (metis exp frac le_less_trans le_numeral_extra(1) less_eq_real_def mult.left_neutral 
+              mult_cancel_left1 not_less real_mult_le_cancel_iff1) 
+        moreover have "ea > 0"
+          using egt by auto
+        moreover have "valof fmt (sa,ea,fa) = ((2^ea) / (2^bias fmt)) * (1 + real fa/2^fracwidth fmt)"
+          using calculation(2) sa0 by auto
+        ultimately have "valof fmt (sa,ea,fa) > 1"
+          using exp frac asef assms(2) by auto
         then show ?thesis
           using asef assms(2) by auto
       next
