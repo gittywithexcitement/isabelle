@@ -521,7 +521,7 @@ proof(rule ccontr)
         qed
       qed
     next
-      case False
+      case expneq:False
       then show ?thesis 
       proof(cases "ea > ee")
         case True
@@ -540,7 +540,29 @@ proof(rule ccontr)
           sorry
       next
         case False
-        then show ?thesis sorry
+        hence "ea < ee"
+          using expneq antisym_conv3 by blast
+            (* TODO is_finite proof for 1-epsilon *)
+        moreover have "is_finite fmt (sa, ea, fa)"
+          by (metis (mono_tags, lifting) False One_nat_def Suc_1 Suc_diff_Suc asef emax_def esef 
+              expneq exponent.simps is_denormal_def is_finite_def is_normal_def is_valid_def 
+              is_zero_def less_antisym minus_nat.diff_0 sa0 valid valid_one_minus_eps zero_less_Suc 
+              zero_less_power) 
+        moreover have "is_finite fmt (se, ee, fe)"
+          using False Suc_diff_Suc asef emax_def esef 
+              expneq exponent.simps is_denormal_def is_finite_def is_normal_def is_valid_def 
+              is_zero_def less_antisym minus_nat.diff_0 sa0 valid valid_one_minus_eps zero_less_Suc 
+              zero_less_power
+          sledgehammer[timeout=120]
+           
+            sorry
+        hence "valof fmt (sa,ea,fa) < valof fmt (se,ee,fe)"
+          using pos_gt_if_exp_gt
+          sledgehammer 
+            sorry
+        then show ?thesis
+          (* sledgehammer quickcheck *)
+            sorry
       qed
     qed
   next
