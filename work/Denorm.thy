@@ -33,7 +33,16 @@ proof (rule ccontr)
   thus False
     using calculation not_le by blast
 qed
-
+  
+lemma one_minus_eps_largest:
+  assumes valid:"is_valid fmt a"
+  and "valof fmt a < 1"
+shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+proof(rule ccontr)
+  assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+  show False sorry
+qed
+  
 lemma Val_zero:"Val Plus_zero = 0"
 proof -
   have "(0,0,0) = Rep_float Plus_zero"
