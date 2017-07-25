@@ -154,36 +154,39 @@ qed
 text "Positive numbers are > 0"
 lemma positive_gt_zero:
   assumes val:"is_valid fmt (s, e, f)"
-    and neg:"s = 0"
+    and s0:"s = 0"
     and e_or_f_gt0:"e > 0 \<or> f > 0"
-  shows "valof fmt (s, e, f) > 0"
+  shows "valof fmt (s, e, f) > valof fmt (plus_zero fmt) \<and> valof fmt (s, e, f) > valof fmt (minus_zero fmt)"
 proof -
   have "valof fmt (0, e, f) \<ge> 0"
     using neg by simp 
+  moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
+    by simp
   then show ?thesis
   proof(cases "e = 0")
-    case True
+    case e0:True
     hence fgt0:"f > 0"
       using e_or_f_gt0 by fastforce
     then show ?thesis
     proof(induction f)
       case 0
-      then show ?case 
-        by blast
+      then show ?case by blast
     next
       case (Suc f)
-      have "f > 0"
-        using fgt0
-          sorry
       then show ?case
-        sorry
+      proof(cases "f = 0")
+        case True
+        then show ?thesis by (simp add: e0 s0) 
+      next
+        case False
+        then show ?thesis using add_divide_distrib e0 s0 by fastforce
+      qed
     qed
   next
     case False
     hence "e > 0"
       by auto
     then show ?thesis
-      (* sledgehammer quickcheck *)
         sorry
   qed
 qed
