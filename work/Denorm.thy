@@ -402,9 +402,15 @@ proof(cases "is_normal fmt x")
   obtain s e f where sef:"(s,e,f) = x"
     by (metis fraction.cases)
   have "sign x = 0"
-    sledgehammer quickcheck
+    using sign0_if_gt_zero by (metis sef vndx xgt0)
+  have "e \<ge> 1"
+    using True is_normal_def sef by auto
+      (* Let's get the largest possible value of x
+    And the largest possible value of y
+    Multiply them and check if result < x
+    Then do a proof by contradiction *)
+  then show ?thesis
       sorry
-  then show ?thesis sorry
 next
   case False
   hence "is_denormal fmt x"
