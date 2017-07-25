@@ -525,7 +525,19 @@ proof(rule ccontr)
       then show ?thesis 
       proof(cases "ea > ee")
         case True
-        then show ?thesis sorry
+        have "ee = bias fmt - 1"
+          using esef one_minus_eps_def by auto
+        hence "ea \<ge> bias fmt"
+          using True by linarith
+        hence "valof fmt (sa,ea,fa) > 1"
+          (* TODO here *)
+          (* sledgehammer quickcheck *)
+            sorry
+(*         have "valof fmt (sa,ea,fa) > valof fmt (se,ee,fe)" (is "?L > ?R")
+          using asef asm0 esef by auto *)
+            (* hence "?L > " *)
+        then show ?thesis 
+          sorry
       next
         case False
         then show ?thesis sorry
