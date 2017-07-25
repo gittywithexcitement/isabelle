@@ -486,8 +486,8 @@ lemma one_minus_eps_largest:
   and rsnbl:"reasonable_format fmt"
 shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
 proof(rule ccontr)
-  assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
-  hence asm:"valof fmt a > valof fmt (one_minus_eps fmt)"
+  assume asm0:"\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
+  hence asm1:"valof fmt a > valof fmt (one_minus_eps fmt)"
     by simp
   obtain sa ea fa where asef:"(sa,ea,fa) = a"
     by (metis fraction.cases) 
@@ -497,8 +497,40 @@ proof(rule ccontr)
     using one_minus_eps_def by auto
   show False 
   proof(cases "sa = 0")
-    case True
-    then show ?thesis sorry
+    case sa0:True
+    then show ?thesis 
+    proof(cases "ea = ee")
+      case expeq:True
+      then show ?thesis 
+      proof(cases "fa = fe")
+        case fraceq:True
+        then show ?thesis
+          using asef asm1 esef expeq sa0 se0 by auto
+      next
+        case False
+        then show ?thesis 
+        proof(cases "fa > fe")
+          case True
+          then show ?thesis
+            by (metis asef esef fraction.simps not_less one_minus_eps_def topfraction_largest valid)
+        next
+          case False
+          then show ?thesis
+            using pos_gt_if_frac_gt
+            by (metis asef asm1 esef expeq not_less_iff_gr_or_eq sa0 se0)
+        qed
+      qed
+    next
+      case False
+      then show ?thesis 
+      proof(cases "ea > ee")
+        case True
+        then show ?thesis sorry
+      next
+        case False
+        then show ?thesis sorry
+      qed
+    qed
   next
     case False
     hence "sa = 1"
