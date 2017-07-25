@@ -462,7 +462,7 @@ lemma one_minus_eps_largest:
 shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
 proof(rule ccontr)
   assume "\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
-  hence "valof fmt a > valof fmt (one_minus_eps fmt)"
+  hence asm:"valof fmt a > valof fmt (one_minus_eps fmt)"
     by simp
   obtain sa ea fa where asef:"(sa,ea,fa) = a"
     by (metis fraction.cases) 
@@ -470,7 +470,7 @@ proof(rule ccontr)
     by (metis fraction.cases)
   hence se0:"se = 0"
     using one_minus_eps_def by auto
-  have "valof fmt (one_minus_eps fmt) > 0"
+  have epsgt0:"valof fmt (one_minus_eps fmt) > 0" (* TODO move this? *)
   proof -
     have fegt0:"fe > 0"
     proof -
@@ -488,8 +488,20 @@ proof(rule ccontr)
       by (metis divide_eq_0_iff esef exponent.simps fraction.simps mult_cancel_right2 of_nat_0 
           plus_zero_def valid_one_minus_eps valof_eq)
   qed
-
-  show False sorry
+  show False 
+  proof(cases "sa = 0")
+    case True
+    then show ?thesis sorry
+  next
+    case False
+    hence "sa = 1"
+      using asef is_valid_def valid by auto 
+    hence "valof fmt (sa,ea,fa) \<le> 0"
+      using negative_lt_zero
+      by (simp add: negative_lt_zero)
+    then show ?thesis 
+      using epsgt0 asef asm by auto
+  qed
 qed
 
 subsection \<open>Properties of multiplication\<close>
