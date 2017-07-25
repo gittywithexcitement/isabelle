@@ -300,7 +300,6 @@ qed
   
 lemma pos_gt_suc_exp:
   fixes fmt :: format
-  assumes fw_gte1:"fracwidth fmt \<ge> 1"
   shows "\<lbrakk>is_finite fmt (0, e, fa); is_finite fmt (0, Suc e, fb)\<rbrakk> 
       \<Longrightarrow> valof fmt (0, e, fa) < valof fmt (0, Suc e, fb)"
 proof(induction e)
@@ -320,7 +319,7 @@ proof(induction e)
   have lt0:"real fa/2^(fracwidth fmt) < 1 + real fb/2^(fracwidth fmt)"
   proof -
     have "real 2^(fracwidth fmt) > 0"
-      using fw_gte1 by simp
+      by simp
     hence "real fa /  2^(fracwidth fmt) < 1"
       by (metis "0"(1) divide_less_eq_1_pos finite_valid fraction.simps is_valid_def 
           numeral_2_eq_2 of_nat_numeral real_of_nat_less_numeral_power_cancel_iff)
@@ -419,7 +418,6 @@ qed
 
 lemma pos_gt_if_exp_gt:
   assumes lgts:"el > es" 
-    and fw_gte1:"fracwidth fmt \<ge> 1"
   shows "\<lbrakk>el > es; is_finite fmt (0, el, fa); is_finite fmt (0, es, fb)\<rbrakk> 
       \<Longrightarrow> valof fmt (0, el, fa) > valof fmt (0, es, fb)"
 proof(induction el arbitrary: es)
@@ -437,7 +435,7 @@ next
     ultimately have "valof fmt (0, es, fb) < valof fmt (0, eli, fa)"
       using Suc.IH True by blast
     moreover have "... < valof fmt (0, Suc eli, fa)"
-      using pos_gt_suc_exp fw_gte1 Suc.prems(2) fineli by blast
+      using pos_gt_suc_exp Suc.prems(2) fineli by blast
     ultimately show ?thesis 
       by linarith
   next
@@ -445,7 +443,7 @@ next
     hence "eli = es"
       by (simp add: Suc.prems(1) less_antisym)
     then show ?thesis 
-      using Suc.prems pos_gt_suc_frac fw_gte1 pos_gt_suc_exp by blast
+      using Suc.prems pos_gt_suc_frac pos_gt_suc_exp by blast
   qed
 qed
   
