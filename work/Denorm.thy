@@ -79,119 +79,6 @@ lemma normalized_frac_lt2:
 
 subsection \<open>Properties about ordering and bounding\<close>
   
-subsubsection \<open>Relation to zero\<close>
-
-lemma sign0_if_gt_zero:
-  fixes e :: nat
-  assumes xgt0:"valof fmt (s,e,f) > 0"
-    and valid:"is_valid fmt (s,e,f)"
-  shows "sign (s,e,f) = 0 \<and> s = 0"
-proof(cases e)
-  case 0
-  obtain fe ::real where fe:"2 / (2^bias fmt) = fe"
-    by simp
-  obtain fp ::real where fp:"real f/2^(fracwidth fmt) = fp"
-    by simp
-  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
-    by (simp add: "0" fe fp)
-  hence "... > 0"
-    using xgt0 by linarith
-  moreover have "fe > 0"
-    using fe by auto
-  moreover have "fp > 0"
-    using fp
-    by (metis calculation(1) divide_less_0_iff linorder_neqE_linordered_idom mult.commute 
-        mult_zero_left not_numeral_less_zero of_nat_less_0_iff power_less_zero_eq)
-  ultimately have "(-1::real)^s > 0"
-    using zero_less_mult_pos2 by blast
-  moreover have "s = 0 \<or> s = 1"
-    using is_valid_def valid by auto
-  then show ?thesis
-    using calculation by auto
-next
-  case (Suc nat)
-  obtain fe ::real where fe:"((2^e) / (2^bias fmt)) = fe"
-    by simp
-  obtain fp ::real where fp:"1 + real f/2^fracwidth fmt = fp"
-    by simp
-  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
-    using Suc fe fp by auto
-  hence "... > 0"
-    using xgt0 by linarith
-  moreover have "fe > 0"
-    using fe by auto
-  moreover have "fp > 0"
-    using fp
-    by (metis add_less_same_cancel1 add_pos_pos divide_less_0_iff less_add_same_cancel1 
-        less_numeral_extra(1) linorder_neqE_linordered_idom not_numeral_less_zero 
-        of_nat_less_0_iff power_less_zero_eq)
-  ultimately have "(-1::real)^s > 0"
-    using zero_less_mult_pos2 by blast
-  moreover have "s = 0 \<or> s = 1"
-    using is_valid_def valid by auto
-  then show ?thesis
-    using calculation by auto
-qed
-
-text "Negative numbers are \<le> 0"
-lemma negative_lt_zero:
-  fixes x :: representation
-  assumes negative:"sign x = 1"
-  shows "valof fmt x \<le> valof fmt (plus_zero fmt) \<and> valof fmt x \<le> valof fmt (minus_zero fmt)"
-proof -
-  obtain s e f where sef:"(s, e, f) = x"
-    by (metis fraction.cases)
-  hence s1:"s = 1"
-    by (metis negative sign.simps)
-  hence "valof fmt (s, e, f) \<le> 0"
-    using s1 by simp
-  moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
-    by simp
-  ultimately show ?thesis
-    by (simp add: sef)
-qed
-  
-text "Positive numbers are > 0"
-lemma positive_gt_zero:
-  assumes val:"is_valid fmt (s, e, f)"
-    and s0:"s = 0"
-    and e_or_f_gt0:"e > 0 \<or> f > 0"
-  shows "valof fmt (s, e, f) > valof fmt (plus_zero fmt) \<and> valof fmt (s, e, f) > valof fmt (minus_zero fmt)"
-proof -
-  have "valof fmt (0, e, f) \<ge> 0"
-    using neg by simp 
-  moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
-    by simp
-  then show ?thesis
-  proof(cases "e = 0")
-    case e0:True
-    hence fgt0:"f > 0"
-      using e_or_f_gt0 by fastforce
-    then show ?thesis
-    proof(induction f)
-      case 0
-      then show ?case by blast
-    next
-      case (Suc f)
-      then show ?case
-      proof(cases "f = 0")
-        case True
-        then show ?thesis by (simp add: e0 s0) 
-      next
-        case False
-        then show ?thesis using add_divide_distrib e0 s0 by fastforce
-      qed
-    qed
-  next
-    case False
-    hence "e > 0"
-      by auto
-    then show ?thesis
-        sorry
-  qed
-qed
-
-  
 subsubsection \<open>Ordering between floating point values\<close>
 
 lemma pos_gt_suc_frac:
@@ -450,6 +337,128 @@ next
   qed
 qed
   
+subsubsection \<open>Relation to zero\<close>
+
+lemma sign0_if_gt_zero:
+  fixes e :: nat
+  assumes xgt0:"valof fmt (s,e,f) > 0"
+    and valid:"is_valid fmt (s,e,f)"
+  shows "sign (s,e,f) = 0 \<and> s = 0"
+proof(cases e)
+  case 0
+  obtain fe ::real where fe:"2 / (2^bias fmt) = fe"
+    by simp
+  obtain fp ::real where fp:"real f/2^(fracwidth fmt) = fp"
+    by simp
+  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
+    by (simp add: "0" fe fp)
+  hence "... > 0"
+    using xgt0 by linarith
+  moreover have "fe > 0"
+    using fe by auto
+  moreover have "fp > 0"
+    using fp
+    by (metis calculation(1) divide_less_0_iff linorder_neqE_linordered_idom mult.commute 
+        mult_zero_left not_numeral_less_zero of_nat_less_0_iff power_less_zero_eq)
+  ultimately have "(-1::real)^s > 0"
+    using zero_less_mult_pos2 by blast
+  moreover have "s = 0 \<or> s = 1"
+    using is_valid_def valid by auto
+  then show ?thesis
+    using calculation by auto
+next
+  case (Suc nat)
+  obtain fe ::real where fe:"((2^e) / (2^bias fmt)) = fe"
+    by simp
+  obtain fp ::real where fp:"1 + real f/2^fracwidth fmt = fp"
+    by simp
+  have 1:"valof fmt (s,e,f) = (-1::real)^s * fe * fp"
+    using Suc fe fp by auto
+  hence "... > 0"
+    using xgt0 by linarith
+  moreover have "fe > 0"
+    using fe by auto
+  moreover have "fp > 0"
+    using fp
+    by (metis add_less_same_cancel1 add_pos_pos divide_less_0_iff less_add_same_cancel1 
+        less_numeral_extra(1) linorder_neqE_linordered_idom not_numeral_less_zero 
+        of_nat_less_0_iff power_less_zero_eq)
+  ultimately have "(-1::real)^s > 0"
+    using zero_less_mult_pos2 by blast
+  moreover have "s = 0 \<or> s = 1"
+    using is_valid_def valid by auto
+  then show ?thesis
+    using calculation by auto
+qed
+
+text "Negative numbers are \<le> 0"
+lemma negative_lt_zero:
+  fixes x :: representation
+  assumes negative:"sign x = 1"
+  shows "valof fmt x \<le> valof fmt (plus_zero fmt) \<and> valof fmt x \<le> valof fmt (minus_zero fmt)"
+proof -
+  obtain s e f where sef:"(s, e, f) = x"
+    by (metis fraction.cases)
+  hence s1:"s = 1"
+    by (metis negative sign.simps)
+  hence "valof fmt (s, e, f) \<le> 0"
+    using s1 by simp
+  moreover have "valof fmt (plus_zero fmt) = 0 \<and> valof fmt (minus_zero fmt) = 0"
+    by simp
+  ultimately show ?thesis
+    by (simp add: sef)
+qed
+  
+text "Positive numbers are > 0"
+lemma positive_gt_zero:
+  assumes val:"is_valid fmt (s, e, f)"
+    and s0:"s = 0"
+    and e_or_f_gt0:"e > 0 \<or> f > 0"
+  shows "valof fmt (s, e, f) > valof fmt (plus_zero fmt) \<and> valof fmt (s, e, f) > valof fmt (minus_zero fmt)"
+proof -
+  show ?thesis
+  proof(cases "e = 0")
+    case e0:True
+    hence fgt0:"f > 0"
+      using e_or_f_gt0 by fastforce
+    then show ?thesis
+    proof(induction f)
+      case 0
+      then show ?case by blast
+    next
+      case (Suc f)
+      then show ?case
+      proof(cases "f = 0")
+        case True
+        then show ?thesis by (simp add: e0 s0) 
+      next
+        case False
+        then show ?thesis using add_divide_distrib e0 s0 by fastforce
+      qed
+    qed
+  next
+    case False
+    hence egt0:"e > 0"
+      by auto
+    then show ?thesis
+    proof(induction f)
+      case 0
+      then show ?case
+        by (simp add: s0)
+    next
+      case (Suc f)
+      hence 1:"valof fmt (plus_zero fmt) < valof fmt (s, e, f) \<and> valof fmt (minus_zero fmt) < valof fmt (s, e, f)"
+        by blast
+      hence "valof fmt (plus_zero fmt) < valof fmt (s, e, Suc f)"
+        using less_eq_real_def less_le_trans pos_gt_suc_frac s0 by blast 
+      moreover have "valof fmt (minus_zero fmt) < valof fmt (s, e, Suc f)"
+        using less_eq_real_def less_le_trans pos_gt_suc_frac s0 1 by blast
+      ultimately show ?case
+        by blast
+    qed
+  qed
+qed
+
 subsection \<open>Properties of multiplication\<close>
 
   (* What about To_nearest? 
