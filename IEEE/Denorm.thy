@@ -441,6 +441,11 @@ proof (rule ccontr)
     using calculation not_le by blast
 qed
   
+text "(for valof) topfraction divided by 2^(fracwidth fmt) < 1"
+lemma topfraction_over_divisor_lt_one:
+  "topfraction fmt/(2^fracwidth fmt) < real 1"
+  using topfraction_def by auto
+    
 text "largest positive denorm is as the name describes"
 lemma largest_positive_denorm:
   assumes validlpd:"is_valid fmt (largest_positive_denorm fmt)"
