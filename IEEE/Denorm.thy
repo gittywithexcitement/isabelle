@@ -440,6 +440,36 @@ proof (rule ccontr)
     using calculation not_le by blast
 qed
   
+text "largest positive denorm is as the name describes"
+lemma largest_positive_denorm:
+  assumes validlpd:"is_valid fmt (largest_positive_denorm fmt)"
+    and denormlpd:"is_denormal fmt (largest_positive_denorm fmt)"
+  assumes validx:"is_valid fmt x"
+    and denormx:"is_denormal fmt x"
+  shows "valof fmt x \<le> valof fmt (largest_positive_denorm fmt)"
+proof (rule ccontr)
+  assume "\<not> (valof fmt x \<le> valof fmt (largest_positive_denorm fmt))"
+  hence assm:"valof fmt x > valof fmt (largest_positive_denorm fmt)"
+    by simp
+  obtain s e f where sef:"(s,e,f) = x"
+    by (metis fraction.cases)
+  thus False
+  proof(cases "s = 0")
+    case True
+    then show ?thesis sorry
+  next
+    case False
+    hence "s = 1"
+      using sef sign_0_1 validx by fastforce
+    hence "valof fmt x \<le> 0"
+      using negative_lt_zero sef sign.simps by blast
+    moreover have "valof fmt (largest_positive_denorm fmt) > 0"
+      using denormlpd is_denormal_def largest_positive_denorm_def by auto
+    ultimately show ?thesis 
+      using assm by linarith
+  qed
+qed
+  
 text "one_minus_eps is valid"
 lemma valid_one_minus_eps:"is_valid fmt (one_minus_eps fmt)"
 proof -
