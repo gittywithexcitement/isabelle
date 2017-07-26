@@ -695,7 +695,16 @@ proof(rule ccontr)
       using eps_gt_zero asef asm1 rsnbl by fastforce
   qed
 qed
-
+  
+  (* have "valof fmt (one_minus_eps fmt) < 1" *)
+text "one_minus_eps < 1 when exponent width \<ge> 2"
+lemma one_minus_eps_lt_one:
+  (* Usually reasonable means expwidth \<ge> 1 and fracwidth \<ge> 1. Here we need more expwidth *)
+  assumes rsnbl:"ew \<ge> 2"
+  shows "valof (ew, fw) (one_minus_eps (ew, fw)) < 1"
+proof(induction ew)
+  
+  
 subsection \<open>Properties of multiplication\<close>
   
 text "(1-\<epsilon>) * largest_positive_denorm is denormal"
