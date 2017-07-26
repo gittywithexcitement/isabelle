@@ -453,10 +453,38 @@ proof (rule ccontr)
     by simp
   obtain s e f where sef:"(s,e,f) = x"
     by (metis fraction.cases)
+  obtain sl el fl where sefl:"(sl,el,fl) = largest_positive_denorm fmt"
+    by (metis fraction.cases)
   thus False
   proof(cases "s = 0")
     case True
-    then show ?thesis sorry
+    then show ?thesis
+    proof(cases "e > el")
+      case expeql:True
+        \<comment> \<open>Show it can't be denormal because exponent is too big\<close>
+      then show ?thesis sorry
+    next
+      case expneq:False
+      then show ?thesis 
+      proof(cases "e = el")
+        case True \<comment> \<open>signs and exponents are equal\<close>
+        then show ?thesis 
+          proof(cases "f > fl")
+            case True
+              \<comment> \<open>Show it can't be valid because fraction is too big\<close>
+            then show ?thesis sorry
+          next
+            case False
+            then show ?thesis sorry
+          qed
+      next
+        case False
+        hence "e < el"
+          using expneq by auto
+            \<comment> \<open>Show that lpd > x, violating assumption\<close>
+        then show ?thesis sorry
+      qed
+    qed      
   next
     case False
     hence "s = 1"
