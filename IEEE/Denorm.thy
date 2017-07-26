@@ -697,6 +697,10 @@ proof(rule ccontr)
 qed
 
 subsection \<open>Properties of multiplication\<close>
+  
+text "(1-\<epsilon>) * largest_positive_denorm is denormal"
+lemma lpd_mul_ome_is_denorm:
+    shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
 
   (* What about To_nearest? 
 TODO use magnitudes instead of insisting that everything is positive*)
