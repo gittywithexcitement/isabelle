@@ -700,9 +700,34 @@ qed
 text "one_minus_eps < 1 when exponent width \<ge> 2"
 lemma one_minus_eps_lt_one:
   (* Usually reasonable means expwidth \<ge> 1 and fracwidth \<ge> 1. Here we need more expwidth *)
-  assumes rsnbl:"ew \<ge> 2"
-  shows "valof (ew, fw) (one_minus_eps (ew, fw)) < 1"
+  shows "ew \<ge> 2 
+      \<Longrightarrow> valof (ew, fw) (one_minus_eps (ew, fw)) < 1"
 proof(induction ew)
+  case 0
+  then show ?case
+    by simp
+next
+  case (Suc ew)
+  then show ?case 
+  proof(cases "ew < 2")
+    case True \<comment> \<open>can't use IH\<close>
+    hence "Suc ew = 2"
+      using Suc.prems by auto
+    have "valof (2, fw) (one_minus_eps (2, fw)) < 1" (is "?V2 < 1")
+    proof -
+      (* TODO *)
+      have "?V2 = ((2^2) / (2^(2^(fw - 1) - 1))) * (1 + real f/2^fracwidth x)"
+        sorry
+    then show ?thesis
+        sorry
+    qed
+    then show ?thesis
+        sorry
+  next
+    case False  \<comment> \<open>can use IH\<close>
+    then show ?thesis sorry
+  qed
+qed
   
   
 subsection \<open>Properties of multiplication\<close>
