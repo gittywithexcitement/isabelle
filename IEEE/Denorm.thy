@@ -731,6 +731,15 @@ next
       by (simp add: calculation)
   next
     case False  \<comment> \<open>can use IH\<close>
+    hence "ew \<ge> 2"
+      by simp
+    hence "valof (ew, fw) (one_minus_eps (ew, fw)) < 1" (is "?vp < 1")
+      by (simp add: Suc.IH)
+    have "bias (ew, fw) \<ge> 1"
+      by (metis False One_nat_def Suc_1 Suc_leI bias_def expwidth.simps not_less_eq 
+          one_less_numeral_iff one_less_power semiring_norm(76) zero_less_diff)
+    then obtain bew where bew:"bew = bias (ew, fw) \<and> bew \<ge> 1"
+      by simp 
     then show ?thesis sorry
   qed
 qed
