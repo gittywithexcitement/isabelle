@@ -457,37 +457,64 @@ proof (rule ccontr)
     by (metis fraction.cases)
   thus False
   proof(cases "s = 0")
-    case True
+    case seq0:True
     then show ?thesis
     proof(cases "e > el")
-      case expeql:True
+      case True
         \<comment> \<open>Show it can't be denormal because exponent is too big\<close>
-      then show ?thesis sorry
+      hence "\<not>is_denormal fmt x"
+        using is_denormal_def sef by auto
+      then show ?thesis
+        using denormx by auto
     next
       case expneq:False
       then show ?thesis 
       proof(cases "e = el")
-        case True \<comment> \<open>signs and exponents are equal\<close>
+        case expeq:True \<comment> \<open>signs and exponents are equal\<close>
         then show ?thesis 
-          proof(cases "f > fl")
+        proof(cases "f > fl")
+          case True
+            \<comment> \<open>Show it can't be valid because fraction is too big\<close>
+          hence "\<not>is_valid fmt x"
+            by (metis fraction.simps largest_positive_denorm_def not_less sef sefl 
+                topfraction_largest validx)
+          then show ?thesis
+            using validx by auto
+        next
+          case False
+          then show ?thesis 
+          proof(cases "f = fl")
             case True
-              \<comment> \<open>Show it can't be valid because fraction is too big\<close>
-            then show ?thesis sorry
+              \<comment> \<open>same value as lpd, thus violates assumption\<close>
+            hence "(s,e,f) = (sl,el,fl)"
+              using expeq largest_positive_denorm_def sefl seq0 by auto
+            then show ?thesis
+              using assm sef sefl by auto
           next
             case False
-            then show ?thesis sorry
+            hence "f < fl"
+              by (metis fraction.simps largest_positive_denorm_def le_neq_implies_less sef sefl 
+                  topfraction_largest validx)
+                \<comment> \<open>smaller than lpd, thus violates assumption\<close>
+            hence "valof fmt (s,e,f) < valof fmt (sl,el,fl)"
+              by (metis expeq largest_positive_denorm_def pos_gt_if_frac_gt prod.sel(1) sefl seq0)
+            then show ?thesis
+              using assm sef sefl by auto
           qed
+        qed
       next
         case False
-        hence "e < el"
+        hence "e < el"  \<comment> \<open>Show that lpd > x, violating assumption\<close>
           using expneq by auto
-            \<comment> \<open>Show that lpd > x, violating assumption\<close>
-        then show ?thesis sorry
+        hence "valof fmt (s,e,f) < valof fmt (sl,el,fl)"
+          using largest_positive_denorm_def sefl by auto
+        then show ?thesis
+          using assm sef sefl by auto
       qed
     qed      
   next
     case False
-    hence "s = 1"
+    hence "s = 1" \<comment> \<open>x < lpd, violating assumption\<close>
       using sef sign_0_1 validx by fastforce
     hence "valof fmt x \<le> 0"
       using negative_lt_zero sef sign.simps by blast
