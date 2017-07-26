@@ -5,9 +5,9 @@ theory Denorm
     "~~/dled_components/afp/thys/IEEE_Floating_Point/IEEE_Properties"
 begin
 
-section \<open>Helpers\<close>
+section \<open>Floating point stepping stones\<close>
   
-subsection \<open>Special values\<close>
+subsection \<open>Special values (definitions)\<close>
 
 definition topfraction :: "format \<Rightarrow> nat"
   where "topfraction x = 2^(fracwidth x) - 1"
