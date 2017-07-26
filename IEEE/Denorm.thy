@@ -17,6 +17,7 @@ definition one_minus_eps :: "format \<Rightarrow> representation"
         
 subsection \<open>Properties of fields\<close>
   
+text "A few proofs require that exponent or fraction width is > 0"
 definition reasonable_format :: "format \<Rightarrow> bool"
   where "reasonable_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
     
@@ -31,6 +32,7 @@ subsection \<open>Properties about ordering and bounding\<close>
   
 subsubsection \<open>Ordering between floating point values\<close>
 
+text "For positive floats with same exponent, the greater (by one) fraction is also the greater value"
 lemma pos_gt_suc_frac:
   fixes fmt :: format
   shows "valof fmt (0, ye, yf) < valof fmt (0, ye, Suc yf)"
@@ -94,6 +96,7 @@ next
   qed
 qed
 
+text "For positive floats with same exponent, the greater fraction is also the greater value"
 lemma pos_gt_if_frac_gt:
   fixes fmt :: format
     and fl :: nat
@@ -124,6 +127,7 @@ next
   qed
 qed
   
+text "For normalized values, when all else is equal, an exponent one greater means the value is twice as large"
 lemma exponent_doubles:
   shows "\<lbrakk>is_valid fmt (s, e, f); is_normal fmt (s, e, f); 
           is_valid fmt (s, Suc e, f); is_normal fmt (s, Suc e, f)\<rbrakk>  
@@ -138,6 +142,7 @@ next
     by simp 
 qed  
   
+text "For positive floats, the greater (by one) exponent is the greater value, regardless of fraction"
 lemma pos_gt_suc_exp:
   fixes fmt :: format
   shows "\<lbrakk>is_finite fmt (0, e, fa); is_finite fmt (0, Suc e, fb)\<rbrakk> 
@@ -256,6 +261,7 @@ next
   qed
 qed
 
+text "For positive floats, the greater exponent is the greater value, regardless of fraction"
 lemma pos_gt_if_exp_gt:
   assumes lgts:"el > es" 
   shows "\<lbrakk>el > es; is_finite fmt (0, el, fa); is_finite fmt (0, es, fb)\<rbrakk> 
@@ -289,6 +295,7 @@ qed
   
 subsubsection \<open>Relation to zero\<close>
 
+text "If the value is greater than 0, then sign is 0"
 lemma sign0_if_gt_zero:
   fixes e :: nat
   assumes xgt0:"valof fmt (s,e,f) > 0"
@@ -341,7 +348,7 @@ next
     using calculation by auto
 qed
 
-text "Negative numbers are \<le> 0"
+text "The value of negative numbers is \<le> 0"
 lemma negative_lt_zero:
   fixes x :: representation
   assumes negative:"sign x = 1"
@@ -359,7 +366,7 @@ proof -
     by (simp add: sef)
 qed
   
-text "Positive numbers are > 0"
+text "Positive numbers with a nonzero exponent or fraction are > 0"
 lemma positive_gt_zero:
   assumes val:"is_valid fmt (s, e, f)"
     and s0:"s = 0"
@@ -411,6 +418,7 @@ qed
 
 subsection \<open>Properties of Special values\<close>
   
+text "topfraction is the largest possible (valid) fraction"
 lemma topfraction_largest:
   assumes valid:"is_valid fmt a"
   shows "fraction a \<le> topfraction fmt"
@@ -428,6 +436,7 @@ proof (rule ccontr)
     using calculation not_le by blast
 qed
   
+text "one_minus_eps is valid"
 lemma valid_one_minus_eps:"is_valid fmt (one_minus_eps fmt)"
 proof -
   have "sign (one_minus_eps fmt) = 0"
@@ -446,6 +455,7 @@ proof -
     by (simp add: is_valid)
 qed
   
+text "one_minus_eps is greater than 0 for a reasonable float format"
 lemma eps_gt_zero:
   assumes rsnbl:"reasonable_format fmt"
   shows "valof fmt (one_minus_eps fmt) > 0"
@@ -471,6 +481,7 @@ proof -
         plus_zero_def sef valid_one_minus_eps valof_eq)
 qed
   
+text "one_minus_eps is finite"
 lemma finite_eps:
   shows "is_finite fmt (one_minus_eps fmt)"
 proof -
@@ -500,6 +511,7 @@ proof -
   qed
 qed
 
+text "one_minus_eps is the largest value that's less than 1"
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
