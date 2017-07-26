@@ -700,7 +700,15 @@ subsection \<open>Properties of multiplication\<close>
   
 text "(1-\<epsilon>) * largest_positive_denorm is denormal"
 lemma lpd_mul_ome_is_denorm:
-    shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
+  assumes rsnbl"expwidth fmt \<ge> 2"
+  shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
+proof -
+  have "valof fmt (one_minus_eps fmt) < 1"
+    (* sledgehammer[timeout=120] *) (* quickcheck nitpick *)
+    sorry
+      (* have "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> largest_positive_denorm fmt" *)
+  show ?thesis sorry
+qed
 
   (* What about To_nearest? 
 TODO use magnitudes instead of insisting that everything is positive*)
