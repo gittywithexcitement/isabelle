@@ -731,16 +731,65 @@ next
       by (simp add: calculation)
   next
     case False  \<comment> \<open>can use IH\<close>
-    hence "ew \<ge> 2"
+    hence ewgte2:"ew \<ge> 2"
       by simp
-    hence "valof (ew, fw) (one_minus_eps (ew, fw)) < 1" (is "?vp < 1")
+    hence "valof (ew, fw) (one_minus_eps (ew, fw)) < 1" (is "?v < 1")
       by (simp add: Suc.IH)
     have "bias (ew, fw) \<ge> 1"
       by (metis False One_nat_def Suc_1 Suc_leI bias_def expwidth.simps not_less_eq 
           one_less_numeral_iff one_less_power semiring_norm(76) zero_less_diff)
     then obtain bew where bew:"bew = bias (ew, fw) \<and> bew \<ge> 1"
       by simp 
-    then show ?thesis sorry
+    let ?vs = "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw))"
+    show ?thesis 
+    proof(cases "ew = 2")
+      case True
+      hence se3:"Suc ew = 3"
+        by simp
+      hence "bias (3, fw) = 2^(3 - 1) - 1"
+        by (simp add: bias_def)
+      also have "... = 3"
+        by simp
+      hence "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = (1/2) * (1 + real (2^fw - 1)/2^fw)"
+        by (simp add: se3 calculation one_minus_eps_def topfraction_def)
+      then show ?thesis
+        by (simp add: \<open>valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = 1 / 2 * (1 + real (2 ^ fw - 1) / 2 ^ fw)\<close>)
+    next
+      case False
+      hence "ew > 2"
+        by (simp add: ewgte2 le_neq_implies_less)
+      hence "Suc ew > 3"
+        by simp
+      have "2^((Suc ew) - 1) \<ge> real 4"
+        using ewgte2 exp_less mult_2 by fastforce
+      hence "2^((Suc ew) - 1) - 1 \<ge> real 3"
+        by auto
+      hence "bias (Suc ew, fw) \<ge> real 3"
+        by (simp add: bias_def of_nat_diff)
+      then obtain bsew where bsew:"bsew = bias (Suc ew, fw) \<and> bsew \<ge> 3"
+        by simp
+      hence "bsew > 0"
+        by simp
+      hence "2^(bsew - 1) * 2 = 2^(bsew)"
+        using power_minus_mult
+          (* How does this not work? *)
+          sorry
+      hence "real 2^(bsew - 1)/2^(bsew) = 1/2"
+          sorry
+      hence "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = (1/2) * (1 + real (2^fw - 1)/2^fw)"
+        (* using one_minus_eps_def topfraction_def *)
+          sorry
+      then show ?thesis sorry
+    qed
+        (* What's bias?
+      one_minus_eps = (0, bias x - 1, topfraction x) 
+      valof is ((2^e) / (2^bias x)) * (1 + real f/2^fracwidth x) *)
+    (* hence "?v = ((2^(bew - 1)) / (2^bew)) * (1 + real (2^fw - 1)/2^fw)" *)
+(*     hence "?v = valof (ew, fw) (one_minus_eps (ew, fw))"
+      sorry*)
+      (* Exponent (arg to valof) is bias x - 1 *)
+      (* valof multiplies by ((2^e) / (2^bias x)) *)
+    (* have "?v = ?vs" *)
   qed
 qed
   
