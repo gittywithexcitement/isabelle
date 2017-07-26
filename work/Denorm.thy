@@ -14,16 +14,7 @@ definition topfraction :: "format \<Rightarrow> nat"
     
 definition one_minus_eps :: "format \<Rightarrow> representation"
   where "one_minus_eps x = (0, bias x - 1, topfraction x)"
-      
-lemma Val_zero:"Val Plus_zero = 0"
-proof -
-  have "(0,0,0) = Rep_float Plus_zero"
-    using Abs_float_inverse Plus_zero_def is_valid_special(5) by fastforce
-  moreover have "valof float_format (0,0,0) = 0" by simp
-  ultimately show ?thesis 
-    by (simp add: Val_def)
-qed
-  
+        
 subsection \<open>Properties of fields\<close>
   
 definition reasonable_format :: "format \<Rightarrow> bool"
