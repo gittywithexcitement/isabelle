@@ -12,6 +12,7 @@ subsection \<open>Special values (definitions)\<close>
 definition topfraction :: "format \<Rightarrow> nat"
   where "topfraction x = 2^(fracwidth x) - 1"
     
+text "1-\<epsilon> is the largest number that's < 1. Or it's the number after 1, towards -\<infinity>"
 definition one_minus_eps :: "format \<Rightarrow> representation"
   where "one_minus_eps x = (0, bias x - 1, topfraction x)"
     
