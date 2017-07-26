@@ -698,12 +698,11 @@ qed
 subsection \<open>Properties of multiplication\<close>
 
   (* What about To_nearest? 
-What about showing that magnitude of x decreased?*)
+TODO use magnitudes instead of insisting that everything is positive*)
 lemma mult_lt_1_smaller:  
   assumes vndx:"is_valid fmt x \<and> (is_normal fmt x \<or> is_denormal fmt x)"
     and vndy:"is_valid fmt y \<and> (is_normal fmt y \<or> is_denormal fmt y)"
     and ylt1:"valof fmt y > 0 \<and> valof fmt y < 1"
-    (* TODO get rid of this requirement, use magnitude: *)
     and xgt0:"valof fmt x > 0"
   shows "valof fmt (fmul fmt float_To_zero x y) < valof fmt x"
 proof(cases "is_normal fmt x")
