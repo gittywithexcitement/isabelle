@@ -718,11 +718,14 @@ next
     case True \<comment> \<open>can't use IH\<close>
     hence "Suc ew = 2"
       using Suc.prems by auto
+        (* Whats bias x - 1 *)
     have "valof (2, fw) (one_minus_eps (2, fw)) < 1" (is "?V2 < 1")
     proof -
-      (* TODO *)
-      have "?V2 = ((2^2) / (2^(2^(fw - 1) - 1))) * (1 + real f/2^fracwidth x)"
-        sorry
+      (* have "?V2 = valof (2, fw) (0, bias (2,fw) - 1, topfraction (2,fw))" *)
+      have "?V2 = valof (2, fw) (0, 0, 2^fw - 1)"
+        using one_minus_eps_def by (simp add: bias_def topfraction_def) 
+      also have "... = (2 / (2^bias (2,fw))) * (real (2^fw - 1)/2^(fw))"        
+        by simp
     then show ?thesis
         sorry
     qed
