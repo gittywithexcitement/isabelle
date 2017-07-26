@@ -14,7 +14,10 @@ definition topfraction :: "format \<Rightarrow> nat"
     
 definition one_minus_eps :: "format \<Rightarrow> representation"
   where "one_minus_eps x = (0, bias x - 1, topfraction x)"
-        
+    
+definition largest_positive_denorm :: "format \<Rightarrow> representation"
+  where "largest_positive_denorm x = (0, 0, topfraction x)"
+
 subsection \<open>Properties of fields\<close>
   
 text "A few proofs require that exponent or fraction width is > 0"
