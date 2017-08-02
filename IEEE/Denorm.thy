@@ -769,27 +769,14 @@ next
                    
       hence "(2 :: nat)^(bsew - 1) * 2 = 2^bsew"
         by (simp add: realpow_num_eq_if) 
-      hence "(2 :: nat)^(bsew - 1) * 2 = (2^bsew :: real)"
-        by simp
-      hence "(2 :: nat)^(bsew - 1) * 2 = 1 * (2^bsew :: real)"
-        by simp
-      hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1 * (2^bsew :: real) / (2^bsew :: real)"
-        by simp
       hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1"
         by simp
-      hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) * 2 = 1"
-         by auto
       hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) = 1 / 2"
-         by argo
-(*       hence "(2 :: nat)^(bsew - 1)/2^bsew = 1/2"
-        sledgehammer nitpick
-          sorry *)
-
-      hence "real 2^(bsew - 1)/2^(bsew) = 1/2"
-          sorry
+        by fastforce 
       hence "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = (1/2) * (1 + real (2^fw - 1)/2^fw)"
-        (* using one_minus_eps_def topfraction_def *)
+        sledgehammer quickcheck
           sorry
+        (* using one_minus_eps_def topfraction_def *)
       then show ?thesis sorry
     qed
         (* What's bias?
