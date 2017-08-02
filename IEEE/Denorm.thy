@@ -447,9 +447,12 @@ lemma topfraction_over_divisor_lt_one:
   using topfraction_def by auto
     
 lemma largest_positive_denorm_gt0:
-  assumes isdenorm:"is_denormal fmt (largest_positive_denorm fmt)"
+  assumes rsnbl:"reasonable_format fmt"
   shows "valof fmt (largest_positive_denorm fmt) > 0"
-  using isdenorm is_denormal_def largest_positive_denorm_def by auto    
+  using rsnbl largest_positive_denorm_def apply(simp)
+  by (metis One_nat_def Suc_le_lessD divide_pos_pos mult_pos_pos of_nat_0_less_iff 
+      one_less_numeral_iff one_less_power reasonable_format_def semiring_norm(76) topfraction_def 
+      zero_less_diff zero_less_numeral zero_less_power)
     
 text "largest positive denorm is as the name describes"
 lemma largest_positive_denorm:
@@ -791,15 +794,24 @@ qed
   
 subsection \<open>Properties of multiplication\<close>
   
-text "(1-\<epsilon>) * largest_positive_denorm is denormal"
+  (* Can I prove more in this lemma? *)
+text "(1-\<epsilon>) * largest_positive_denorm is < largest_positive_denorm"
 lemma lpd_mul_ome_is_denorm:
-  assumes rsnbl"expwidth fmt \<ge> 2"
+  assumes rsnbl:"expwidth fmt \<ge> 2"
+    (* valof x a * valof x b *)
   shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
+  (* shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))" *)
 proof -
   have "valof fmt (one_minus_eps fmt) < 1"
-    (* sledgehammer[timeout=120] *) (* quickcheck nitpick *)
-    sorry
-      (* have "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> largest_positive_denorm fmt" *)
+    using one_minus_eps_lt_one by (metis expwidth.elims rsnbl) 
+  hence "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> valof fmt (largest_positive_denorm fmt)"
+    sledgehammer quickcheck
+      sorry
+(*   proof -
+    fix x y :: real assume "x < 1 \<and> y > 0"
+    hence "x * y < y"
+      by simp  
+  qed *)
   show ?thesis sorry
 qed
 
