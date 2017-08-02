@@ -762,18 +762,29 @@ next
         by simp
       have "2^((Suc ew) - 1) \<ge> real 4"
         using ewgte2 exp_less mult_2 by fastforce
-      hence "2^((Suc ew) - 1) - 1 \<ge> real 3"
-        by auto
       hence "bias (Suc ew, fw) \<ge> real 3"
         by (simp add: bias_def of_nat_diff)
-      then obtain bsew where bsew:"bsew = bias (Suc ew, fw) \<and> bsew \<ge> 3"
+      then obtain bsew :: nat where bsew:"bsew = bias (Suc ew, fw) \<and> bsew \<ge> 3"
         by simp
-      hence "bsew > 0"
+                   
+      hence "(2 :: nat)^(bsew - 1) * 2 = 2^bsew"
+        by (simp add: realpow_num_eq_if) 
+      hence "(2 :: nat)^(bsew - 1) * 2 = (2^bsew :: real)"
         by simp
-      hence "2^(bsew - 1) * 2 = 2^(bsew)"
-        using power_minus_mult
-          (* How does this not work? *)
-          sorry
+      hence "(2 :: nat)^(bsew - 1) * 2 = 1 * (2^bsew :: real)"
+        by simp
+      hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1 * (2^bsew :: real) / (2^bsew :: real)"
+        by simp
+      hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1"
+        by simp
+      hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) * 2 = 1"
+         by auto
+      hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) = 1 / 2"
+         try0
+(*       hence "(2 :: nat)^(bsew - 1)/2^bsew = 1/2"
+        sledgehammer nitpick
+          sorry *)
+
       hence "real 2^(bsew - 1)/2^(bsew) = 1/2"
           sorry
       hence "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = (1/2) * (1 + real (2^fw - 1)/2^fw)"
