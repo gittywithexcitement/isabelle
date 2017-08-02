@@ -701,10 +701,8 @@ proof(rule ccontr)
   qed
 qed
   
-  (* have "valof fmt (one_minus_eps fmt) < 1" *)
 text "one_minus_eps < 1 when exponent width \<ge> 2"
 lemma one_minus_eps_lt_one:
-  (* Usually reasonable means expwidth \<ge> 1 and fracwidth \<ge> 1. Here we need more expwidth *)
   shows "ew \<ge> 2 
       \<Longrightarrow> valof (ew, fw) (one_minus_eps (ew, fw)) < 1"
 proof(induction ew)
@@ -766,28 +764,23 @@ next
         by (simp add: bias_def of_nat_diff)
       then obtain bsew :: nat where bsew:"bsew = bias (Suc ew, fw) \<and> bsew \<ge> 3"
         by simp
-                   
       hence "(2 :: nat)^(bsew - 1) * 2 = 2^bsew"
         by (simp add: realpow_num_eq_if) 
       hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1"
         by simp
-      hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) = 1 / 2"
+      hence exp_half:"(2 :: nat)^(bsew - 1) / (2^bsew :: real) = 1 / 2"
         by fastforce 
-      hence "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw)) = (1/2) * (1 + real (2^fw - 1)/2^fw)"
-        sledgehammer quickcheck
-          sorry
-        (* using one_minus_eps_def topfraction_def *)
-      then show ?thesis sorry
+      have frac_lt2:"(1 + real (2^fw - 1)/2^fw) < 2"
+        by simp
+      let ?valof = "valof (Suc ew, fw) (one_minus_eps (Suc ew, fw))"
+      have "?valof = (2 :: nat)^(bsew - 1) / (2^bsew :: real) * (1 + real (2^fw - 1)/2^fw)"
+        using bsew one_minus_eps_def topfraction_def by auto
+      also have "... = (1/2) * (1 + real (2^fw - 1)/2^fw)"
+        using exp_half by simp
+      finally show ?thesis
+        using frac_lt2
+        by (metis divide_less_eq_numeral1(1) mult_cancel_right2 times_divide_eq_left)
     qed
-        (* What's bias?
-      one_minus_eps = (0, bias x - 1, topfraction x) 
-      valof is ((2^e) / (2^bias x)) * (1 + real f/2^fracwidth x) *)
-    (* hence "?v = ((2^(bew - 1)) / (2^bew)) * (1 + real (2^fw - 1)/2^fw)" *)
-(*     hence "?v = valof (ew, fw) (one_minus_eps (ew, fw))"
-      sorry*)
-      (* Exponent (arg to valof) is bias x - 1 *)
-      (* valof multiplies by ((2^e) / (2^bias x)) *)
-    (* have "?v = ?vs" *)
   qed
 qed
   
