@@ -446,6 +446,11 @@ lemma topfraction_over_divisor_lt_one:
   "topfraction fmt/(2^fracwidth fmt) < real 1"
   using topfraction_def by auto
     
+lemma largest_positive_denorm_gt0:
+  assumes isdenorm:"is_denormal fmt (largest_positive_denorm fmt)"
+  shows "valof fmt (largest_positive_denorm fmt) > 0"
+  using isdenorm is_denormal_def largest_positive_denorm_def by auto    
+    
 text "largest positive denorm is as the name describes"
 lemma largest_positive_denorm:
   assumes validlpd:"is_valid fmt (largest_positive_denorm fmt)"
@@ -524,10 +529,9 @@ proof (rule ccontr)
       using sef sign_0_1 validx by fastforce
     hence "valof fmt x \<le> 0"
       using negative_lt_zero sef sign.simps by blast
-    moreover have "valof fmt (largest_positive_denorm fmt) > 0"
-      using denormlpd is_denormal_def largest_positive_denorm_def by auto
-    ultimately show ?thesis 
-      using assm by linarith
+    thus ?thesis 
+      using largest_positive_denorm_gt0 denormlpd assm
+      by fastforce
   qed
 qed
   
