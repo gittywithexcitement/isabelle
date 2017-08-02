@@ -447,14 +447,17 @@ lemma topfraction_over_divisor_lt_one:
   using topfraction_def by auto
     
 lemma largest_positive_denorm_gt0:
-  assumes isdenorm:"is_denormal fmt (largest_positive_denorm fmt)"
+  assumes rsnbl:"reasonable_format fmt"
   shows "valof fmt (largest_positive_denorm fmt) > 0"
-  using isdenorm is_denormal_def largest_positive_denorm_def by auto    
+  using rsnbl largest_positive_denorm_def apply(simp)
+  by (metis One_nat_def Suc_le_lessD divide_pos_pos mult_pos_pos of_nat_0_less_iff 
+      one_less_numeral_iff one_less_power reasonable_format_def semiring_norm(76) topfraction_def 
+      zero_less_diff zero_less_numeral zero_less_power)
     
 text "largest positive denorm is as the name describes"
 lemma largest_positive_denorm:
   assumes validlpd:"is_valid fmt (largest_positive_denorm fmt)"
-    and denormlpd:"is_denormal fmt (largest_positive_denorm fmt)"
+    and rsnbl:"reasonable_format fmt"
   assumes validx:"is_valid fmt x"
     and denormx:"is_denormal fmt x"
   shows "valof fmt x \<le> valof fmt (largest_positive_denorm fmt)"
@@ -529,9 +532,10 @@ proof (rule ccontr)
       using sef sign_0_1 validx by fastforce
     hence "valof fmt x \<le> 0"
       using negative_lt_zero sef sign.simps by blast
-    thus ?thesis 
-      using largest_positive_denorm_gt0 denormlpd assm
-      by fastforce
+    moreover have "0 < valof fmt (largest_positive_denorm fmt)"
+      using largest_positive_denorm_gt0 rsnbl by simp
+    ultimately show ?thesis
+      using assm by auto
   qed
 qed
   
