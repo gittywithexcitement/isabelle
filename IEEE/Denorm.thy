@@ -797,13 +797,16 @@ subsection \<open>Properties of multiplication\<close>
   
 text "(1-\<epsilon>) * largest_positive_denorm is denormal"
 lemma lpd_mul_ome_is_denorm:
-  assumes rsnbl"expwidth fmt \<ge> 2"
+  assumes exp_ge2:"expwidth fmt \<ge> 2"
+    and rsnbl:"reasonable_format fmt"
   shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
 proof -
   have "valof fmt (one_minus_eps fmt) < 1"
-    (* sledgehammer[timeout=120] *) (* quickcheck nitpick *)
-    sorry
-      (* have "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> largest_positive_denorm fmt" *)
+    using one_minus_eps_lt_one by (metis expwidth.elims exp_ge2) 
+  moreover have "valof fmt (largest_positive_denorm fmt) > 0"
+    by (simp add: largest_positive_denorm_gt0 rsnbl)
+  ultimately have "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> valof fmt (largest_positive_denorm fmt)"
+    by force
   show ?thesis sorry
 qed
 
