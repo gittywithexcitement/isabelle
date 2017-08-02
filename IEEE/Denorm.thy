@@ -769,18 +769,13 @@ next
                    
       hence "(2 :: nat)^(bsew - 1) * 2 = 2^bsew"
         by (simp add: realpow_num_eq_if) 
-      hence "(2 :: nat)^(bsew - 1) * 2 = (2^bsew :: real)"
-        by simp
-      hence "(2 :: nat)^(bsew - 1) * 2 = 1 * (2^bsew :: real)"
-        by simp
-      hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1 * (2^bsew :: real) / (2^bsew :: real)"
-        by simp
       hence "(2 :: nat)^(bsew - 1) * 2 / (2^bsew :: real) = 1"
         by simp
-      hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) * 2 = 1"
-         by auto
+(*       hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) * 2 = 1"
+         by auto *)
       hence "(2 :: nat)^(bsew - 1) / (2^bsew :: real) = 1 / 2"
-         by argo
+        sledgehammer 
+          sorry
 (*       hence "(2 :: nat)^(bsew - 1)/2^bsew = 1/2"
         sledgehammer nitpick
           sorry *)
