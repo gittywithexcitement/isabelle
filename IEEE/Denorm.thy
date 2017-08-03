@@ -807,6 +807,9 @@ proof -
     by (simp add: largest_positive_denorm_gt0 rsnbl)
   ultimately have "valof fmt (one_minus_eps fmt) * valof fmt (largest_positive_denorm fmt) \<le> valof fmt (largest_positive_denorm fmt)"
     by force
+  hence "valof fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt)) \<le> valof fmt (largest_positive_denorm fmt)"
+    (* Paused. Need to prove helper lemma(s)  *)
+      sorry
   show ?thesis sorry
 qed
 
