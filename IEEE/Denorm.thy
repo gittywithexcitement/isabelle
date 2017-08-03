@@ -802,7 +802,43 @@ subsection \<open>Multiply specific values\<close>
 For the smallest 'reasonable' float format, prove that (1-\<epsilon>)*largest_denorm, after rounding, is
 largest_denorm, or second largest denorm. Attempt to use induction to prove the same fact for all
 other formats. *)
-  
+lemma fmul_reasonable_format:
+  assumes fmt:"fmt = (2, 1)" (* expwidth fmt = 2 \<and> fracwidth fmt = 1 *)
+  shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
+proof -
+  have "valof fmt (largest_positive_denorm fmt) = 1 / 2" (is "?vlpd = 1/2")
+  proof -
+    have "valof fmt (largest_positive_denorm fmt) = valof fmt (0, 0, topfraction fmt)"
+      by (simp add: largest_positive_denorm_def)
+    also have "... = valof fmt (0, 0, 1)"
+      by (simp add: fmt topfraction_def)
+    finally show ?thesis
+      by (simp add: fmt bias_def)
+  qed
+  have "valof fmt (one_minus_eps fmt) = 1 / 2" (is "?vome = 1/2")
+  proof -
+    have "valof fmt (one_minus_eps fmt) = valof fmt (0, bias fmt - 1, topfraction fmt)"
+      by (simp add: one_minus_eps_def)
+    also have "... = valof fmt (0, 0, 1)"
+      by (simp add: fmt bias_def topfraction_def)
+    finally show ?thesis
+      by (simp add: fmt bias_def)
+  qed
+    
+  hence "?vlpd * ?vome = 1/4"
+    by (simp add: \<open>valof fmt (largest_positive_denorm fmt) = 1 / 2\<close>)
+      
+  let ?y = "1/4 :: real"
+    
+    (* There are 4 exponents and 2 fractions that the result can round to *)
+  have "valof fmt (0, 0, 1) = 1 / 2"
+    by (simp add: fmt bias_def) 
+
+  have "valof fmt (0, 1, 0) = 1"
+    by (simp add: fmt bias_def) 
+
+    thus ?thesis sorry
+qed
 
 
 subsection \<open>Properties of multiplication\<close>
