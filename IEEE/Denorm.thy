@@ -24,6 +24,10 @@ subsection \<open>Properties of fields\<close>
 text "A few proofs require that exponent or fraction width is > 0"
 definition smallest_format :: "format \<Rightarrow> bool"
   where "smallest_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
+
+text "one_minus_eps < 1 is true when exponent width \<ge> 2. Combine with fracwidth \<ge> 1"
+definition reasonable_format :: "format \<Rightarrow> bool"
+  where "reasonable_format fmt = (expwidth fmt \<ge> 2 \<and> fracwidth fmt \<ge> 1)"
     
 lemma normalized_frac_lt2:
   assumes "is_normal fmt (s, e, f)"
