@@ -22,13 +22,13 @@ definition largest_positive_denorm :: "format \<Rightarrow> representation"
 subsection \<open>Properties of fields\<close>
   
 text "A few proofs require that exponent or fraction width is > 0"
-definition reasonable_format :: "format \<Rightarrow> bool"
-  where "reasonable_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
+definition smallest_format :: "format \<Rightarrow> bool"
+  where "smallest_format fmt = (expwidth fmt \<ge> 1 \<and> fracwidth fmt \<ge> 1)"
     
 lemma normalized_frac_lt2:
   assumes "is_normal fmt (s, e, f)"
     and "is_valid fmt (s, e, f)"
-    and "reasonable_format fmt"
+    and "smallest_format fmt"
   shows "1 + real f/2^fracwidth fmt < 2"
   using assms(2) is_valid_def by auto
 
@@ -447,17 +447,17 @@ lemma topfraction_over_divisor_lt_one:
   using topfraction_def by auto
     
 lemma largest_positive_denorm_gt0:
-  assumes rsnbl:"reasonable_format fmt"
+  assumes rsnbl:"smallest_format fmt"
   shows "valof fmt (largest_positive_denorm fmt) > 0"
   using rsnbl largest_positive_denorm_def apply(simp)
   by (metis One_nat_def Suc_le_lessD divide_pos_pos mult_pos_pos of_nat_0_less_iff 
-      one_less_numeral_iff one_less_power reasonable_format_def semiring_norm(76) topfraction_def 
+      one_less_numeral_iff one_less_power smallest_format_def semiring_norm(76) topfraction_def 
       zero_less_diff zero_less_numeral zero_less_power)
     
 text "largest positive denorm is as the name describes"
 lemma largest_positive_denorm:
   assumes validlpd:"is_valid fmt (largest_positive_denorm fmt)"
-    and rsnbl:"reasonable_format fmt"
+    and rsnbl:"smallest_format fmt"
   assumes validx:"is_valid fmt x"
     and denormx:"is_denormal fmt x"
   shows "valof fmt x \<le> valof fmt (largest_positive_denorm fmt)"
@@ -560,7 +560,7 @@ qed
   
 text "one_minus_eps is greater than 0 for a reasonable float format"
 lemma eps_gt_zero:
-  assumes rsnbl:"reasonable_format fmt"
+  assumes rsnbl:"smallest_format fmt"
   shows "valof fmt (one_minus_eps fmt) > 0"
 proof -
   obtain s e f where sef:"(s,e,f) = one_minus_eps fmt"
@@ -568,7 +568,7 @@ proof -
   hence fgt0:"f > 0"
   proof -
     have "fracwidth fmt \<ge> 1"
-      using reasonable_format_def rsnbl by auto
+      using smallest_format_def rsnbl by auto
     hence "real 2^(fracwidth fmt) - 1 \<ge> 1"
       using exp_less by fastforce
     hence "topfraction fmt > real 0"
@@ -618,7 +618,7 @@ text "one_minus_eps is the largest value that's less than 1"
 lemma one_minus_eps_largest:
   assumes valid:"is_valid fmt a"
   and "valof fmt a < 1"
-  and rsnbl:"reasonable_format fmt"
+  and rsnbl:"smallest_format fmt"
 shows "valof fmt a \<le> valof fmt (one_minus_eps fmt)"
 proof(rule ccontr)
   assume asm0:"\<not> valof fmt a \<le> valof fmt (one_minus_eps fmt)"
@@ -792,13 +792,21 @@ next
   qed
 qed
   
+subsection \<open>Multiply specific values\<close>
   
+(* Plan:
+For the smallest 'reasonable' float format, prove that (1-\<epsilon>)*largest_denorm, after rounding, is
+largest_denorm, or second largest denorm. Attempt to use induction to prove the same fact for all
+other formats. *)
+  
+
+
 subsection \<open>Properties of multiplication\<close>
   
 text "(1-\<epsilon>) * largest_positive_denorm is denormal"
 lemma lpd_mul_ome_is_denorm:
   assumes exp_ge2:"expwidth fmt \<ge> 2"
-    and rsnbl:"reasonable_format fmt"
+    and rsnbl:"smallest_format fmt"
   shows "is_denormal fmt (fmul fmt float_To_zero (one_minus_eps fmt) (largest_positive_denorm fmt))"
 proof -
   have "valof fmt (one_minus_eps fmt) < 1"
