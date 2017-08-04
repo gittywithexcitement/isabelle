@@ -831,13 +831,34 @@ proof -
   let ?y = "1/4 :: real"
     
     (* There are 4 exponents and 2 fractions that the result can round to *)
-  have "valof fmt (0, 0, 1) = 1 / 2"
+  have rep000:"valof fmt (0, 0, 0) = 0"
+    by (simp add: fmt bias_def) 
+
+  have rep001:"valof fmt (0, 0, 1) = 1 / 2"
     by (simp add: fmt bias_def) 
 
   have "valof fmt (0, 1, 0) = 1"
     by (simp add: fmt bias_def) 
+      
+      (* Also need to prove that 1/4 not < -largest fmt, nor > largest fmt *)
+  have "is_closest (valof fmt) {a. is_finite fmt a \<and> \<bar>valof fmt a\<bar> \<le> \<bar>?y\<bar>} ?y (0, 0, 0)"
+  proof -
+    have "\<bar>valof fmt (0, 0, 0)\<bar> \<le> \<bar>?y\<bar>"
+      by simp
+    moreover have "is_finite fmt (0,0,0)"
+      using is_finite_def is_valid_special(5) is_zero_def by simp
+    moreover have "\<bar>valof fmt (0, 0, 1)\<bar> > \<bar>?y\<bar>"
+      using rep001 by force
 
-    thus ?thesis sorry
+    ultimately show ?thesis
+        sorry
+  qed
+    (*   have "round fmt float_To_zero (1/4) = (0,0,1)"
+    quickcheck[random] nitpick
+      sledgehammer
+      sorry *)
+    
+  show ?thesis sorry
 qed
 
 
