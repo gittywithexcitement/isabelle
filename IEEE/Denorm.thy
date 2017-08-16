@@ -798,6 +798,16 @@ qed
   
 subsection \<open>Multiply specific values\<close>
   
+(*New plan:
+  Show that all denorms are < norms
+Show that rounding can't increase the value above the original value.
+Then denorm * (x<1) must be denorm? ... maybe...
+
+What about showing that there are at most 2 floats that can be rounded to?
+ One \<ge> product and one \<le> product
+ And the since product is < lpd...
+ *)  
+  
 (* Plan:
 For the smallest 'reasonable' float format, prove that (1-\<epsilon>)*largest_denorm, after rounding, is
 largest_denorm, or second largest denorm. Attempt to use induction to prove the same fact for all
