@@ -125,7 +125,7 @@ next
 qed
 
 text "length is correct"
-lemma length_is_correct:
+lemma right_pad_length_is_correct:
   shows "length (rightPad p lst padTo) = max (length lst) padTo"
 proof(induction lst arbitrary: padTo)
   case Nil
@@ -149,7 +149,12 @@ subsection \<open>left pad\<close>
 
 (*TODO is this useful?*)
 lemma leftpad_empty_is_rightpad:"leftPad p [] padTo = rightPad p [] padTo"
-proof -
-  show "leftPad p [] padTo = rightPad p [] padTo"
-    by (simp add: rightpad_empty_is_replicate)
-qed
+  by (simp add: rightpad_empty_is_replicate)
+
+lemma same_length:"length (leftPad p lst padTo) = length (rightPad p lst padTo)"
+  by (simp add: right_pad_length_is_correct)
+
+text "length is correct"
+lemma left_pad_length_is_correct:
+  shows "length (leftPad p lst padTo) = max (length lst) padTo"
+  by (simp add: right_pad_length_is_correct)
