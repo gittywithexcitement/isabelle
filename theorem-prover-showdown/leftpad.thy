@@ -34,6 +34,7 @@ section \<open>Proofs\<close>
 
 subsection \<open>right pad\<close>
 
+(*TODO probably delete this in favor of right_pad_prefix_is_list*)
 text "rightPad is identity when list length is \<ge> padTo"
 lemma right_pad_id_when_longer:
   fixes lst :: "'a list"
@@ -59,11 +60,11 @@ qed
 lemma rightpad_empty_is_replicate:"\<lbrakk>padTo = n\<rbrakk> \<Longrightarrow> rightPad p [] padTo = replicate n p"
 proof(induction padTo arbitrary: n)
   case 0
-  then show ?case try
+  then show ?case 
     by simp 
 next
   case (Suc padTo)
-  then show ?case try
+  then show ?case 
     by auto
 qed
 
@@ -96,5 +97,50 @@ next
   next
     case (Suc padT)
     then show ?case by simp
+  qed
+qed
+
+text "prefix of result is the list"
+lemma right_pad_prefix_is_list:
+  fixes lst :: "'a list"
+    and p :: "'a"
+    and padTo :: nat
+  shows "take (length lst) (rightPad p lst padTo) = lst"
+proof(induction lst arbitrary: padTo)
+  case Nil
+  then show ?case 
+    by simp
+next
+  case (Cons a lst)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case 
+      by simp
+  next
+    case (Suc padTo)
+    then show ?case 
+      by simp
+  qed
+qed
+
+text "length is correct"
+lemma length_is_correct:
+  shows "length (rightPad p lst padTo) = max (length lst) padTo"
+proof(induction lst arbitrary: padTo)
+  case Nil
+  then show ?case 
+    by (simp add: rightpad_empty_is_replicate)
+next
+  case (Cons a lst)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case 
+      by simp
+  next
+    case (Suc padTo)
+    then show ?case 
+      by simp
   qed
 qed
