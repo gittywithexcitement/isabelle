@@ -34,12 +34,12 @@ section \<open>Proofs\<close>
 
 subsection \<open>right pad\<close>
 
-text "rightPad is identity when list length is equal to padTo"
+text "rightPad is identity when list length is \<ge> padTo"
 lemma right_pad_same_length:
   fixes lst :: "'a list"
     and padTo :: nat
-  assumes "length lst = padTo"
-  shows "\<lbrakk>length lst = padTo\<rbrakk> 
+  assumes "length lst \<ge> padTo"
+  shows "\<lbrakk>length lst \<ge> padTo\<rbrakk> 
       \<Longrightarrow> rightPad p lst padTo = lst"
 proof(induction lst arbitrary: padTo)
   case Nil
@@ -55,38 +55,3 @@ next
     then show ?case by (simp add: Suc.IH)
   qed
 qed
-
-(* text "rightPad is identity when list length is GTE arg"
-lemma rightPad_list_is_longer:
-  fixes lst :: "'a list"
-    and padTo :: nat
-  assumes "length lst \<ge> padTo"
-  shows "\<lbrakk>length lst \<ge> padTo\<rbrakk> 
-      \<Longrightarrow> rightPad p lst padTo = lst"
-proof(induction lst ) (* arbitrary: padTo *)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons a lst)
-  then show ?case 
-  proof(induction padTo)
-    case 0
-    then show ?case by simp
-  next
-    case (Suc padTo)
-    have gt_or_eq:"length lst > padTo \<or> length lst = padTo"
-      using Suc.prems(2) by auto
-    then show ?case
-    proof(cases "length lst > padTo")
-      case True
-      print_facts
-      then show ?thesis sorry
-    next
-      case False
-      have "length lst = padTo" 
-        using False gt_or_eq by auto
-      print_facts
-      then show ?thesis sorry
-    qed
-  qed
-qed *)
