@@ -56,6 +56,17 @@ next
   qed
 qed
 
+lemma rightpad_empty_is_replicate:"\<lbrakk>padTo = n\<rbrakk> \<Longrightarrow> rightPad p [] padTo = replicate n p"
+proof(induction padTo arbitrary: n)
+  case 0
+  then show ?case try
+    by simp 
+next
+  case (Suc padTo)
+  then show ?case try
+    by auto
+qed
+
 text "additional characters are padding"
 lemma right_pad_adds_padding_character:
   fixes lst :: "'a list"
@@ -65,9 +76,30 @@ lemma right_pad_adds_padding_character:
     and "length lst + n = padTo"
   shows "\<lbrakk>length lst < padTo; length lst + n = padTo\<rbrakk> 
       \<Longrightarrow> drop (length lst) (rightPad p lst padTo) = replicate n p"
-proof(induction lst arbitrary: padTo)
+proof(induction lst arbitrary: padTo n) (* arbitrary n? *)
   case Nil
-  then show ?case try sorry
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc padT)
+    print_facts
+    hence "n = Suc padT" 
+      by fastforce
+    have "drop (length []) (rightPad p [] (Suc padT)) = rightPad p [] (Suc padT)" 
+      by simp
+    have "rightPad p [] (Suc padT) = replicate n p" 
+    proof(induction padT)
+      case 0
+      then show ?case nitpick sorry
+    next
+      case (Suc pad)
+      then show ?case sorry
+    qed
+    then show ?case 
+      sorry
+  qed
 next
   case (Cons l ls)
   then show ?case 
