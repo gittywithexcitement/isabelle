@@ -35,7 +35,7 @@ section \<open>Proofs\<close>
 subsection \<open>right pad\<close>
 
 text "rightPad is identity when list length is \<ge> padTo"
-lemma right_pad_same_length:
+lemma right_pad_id_when_longer:
   fixes lst :: "'a list"
     and padTo :: nat
   assumes "length lst \<ge> padTo"
@@ -53,5 +53,29 @@ next
   next
     case (Suc padT)
     then show ?case by (simp add: Suc.IH)
+  qed
+qed
+
+text "additional characters are padding"
+lemma right_pad_adds_padding_character:
+  fixes lst :: "'a list"
+    and p :: "'a"
+    and padTo :: nat
+  assumes "length lst < padTo"
+    and "length lst + n = padTo"
+  shows "\<lbrakk>length lst < padTo; length lst + n = padTo\<rbrakk> 
+      \<Longrightarrow> drop (length lst) (rightPad p lst padTo) = replicate n p"
+proof(induction lst arbitrary: padTo)
+  case Nil
+  then show ?case try sorry
+next
+  case (Cons l ls)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc padT)
+    then show ?case by simp
   qed
 qed
