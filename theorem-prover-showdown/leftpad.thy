@@ -181,10 +181,9 @@ next
       by simp 
   next
     case (Suc padTo\<^sub>p)
-    print_facts
-    (* moreover have "length ls + n = padTo \<Longrightarrow> drop n (leftPad p ls padTo) = ls" try *)
-    (* moreover have "length ls + n = Suc padTo\<^sub>i" try *)
-    then show ?case try sorry
+    then show ?case
+      apply auto
+      by (metis (no_types, lifting) Suc.prems(2) add_diff_cancel_left' le_add1 length_rev max_def rev.simps(2) rev_rev_ident rev_take right_pad_length_is_correct right_pad_prefix_is_list) 
   qed    
 qed
 (*   case Nil
