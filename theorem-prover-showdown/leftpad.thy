@@ -151,6 +151,7 @@ subsection \<open>left pad\<close>
 lemma leftpad_empty_is_rightpad:"leftPad p [] padTo = rightPad p [] padTo"
   by (simp add: rightpad_empty_is_replicate)
 
+(*TODO is this useful?*)
 lemma same_length:"length (leftPad p lst padTo) = length (rightPad p lst padTo)"
   by (simp add: right_pad_length_is_correct)
 
@@ -158,3 +159,45 @@ text "length is correct"
 lemma left_pad_length_is_correct:
   shows "length (leftPad p lst padTo) = max (length lst) padTo"
   by (simp add: right_pad_length_is_correct)
+
+text "suffix of result is the list"
+lemma left_pad_suffix_is_list:
+  fixes lst :: "'a list"
+    and p :: "'a"
+    and padTo :: nat
+  assumes "length lst < padTo"
+    and "length lst + n = padTo"
+  shows "\<lbrakk>length lst + n = padTo\<rbrakk> \<Longrightarrow> drop n (leftPad p lst padTo) = lst"
+proof(induction lst arbitrary: padTo)
+  case Nil
+  then show ?case 
+    by (simp add: rightpad_empty_is_replicate) 
+next
+  case (Cons l ls)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case 
+      by simp 
+  next
+    case (Suc padTo\<^sub>i)
+    then show ?case try sorry
+  qed    
+qed
+(*   case Nil
+  then show ?case try
+    by simp
+next
+  case (Cons a lst)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case 
+      by simp
+  next
+    case (Suc padTo)
+    then show ?case 
+      by simp
+  qed
+qed
+ *)
