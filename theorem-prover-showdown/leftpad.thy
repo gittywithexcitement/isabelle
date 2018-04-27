@@ -38,29 +38,21 @@ text "rightPad is identity when list length is equal to padTo"
 lemma right_pad_same_length:
   fixes lst :: "'a list"
     and padTo :: nat
-    and p :: "'a"
   assumes "length lst = padTo"
   shows "\<lbrakk>length lst = padTo\<rbrakk> 
       \<Longrightarrow> rightPad p lst padTo = lst"
-proof(induction lst) (* arbitrary: p padTo *)
+proof(induction lst arbitrary: padTo)
   case Nil
   then show ?case by simp
 next
-  case (Cons a lst)
+  case (Cons l ls)
   then show ?case 
   proof(induction padTo)
     case 0
     then show ?case by simp
   next
-    case (Suc padTo)
-    fix p :: "'a"
-    print_facts
-    have "length lst = padTo"
-      using Suc.prems(2) by auto
-    hence "rightPad p lst padTo = lst" try
-    then show ?case
-      sledgehammer
-      sorry
+    case (Suc padT)
+    then show ?case by (simp add: Suc.IH)
   qed
 qed
 
