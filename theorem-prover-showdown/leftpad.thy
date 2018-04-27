@@ -181,8 +181,25 @@ next
       by simp 
   next
     case (Suc padTo\<^sub>p)
+    have "drop n (leftPad p ls padTo\<^sub>p) = ls" 
+      apply auto
+    proof -
+      have "length ls \<le> padTo\<^sub>p"
+        by (metis (no_types) Suc.prems(2) Suc_inject add.commute add_Suc_right le_add1 length_Cons)
+      then have "length (rightPad p (rev ls) padTo\<^sub>p) = padTo\<^sub>p"
+        by (simp add: right_pad_length_is_correct)
+      then have "length (rightPad p (rev ls) padTo\<^sub>p) - n = length ls"
+        by (metis (no_types) Suc.prems(2) add.commute add_Suc_right add_diff_cancel_left' length_Cons)
+      then show "drop n (rev (rightPad p (rev ls) padTo\<^sub>p)) = ls"
+        by (metis (no_types) drop_rev length_rev rev_rev_ident right_pad_prefix_is_list)
+    qed
     then show ?case
       apply auto
-      by (metis (no_types, lifting) Suc.prems(2) add_diff_cancel_left' le_add1 length_rev max_def rev.simps(2) rev_rev_ident rev_take right_pad_length_is_correct right_pad_prefix_is_list) 
+      proof -
+        have "length (rightPad p (rev ls @ [l]) (Suc padTo\<^sub>p)) - n = length (l # ls)"
+          by (metis Suc.prems(2) add_diff_cancel_right' le_add1 length_rev max_def_raw rev.simps(2) right_pad_length_is_correct)
+        then show "drop n (rev (rightPad p (rev ls @ [l]) (Suc padTo\<^sub>p))) = l # ls"
+          by (metis drop_rev length_rev rev.simps(2) rev_swap right_pad_prefix_is_list)
+      qed
   qed    
 qed
