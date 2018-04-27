@@ -168,7 +168,7 @@ lemma left_pad_suffix_is_list:
   assumes "length lst < padTo"
     and "length lst + n = padTo"
   shows "\<lbrakk>length lst + n = padTo\<rbrakk> \<Longrightarrow> drop n (leftPad p lst padTo) = lst"
-proof(induction lst arbitrary: padTo n)
+proof(induction lst arbitrary: padTo)
   case Nil
   then show ?case 
     by (simp add: rightpad_empty_is_replicate) 
@@ -186,20 +186,3 @@ next
       by (metis (no_types, lifting) Suc.prems(2) add_diff_cancel_left' le_add1 length_rev max_def rev.simps(2) rev_rev_ident rev_take right_pad_length_is_correct right_pad_prefix_is_list) 
   qed    
 qed
-(*   case Nil
-  then show ?case try
-    by simp
-next
-  case (Cons a lst)
-  then show ?case 
-  proof(induction padTo)
-    case 0
-    then show ?case 
-      by simp
-  next
-    case (Suc padTo)
-    then show ?case 
-      by simp
-  qed
-qed
- *)
