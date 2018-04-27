@@ -150,16 +150,6 @@ subsection \<open>left pad\<close>
 (*TODO is this useful?*)
 lemma leftpad_empty_is_rightpad:"leftPad p [] padTo = rightPad p [] padTo"
 proof -
-  have "leftPad p [] padTo = rev (rightPad p (rev []) padTo)" 
-    by simp
-  also have "... = rev (rightPad p [] padTo)" 
-    by simp
-  also have "... = rev (replicate padTo p)" 
+  show "leftPad p [] padTo = rightPad p [] padTo"
     by (simp add: rightpad_empty_is_replicate)
-  also have "... = replicate padTo p" 
-    by simp
-  also have "... = rightPad p [] padTo" 
-    by (simp add: rightpad_empty_is_replicate)
-  finally show "leftPad p [] padTo = rightPad p [] padTo" 
-    by simp
 qed
