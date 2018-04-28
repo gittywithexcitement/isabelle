@@ -37,13 +37,12 @@ section \<open>Proofs\<close>
 
 subsection \<open>All elements of the original list are elements of the output\<close>
 
+(* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
+
 lemma all_elements_present:
   fixes xs :: "nat list"
   assumes "x \<in> set xs"
   shows "x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
-  (* shows "\<forall> x. x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)" *)
-  (* shows "\<forall> x. x \<in> set xs \<longrightarrow> x \<in> set (unique xs)"  *)
-(* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
 proof(induction xs)
   case Nil
   then show ?case
@@ -51,7 +50,38 @@ proof(induction xs)
 next
   case (Cons y ys)
   then show ?case
-    apply auto
-    sledgehammer
+    apply simp_all
+    sorry
+qed
+
+lemma all_elements_present1:
+  fixes xs :: "nat list"
+  assumes "x \<in> set xs"
+  shows "\<forall> x. x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
+proof(induction xs)
+  case Nil
+  then show ?case
+    by simp
+next
+  case (Cons y ys)
+  then show ?case
+    apply simp_all
+    
+    sorry
+qed
+
+lemma all_elements_present2:
+  fixes xs :: "nat list"
+  assumes "x \<in> set xs"
+  shows "\<forall> x. x \<in> set xs \<longrightarrow> x \<in> set (unique xs)" 
+proof(induction xs)
+  case Nil
+  then show ?case
+    by simp
+next
+  case (Cons y ys)
+  then show ?case
+    apply simp_all
+    
     sorry
 qed
