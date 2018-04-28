@@ -34,29 +34,6 @@ section \<open>Proofs\<close>
 
 subsection \<open>right pad\<close>
 
-(*TODO probably delete this in favor of right_pad_prefix_is_list*)
-text "rightPad is identity when list length is \<ge> padTo"
-lemma right_pad_id_when_longer:
-  fixes lst :: "'a list"
-    and padTo :: nat
-  assumes "length lst \<ge> padTo"
-  shows "\<lbrakk>length lst \<ge> padTo\<rbrakk> 
-      \<Longrightarrow> rightPad p lst padTo = lst"
-proof(induction lst arbitrary: padTo)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons l ls)
-  then show ?case 
-  proof(induction padTo)
-    case 0
-    then show ?case by simp
-  next
-    case (Suc padT)
-    then show ?case by (simp add: Suc.IH)
-  qed
-qed
-
 lemma rightpad_empty_is_replicate:"\<lbrakk>padTo = n\<rbrakk> \<Longrightarrow> rightPad p [] padTo = replicate n p"
 proof(induction padTo arbitrary: n)
   case 0
@@ -147,21 +124,13 @@ qed
 
 subsection \<open>left pad\<close> 
 
-(*TODO is this useful?*)
-lemma leftpad_empty_is_rightpad:"leftPad p [] padTo = rightPad p [] padTo"
-  by (simp add: rightpad_empty_is_replicate)
-
-(*TODO is this useful?*)
-lemma same_length:"length (leftPad p lst padTo) = length (rightPad p lst padTo)"
-  by (simp add: right_pad_length_is_correct)
-
 text "length is correct"
-lemma left_pad_length_is_correct:
+theorem left_pad_length_is_correct:
   shows "length (leftPad p lst padTo) = max (length lst) padTo"
   by (simp add: right_pad_length_is_correct)
 
 text "suffix of result is the list"
-lemma left_pad_suffix_is_list:
+theorem left_pad_suffix_is_list:
   fixes lst :: "'a list"
     and p :: "'a"
     and padTo :: nat
@@ -205,7 +174,7 @@ next
 qed
 
 text "additional characters are padding"
-lemma left_pad_adds_padding_character:
+theorem left_pad_adds_padding_character:
   fixes lst :: "'a list"
     and p :: "'a"
     and padTo :: nat
