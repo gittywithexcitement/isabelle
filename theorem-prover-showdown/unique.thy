@@ -51,8 +51,8 @@ next
   case (Cons y ys)
   then show ?case
     apply simp_all
-    sorry
-qed
+    oops
+(* qed *)
 
 lemma all_elements_present1:
   fixes xs :: "nat list"
@@ -66,9 +66,8 @@ next
   case (Cons y ys)
   then show ?case
     apply simp_all
-    
-    sorry
-qed
+    oops
+
 
 lemma all_elements_present2:
   fixes xs :: "nat list"
@@ -81,7 +80,5 @@ proof(induction xs)
 next
   case (Cons y ys)
   then show ?case
-    apply simp_all
-    
-    sorry
-qed
+   apply simp_all
+    oops
