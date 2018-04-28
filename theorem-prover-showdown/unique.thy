@@ -37,6 +37,53 @@ section \<open>Proofs\<close>
 
 subsection \<open>All elements of the original list are elements of the output\<close>
 
+lemma uniqueAccum_keeps_elements:
+  shows "x \<in> set (uniqueAccum ys [])
+      \<Longrightarrow> x \<in> set (uniqueAccum ys [a])"
+proof(induction ys)
+  case Nil
+  then show ?case 
+    by simp
+next
+  case (Cons y ys\<^sub>p)
+
+(* goal (1 subgoal):
+ 1. x \<in> set (uniqueAccum (y # ys\<^sub>p) [a]) *)
+
+  (* "uniqueAccum (x # xs) accum = uniqueAccum xs (List.insert x accum)" *)
+(* "insert x xs = (if x \<in> set xs then xs else x # xs)" *)
+
+  then show ?case 
+    apply simp
+  proof(cases "y = a")
+    case True
+    hence ya:"List.insert y [a] = [y]" 
+      by simp
+    hence "set (uniqueAccum ys\<^sub>p [y]) = set (uniqueAccum ys\<^sub>p [a])"
+      using True by blast
+    hence "x \<in> set (uniqueAccum ys\<^sub>p [y])"
+      using Cons.prems by auto
+    then show "x \<in> set (uniqueAccum ys\<^sub>p (List.insert y [a]))"
+      by (simp add: ya)
+  next
+    case False
+    then show ?thesis sorry
+  qed 
+
+(*   proof(cases "x = y")
+    case True
+    then show ?thesis sorry
+  next
+    case False
+    hence "x \<in> ys"
+      sorry
+    then show ?thesis sorry
+  qed *)
+qed
+
+(*     assume "x \<in> set ys"
+    then show "x \<in> set (uniqueAccum ys [y])" *)
+
 (* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
 
 lemma all_elements_present:
@@ -55,7 +102,7 @@ next
   proof -
     assume "x = y"
     then show "y \<in> set (uniqueAccum ys [y])"
-      try
+      (* try *)
       sorry
   next
     assume "x \<in> set ys"
