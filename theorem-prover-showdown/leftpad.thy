@@ -203,3 +203,51 @@ next
       qed
   qed    
 qed
+
+text "additional characters are padding"
+lemma left_pad_adds_padding_character:
+  fixes lst :: "'a list"
+    and p :: "'a"
+    and padTo :: nat
+    and n :: nat
+  assumes "length lst < padTo"
+    and "length lst + n = padTo"
+  shows "\<lbrakk>length lst < padTo; length lst + n = padTo\<rbrakk> 
+      \<Longrightarrow> take n (leftPad p lst padTo) = replicate n p"
+proof(induction lst arbitrary: padTo)
+  case Nil
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc padTo)
+    then show ?case 
+      apply auto 
+      by (simp add: replicate_append_same rightpad_empty_is_replicate)
+  qed
+next
+  case (Cons l ls)
+  then show ?case 
+  proof(induction padTo)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc padTo\<^sub>p)
+    then show ?case 
+      apply auto
+    proof -
+      assume a1: "padTo\<^sub>p = length ls + n"
+      have f2: "length (rightPad p (rev ls @ [l]) (Suc (length ls + n))) = length (l # ls) + n"
+        by (simp add: right_pad_length_is_correct)
+      have f3: "length (rev ls @ [l]) + n = Suc padTo\<^sub>p"
+        using Suc.prems(3) by auto
+      have "length (rev ls @ [l]) < Suc padTo\<^sub>p"
+        using Suc.prems(2) by force
+      then have "drop (length (rev ls @ [l])) (rightPad p (rev ls @ [l]) (Suc padTo\<^sub>p)) = replicate n p"
+        using f3 by (metis (full_types) right_pad_adds_padding_character)
+      then show "take n (rev (rightPad p (rev ls @ [l]) (Suc (length ls + n)))) = replicate n p"
+        using f2 a1 by (simp add: take_rev)
+    qed 
+  qed
+qed
