@@ -7,7 +7,10 @@ section \<open>define leftpad\<close>
   
 (* left pad. Takes a padding character, a string, and a total length, returns
 the string padded to that length with that character. If length is less than
-the length of the string, does nothing. *)
+the length of the string, does nothing. 
+
+inspired by https://www.hillelwayne.com/post/theorem-prover-showdown/
+*)
 
 fun rightPad :: "'a => 'a list => nat => 'a list" where
   "rightPad p [] 0 = []" |
