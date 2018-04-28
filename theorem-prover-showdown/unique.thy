@@ -49,9 +49,39 @@ proof(induction xs)
     by simp
 next
   case (Cons y ys)
-  then show ?case
-    apply simp_all
-    oops
+  then show ?case 
+    (* apply simp_all  *)
+    apply auto
+  proof -
+    assume "x = y"
+    then show "y \<in> set (uniqueAccum ys [y])"
+      try
+      sorry
+  next
+    assume "x \<in> set ys"
+    then show "x \<in> set (uniqueAccum ys [y])"
+      sorry
+  qed
+qed
+(*   proof(cases "x = y")
+    case True
+
+    then have "y \<in> set (uniqueAccum ys [y])"
+      try
+(*     then show ?thesis 
+      apply simp_all *) 
+      (* try *)
+      sorry
+  next
+    case False
+    then have "x \<in> set ys" 
+      using Cons.prems by auto
+    then show ?thesis 
+      apply simp_all 
+      (* try *)
+      sorry
+  qed
+  oops *)
 (* qed *)
 
 lemma all_elements_present1:
@@ -68,7 +98,9 @@ next
     apply simp_all
     oops
 
-
+(* I think this is wrong. prog-prove.pdf says:
+"The implication =\<Rightarrow> is part of the Isabelle framework..."
+*)
 lemma all_elements_present2:
   fixes xs :: "nat list"
   assumes "x \<in> set xs"
