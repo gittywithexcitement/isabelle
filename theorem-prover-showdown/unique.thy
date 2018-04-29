@@ -20,6 +20,14 @@ fun uniqueAccum :: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" wher
 fun unique :: "nat list => nat list" where
   "unique xs = uniqueAccum xs []"
 
+fun uniqueAccumS :: "nat list \<Rightarrow> nat list \<Rightarrow> nat set \<Rightarrow> nat list" where
+  "uniqueAccumS [] accum accumSet = accum" |
+  "uniqueAccumS (x # xs) accum accumSet = 
+    (if x \<in> accumSet then (uniqueAccumS xs accum accumSet) else (uniqueAccumS xs (x # accum) (insert x accumSet)))" 
+
+fun uniqueS :: "nat list => nat list" where
+  "uniqueS xs = uniqueAccumS xs [] {}"
+
 (* Prove: 
 
 All elements of the original list are in the output
@@ -42,11 +50,7 @@ subsection \<open>All elements of the original list are elements of the output\<
   apply(induction xs arbitrary: ys)
    apply(induction ys)
     apply auto *)   
-
-
-
-
-proof(induction xs arbitrary: ys)
+(* proof(induction xs arbitrary: ys)
   case Nil
 (*   hence "a \<in> set ys" 
     by simp *)
@@ -66,7 +70,7 @@ next
   then show ?case
     try
     sorry
-(* qed *)  oops
+(* qed *)  oops *)
 
 lemma uniqueAccum_keeps_elements:
   shows "x \<in> set (uniqueAccum ys [])
@@ -77,13 +81,6 @@ proof(induction ys)
     by simp
 next
   case (Cons y ys\<^sub>p)
-
-(* goal (1 subgoal):
- 1. x \<in> set (uniqueAccum (y # ys\<^sub>p) [a]) *)
-
-  (* "uniqueAccum (x # xs) accum = uniqueAccum xs (List.insert x accum)" *)
-(* "insert x xs = (if x \<in> set xs then xs else x # xs)" *)
-
   then show ?case 
     apply simp
   proof(cases "y = a")
