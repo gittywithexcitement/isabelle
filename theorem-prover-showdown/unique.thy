@@ -59,8 +59,6 @@ next
     case True
     hence ya:"List.insert y [a] = [y]" 
       by simp
-    hence "set (uniqueAccum ys\<^sub>p [y]) = set (uniqueAccum ys\<^sub>p [a])"
-      using True by blast
     hence "x \<in> set (uniqueAccum ys\<^sub>p [y])"
       using Cons.prems by auto
     then show "x \<in> set (uniqueAccum ys\<^sub>p (List.insert y [a]))"
