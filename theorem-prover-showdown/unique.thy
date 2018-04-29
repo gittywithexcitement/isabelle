@@ -37,6 +37,37 @@ section \<open>Proofs\<close>
 
 subsection \<open>All elements of the original list are elements of the output\<close>
 
+(* lemma uniqueAccum_order_invariant:
+  shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set (uniqueAccum ys xs)"
+  apply(induction xs arbitrary: ys)
+   apply(induction ys)
+    apply auto *)   
+
+
+
+
+proof(induction xs arbitrary: ys)
+  case Nil
+(*   hence "a \<in> set ys" 
+    by simp *)
+  then show ?case 
+  proof(induction ys)
+    case Nil
+    then show ?case 
+      by simp
+  next
+    case (Cons y ys\<^sub>p)
+    then show ?case
+      apply auto
+      sorry
+  qed
+next
+  case (Cons a xs)
+  then show ?case
+    try
+    sorry
+(* qed *)  oops
+
 lemma uniqueAccum_keeps_elements:
   shows "x \<in> set (uniqueAccum ys [])
       \<Longrightarrow> x \<in> set (uniqueAccum ys [a])"
@@ -65,6 +96,11 @@ next
       by (simp add: ya)
   next
     case False
+    hence "List.insert y [a] = [y, a]" 
+      by simp
+    hence "uniqueAccum ys\<^sub>p (List.insert y [a]) = uniqueAccum ys\<^sub>p [y, a]"
+      by simp
+    (* have "set (uniqueAccum ys\<^sub>p [y, a]) = set ys\<^sub>p \<union> {y, a}" *)
     then show ?thesis sorry
   qed 
 
@@ -78,6 +114,7 @@ next
     then show ?thesis sorry
   qed *)
 qed
+  oops
 
 (*     assume "x \<in> set ys"
     then show "x \<in> set (uniqueAccum ys [y])" *)
@@ -107,7 +144,7 @@ next
     then show "x \<in> set (uniqueAccum ys [y])"
       sorry
   qed
-qed
+  oops
 (*   proof(cases "x = y")
     case True
 
@@ -127,7 +164,6 @@ qed
       sorry
   qed
   oops *)
-(* qed *)
 
 lemma all_elements_present1:
   fixes xs :: "nat list"
