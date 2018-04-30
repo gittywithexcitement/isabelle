@@ -47,7 +47,7 @@ subsection \<open>All elements of the original list are elements of the output\<
 
 text "prefix of result is the list"
 
-lemma uniqueAccum_set_true:
+lemma uniqueAccum_in_accum:
   "y\<^sub>e \<in> set ys
   \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
   apply(induction xs arbitrary: ys)
@@ -70,13 +70,62 @@ lemma uniqueAccum_reversible:
       \<Longrightarrow> a \<in> set (uniqueAccum [] (rev xs))"
   by auto
 
+lemma uniqueAccum_add_to_accum:
+  "a \<in> set (uniqueAccum xs []) 
+  \<Longrightarrow> a \<in> set (uniqueAccum xs [y])"
+proof(cases "a = y")
+  case True
+  then show ?thesis 
+    by (simp add: uniqueAccum_in_accum)
+next
+  case False
+  then show ?thesis sorry
+qed
+
 (* if x \<in> set xs then xs else x # xs *)
 
-(* lemma uniqueAccum_order_invariant:
+lemma uniqueAccum_order_invariant:
   shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set (uniqueAccum ys xs)"
+proof(induction xs arbitrary: ys)
+  case Nil
+  then show ?case 
+  proof(induction ys)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons y ys\<^sub>p)
+    then show ?case
+    proof(cases "a = y")
+      case True
+      then show ?thesis
+        apply auto
+        by (simp add: uniqueAccum_in_accum)
+    next
+      case False
+      have "a \<in> set (uniqueAccum [] ys\<^sub>p)" 
+        using Cons.prems False by auto
+      hence "a \<in> set (uniqueAccum ys\<^sub>p [])"
+        using Cons.IH by auto
+      then show ?thesis 
+        apply auto
+        (* try *)
+        sorry
+    qed
+    (* proof - *)
+      (* assume "a = y" *)
+      (* have "a \<in> set (uniqueAccum (y # ys) [])" sorry *)
+    (* next *)
+      (* assume "a \<in> set ys" *)
+      (* have "a \<in> set (uniqueAccum (y # ys) [])" sorry *)
+    (* qed *)
+  qed
+next
+  case (Cons x xs)
+  then show ?case sorry
+qed
   apply(induction xs arbitrary: ys)
    apply(induction ys)
-    apply auto *)   
+    apply auto
 (* proof(induction xs arbitrary: ys)
   case Nil
 (*   hence "a \<in> set ys" 
