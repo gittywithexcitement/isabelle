@@ -111,13 +111,8 @@ proof(induction xs arbitrary: ys)
         by (simp add: uniqueAccum_in_accum)
     next
       case False
-      have "a \<in> set (uniqueAccum [] ys\<^sub>p)" 
-        using Cons.prems False by auto
-      also hence "a \<in> set (uniqueAccum ys\<^sub>p [])"
-        using Cons.IH by auto
-      moreover show ?thesis         
+       show ?thesis         
         by (metis Cons.prems uniqueAccum.simps(1) uniqueAccum_in_lst)
-
     qed
   qed
 next
