@@ -108,7 +108,6 @@ proof(induction xs arbitrary: ys)
     proof(cases "a = y")
       case True
       then show ?thesis
-        apply auto
         by (simp add: uniqueAccum_in_accum)
     next
       case False
@@ -122,8 +121,31 @@ proof(induction xs arbitrary: ys)
     qed
   qed
 next
-  case (Cons x xs)
-  then show ?case sorry
+  case (Cons x xs\<^sub>p)
+  then show ?case 
+  proof(induction ys)
+    case Nil
+    then show ?case 
+      by fastforce
+  next
+    case (Cons y ys\<^sub>p)
+    then show ?case
+    proof(cases "a = y")
+      case True
+      then show ?thesis
+        by (meson list.set_intros(1) uniqueAccum_in_lst)
+    next
+      case False
+      then show ?thesis
+      proof(cases "a = x")
+        case True
+        then show ?thesis sorry
+      next
+        case False
+        then show ?thesis sorry
+      qed
+    qed
+  qed
 qed
 
 
