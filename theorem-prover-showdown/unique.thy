@@ -20,14 +20,6 @@ fun uniqueAccum :: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" wher
 fun unique :: "nat list => nat list" where
   "unique xs = uniqueAccum xs []"
 
-fun uniqueAccumS :: "nat list \<Rightarrow> nat list \<Rightarrow> nat set \<Rightarrow> nat list" where
-  "uniqueAccumS [] accum accumSet = accum" |
-  "uniqueAccumS (x # xs) accum accumSet = 
-    (if x \<in> accumSet then (uniqueAccumS xs accum accumSet) else (uniqueAccumS xs (x # accum) (insert x accumSet)))" 
-
-fun uniqueS :: "nat list => nat list" where
-  "uniqueS xs = uniqueAccumS xs [] {}"
-
 (* Prove: 
 
 All elements of the original list are in the output
