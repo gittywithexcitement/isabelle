@@ -65,6 +65,11 @@ lemma uniqueAccum_add_many:
   apply(induction xs arbitrary: ys)
   by auto
 
+lemma uniqueAccum_reversible:
+  shows "a \<in> set (uniqueAccum [] xs)
+      \<Longrightarrow> a \<in> set (uniqueAccum [] (rev xs))"
+  by auto
+
 (* if x \<in> set xs then xs else x # xs *)
 
 (* lemma uniqueAccum_order_invariant:
