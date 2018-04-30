@@ -100,3 +100,18 @@ lemma all_elements_present:
   by (simp add: uniqueAccum_in_lst)
 
 subsection \<open>Every element of the output is distinct\<close>
+
+lemma output_elements_distinct:
+  shows "card (set (unique xs)) = length (unique xs)"
+proof(induction xs)
+  case Nil
+  then show ?case 
+    by simp
+next
+case (Cons a xs)
+  then show ?case 
+    apply auto
+  proof -
+    show "card (set (uniqueAccum xs [a])) = length (uniqueAccum xs [a])" 
+    sorry
+qed
