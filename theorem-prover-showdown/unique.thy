@@ -96,8 +96,6 @@ lemma uniqueAccum_order_invariant:
 subsection \<open>All elements of the original list are elements of the output\<close>
 
 lemma all_elements_present:
-  fixes xs :: "nat list"
-  assumes "x \<in> set xs"
   shows "x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
   by (simp add: uniqueAccum_in_lst)
 
