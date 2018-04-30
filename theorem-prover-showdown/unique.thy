@@ -53,6 +53,13 @@ lemma uniqueAccum_in_accum:
   apply(induction xs arbitrary: ys)
   by auto
 
+lemma uniqueAccum_in_lst:
+  "x\<^sub>e \<in> set xs
+  \<Longrightarrow> x\<^sub>e \<in> set (uniqueAccum xs ys)"
+  apply(induction xs arbitrary: ys)
+   apply auto
+  using uniqueAccum_in_accum by auto
+
 (*TODO delete unused? *)
 lemma uniqueAccum_add_one:
   "y \<in> set (uniqueAccum [] ys)
