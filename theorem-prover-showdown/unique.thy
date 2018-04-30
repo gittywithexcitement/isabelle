@@ -15,7 +15,7 @@ inspired by https://www.hillelwayne.com/post/theorem-prover-showdown/ *)
 fun uniqueAccum :: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
   "uniqueAccum [] accum = accum" |
   "uniqueAccum (x # xs) accum = uniqueAccum xs (List.insert x accum)"
-(* note that List.insert uses set *) 
+(* "insert x xs = (if x \<in> set xs then xs else x # xs)" *)
 
 fun unique :: "nat list => nat list" where
   "unique xs = uniqueAccum xs []"
@@ -102,33 +102,30 @@ lemma all_elements_present:
 subsection \<open>Every element of the output is distinct\<close>
 
 lemma output_elements_distinct:
-  shows "card (set (unique xs)) = length (unique xs)"
+  shows "distinct (unique xs)"
 proof(induction xs)
   case Nil
   then show ?case 
     by simp
 next
-case (Cons x xs)
+case (Cons x xs\<^sub>p)
   then show ?case 
     apply auto
-  proof -
-    show "card (set (uniqueAccum xs [x])) = length (uniqueAccum xs [x])" 
-    proof(cases "x \<in> set xs")
-      case x_in_xs:True
-      hence "card (set (uniqueAccum xs [x])) = card (set (uniqueAccum xs []))"
-        by (metis Un_insert_right card_set list.set(1) list.set(2) remdups.simps(2) sup_bot.comm_neutral uniqueAccum_set_union)
-      have "set (uniqueAccum xs [x]) = set (uniqueAccum xs [])"
-        using x_in_xs uniqueAccum_set_union by auto
-      hence "length (uniqueAccum xs [x]) = length (uniqueAccum xs [])" 
-        try
-        sorry
-      then show ?thesis sorry
-    next
-      case False
-      then show ?thesis sorry
-    qed
-(* qed *)oops
+  proof(cases "x \<in> set xs\<^sub>p")
+    case True
+      (* "distinct (x # xs) \<longleftrightarrow> x \<notin> set xs \<and> distinct xs" *)
+    (* hence "set (uniqueAccum xs\<^sub>p []) = set (uniqueAccum xs\<^sub>p [x])"
+      using uniqueAccum_set_union by auto *)
 
-lemma output_elements_distinct:
-  shows "card (set (unique xs)) = length (unique xs)"
-proof(induction xs)
+    
+        
+    (* We know: distinct (unique xs\<^sub>p) *)
+
+    then show "distinct (uniqueAccum xs\<^sub>p []) \<Longrightarrow> distinct (uniqueAccum xs\<^sub>p [x])" 
+      (* try *)
+      sorry
+  next
+    case False
+    then show "distinct (uniqueAccum xs\<^sub>p []) \<Longrightarrow> distinct (uniqueAccum xs\<^sub>p [x])" sorry
+  qed
+qed
