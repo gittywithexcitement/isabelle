@@ -78,16 +78,19 @@ lemma uniqueAccum_reversible:
   by auto
 
 lemma uniqueAccum_add_to_accum:
-  "a \<in> set (uniqueAccum xs []) 
+  shows "a \<in> set (uniqueAccum xs []) 
   \<Longrightarrow> a \<in> set (uniqueAccum xs [y])"
+(*   apply(induction xs)
+   apply auto *)
 proof(cases "a = y")
   case True
   then show ?thesis 
     by (simp add: uniqueAccum_in_accum)
 next
   case False
-  then show ?thesis sorry
-qed
+  have "a \<in> set (uniqueAccum xs [])" nitpick
+  then show ?thesis nitpick
+qed oops
 
 (* if x \<in> set xs then xs else x # xs *)
 
@@ -111,49 +114,18 @@ proof(induction xs arbitrary: ys)
       case False
       have "a \<in> set (uniqueAccum [] ys\<^sub>p)" 
         using Cons.prems False by auto
-      hence "a \<in> set (uniqueAccum ys\<^sub>p [])"
+      also hence "a \<in> set (uniqueAccum ys\<^sub>p [])"
         using Cons.IH by auto
-      then show ?thesis 
-        apply auto
-        (* try *)
-        sorry
+      moreover show ?thesis         
+        by (metis Cons.prems uniqueAccum.simps(1) uniqueAccum_in_lst)
+
     qed
-    (* proof - *)
-      (* assume "a = y" *)
-      (* have "a \<in> set (uniqueAccum (y # ys) [])" sorry *)
-    (* next *)
-      (* assume "a \<in> set ys" *)
-      (* have "a \<in> set (uniqueAccum (y # ys) [])" sorry *)
-    (* qed *)
   qed
 next
   case (Cons x xs)
   then show ?case sorry
 qed
-  apply(induction xs arbitrary: ys)
-   apply(induction ys)
-    apply auto
-(* proof(induction xs arbitrary: ys)
-  case Nil
-(*   hence "a \<in> set ys" 
-    by simp *)
-  then show ?case 
-  proof(induction ys)
-    case Nil
-    then show ?case 
-      by simp
-  next
-    case (Cons y ys\<^sub>p)
-    then show ?case
-      apply auto
-      sorry
-  qed
-next
-  case (Cons a xs)
-  then show ?case
-    try
-    sorry
-(* qed *)  oops *)
+
 
 lemma uniqueAccum_keeps_elements:
   shows "x \<in> set (uniqueAccum ys [])
