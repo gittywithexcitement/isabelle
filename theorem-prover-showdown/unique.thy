@@ -100,10 +100,27 @@ proof(induction xs)
   then show ?case 
     by simp
 next
-case (Cons a xs)
+case (Cons x xs)
   then show ?case 
     apply auto
   proof -
-    show "card (set (uniqueAccum xs [a])) = length (uniqueAccum xs [a])" 
-    sorry
-qed
+    show "card (set (uniqueAccum xs [x])) = length (uniqueAccum xs [x])" 
+    proof(cases "x \<in> set xs")
+      case x_in_xs:True
+      hence "card (set (uniqueAccum xs [x])) = card (set (uniqueAccum xs []))"
+        by (metis Un_insert_right card_set list.set(1) list.set(2) remdups.simps(2) sup_bot.comm_neutral uniqueAccum_set_union)
+      have "set (uniqueAccum xs [x]) = set (uniqueAccum xs [])"
+        using x_in_xs uniqueAccum_set_union by auto
+      hence "length (uniqueAccum xs [x]) = length (uniqueAccum xs [])" 
+        try
+        sorry
+      then show ?thesis sorry
+    next
+      case False
+      then show ?thesis sorry
+    qed
+(* qed *)oops
+
+lemma output_elements_distinct:
+  shows "card (set (unique xs)) = length (unique xs)"
+proof(induction xs)
