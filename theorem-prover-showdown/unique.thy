@@ -43,9 +43,7 @@ specification. I really dropped the ball on this one. *)
 
 section \<open>Proofs\<close>
 
-subsection \<open>All elements of the original list are elements of the output\<close>
-
-text "prefix of result is the list"
+subsection \<open>Helper lemmas\<close>
 
 lemma uniqueAccum_in_accum:
   "y\<^sub>e \<in> set ys
@@ -75,7 +73,7 @@ lemma uniqueAccum_add_many:
 lemma uniqueAccum_reversible:
   shows "a \<in> set (uniqueAccum [] xs)
       \<Longrightarrow> a \<in> set (uniqueAccum [] (rev xs))"
-  by auto
+  by simp
 
 lemma uniqueAccum_set_union:
   shows "set (uniqueAccum xs ys) = set xs \<union> set ys"
@@ -97,11 +95,15 @@ lemma uniqueAccum_order_invariant:
 
 (* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
 
+subsection \<open>All elements of the original list are elements of the output\<close>
+
 lemma all_elements_present:
   fixes xs :: "nat list"
   assumes "x \<in> set xs"
   shows "x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
   by (simp add: uniqueAccum_in_lst)
+
+subsection \<open>Every element of the output is distinct\<close>
 
 lemma all_elements_present1:
   fixes xs :: "nat list"
