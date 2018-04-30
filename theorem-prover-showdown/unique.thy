@@ -48,20 +48,14 @@ subsection \<open>All elements of the original list are elements of the output\<
 text "prefix of result is the list"
 
 lemma uniqueAccum_set_true:
-  shows "y\<^sub>e \<in> set ys
-      \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
-proof(induction xs arbitrary: ys)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons x xs\<^sub>p)
-  then show ?case
-    by simp
-qed
+  "y\<^sub>e \<in> set ys
+  \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
+  apply(induction xs arbitrary: ys)
+  by auto
 
 lemma uniqueAccum_add_one:
-  shows "y \<in> set (uniqueAccum [] ys)
-      \<Longrightarrow> y \<in> set (uniqueAccum [x] ys)"
+  "y \<in> set (uniqueAccum [] ys)
+  \<Longrightarrow> y \<in> set (uniqueAccum [x] ys)"
   by simp
 
 lemma uniqueAccum_add_many:
