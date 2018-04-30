@@ -61,15 +61,8 @@ lemma uniqueAccum_add_one:
 lemma uniqueAccum_add_many:
   shows "y\<^sub>e \<in> set (uniqueAccum [] ys)
       \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
-proof(induction xs arbitrary: ys)
-  case Nil
-  then show ?case 
-    by simp
-next
-  case (Cons x xs\<^sub>p)
-  then show ?case
-    by simp
-qed
+  apply(induction xs arbitrary: ys)
+  by auto
 
 (* if x \<in> set xs then xs else x # xs *)
 
