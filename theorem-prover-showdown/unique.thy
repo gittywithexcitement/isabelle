@@ -45,6 +45,40 @@ section \<open>Proofs\<close>
 
 subsection \<open>All elements of the original list are elements of the output\<close>
 
+text "prefix of result is the list"
+
+lemma uniqueAccum_set_true:
+  shows "y\<^sub>e \<in> set ys
+      \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
+proof(induction xs arbitrary: ys)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs\<^sub>p)
+  then show ?case
+    by simp
+qed
+
+lemma uniqueAccum_add_one:
+  shows "y \<in> set (uniqueAccum [] ys)
+      \<Longrightarrow> y \<in> set (uniqueAccum [x] ys)"
+  by simp
+
+lemma uniqueAccum_add_many:
+  shows "y\<^sub>e \<in> set (uniqueAccum [] ys)
+      \<Longrightarrow> y\<^sub>e \<in> set (uniqueAccum xs ys)"
+proof(induction xs arbitrary: ys)
+  case Nil
+  then show ?case 
+    by simp
+next
+  case (Cons x xs\<^sub>p)
+  then show ?case
+    by simp
+qed
+
+(* if x \<in> set xs then xs else x # xs *)
+
 (* lemma uniqueAccum_order_invariant:
   shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set (uniqueAccum ys xs)"
   apply(induction xs arbitrary: ys)
