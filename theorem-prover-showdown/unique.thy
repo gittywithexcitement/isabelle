@@ -93,8 +93,6 @@ lemma uniqueAccum_order_invariant:
   shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set (uniqueAccum ys xs)"
   using uniqueAccum_in_accum uniqueAccum_in_lst uniqueAccum_in_one_of by blast
 
-(* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
-
 subsection \<open>All elements of the original list are elements of the output\<close>
 
 lemma all_elements_present:
@@ -104,34 +102,3 @@ lemma all_elements_present:
   by (simp add: uniqueAccum_in_lst)
 
 subsection \<open>Every element of the output is distinct\<close>
-
-lemma all_elements_present1:
-  fixes xs :: "nat list"
-  assumes "x \<in> set xs"
-  shows "\<forall> x. x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
-proof(induction xs)
-  case Nil
-  then show ?case
-    by simp
-next
-  case (Cons y ys)
-  then show ?case
-    apply simp_all
-    oops
-
-(* I think this is wrong. prog-prove.pdf says:
-"The implication =\<Rightarrow> is part of the Isabelle framework..."
-*)
-lemma all_elements_present2:
-  fixes xs :: "nat list"
-  assumes "x \<in> set xs"
-  shows "\<forall> x. x \<in> set xs \<longrightarrow> x \<in> set (unique xs)" 
-proof(induction xs)
-  case Nil
-  then show ?case
-    by simp
-next
-  case (Cons y ys)
-  then show ?case
-   apply simp_all
-    oops
