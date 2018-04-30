@@ -82,6 +82,13 @@ lemma uniqueAccum_set_union:
   apply(induction xs arbitrary: ys)
   by auto
 
+lemma uniqueAccum_in_one_of:
+  shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set xs \<or> a \<in> set ys"
+  apply(induction xs arbitrary: ys)
+   apply(induction ys)
+    apply auto
+  by fastforce
+
 lemma uniqueAccum_add_to_accum:
   shows "a \<in> set (uniqueAccum xs []) 
   \<Longrightarrow> a \<in> set (uniqueAccum xs [y])"
