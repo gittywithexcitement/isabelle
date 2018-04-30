@@ -84,125 +84,16 @@ lemma uniqueAccum_set_union:
 
 lemma uniqueAccum_in_one_of:
   shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set xs \<or> a \<in> set ys"
-  apply(induction xs arbitrary: ys)
-   apply(induction ys)
-    apply auto
-  by fastforce
+  by (simp add: uniqueAccum_set_union)
 
 lemma uniqueAccum_add_to_accum:
   shows "a \<in> set (uniqueAccum xs []) 
   \<Longrightarrow> a \<in> set (uniqueAccum xs [y])"
-(*   apply(induction xs)
-   apply auto *)
-proof(cases "a = y")
-  case True
-  then show ?thesis 
-    by (simp add: uniqueAccum_in_accum)
-next
-  case False
-  have "a \<in> set (uniqueAccum xs [])" nitpick
-  then show ?thesis nitpick
-qed oops
-
-(* if x \<in> set xs then xs else x # xs *)
+  using uniqueAccum_add_many uniqueAccum_in_lst uniqueAccum_in_one_of by blast
 
 lemma uniqueAccum_order_invariant:
   shows "a \<in> set (uniqueAccum xs ys) \<Longrightarrow> a \<in> set (uniqueAccum ys xs)"
-proof(induction xs arbitrary: ys)
-  case Nil
-  then show ?case 
-  proof(induction ys)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons y ys\<^sub>p)
-    then show ?case
-    proof(cases "a = y")
-      case True
-      then show ?thesis
-        by (simp add: uniqueAccum_in_accum)
-    next
-      case False
-       show ?thesis         
-        by (metis Cons.prems uniqueAccum.simps(1) uniqueAccum_in_lst)
-    qed
-  qed
-next
-  case consxs:(Cons x xs\<^sub>p)
-  then show ?case 
-  proof(induction ys)
-    case Nil
-    then show ?case 
-      by fastforce
-  next
-    case consys:(Cons y ys\<^sub>p)
-    then show ?case
-    proof(cases "a = y")
-      case True
-      then show ?thesis
-        by (meson list.set_intros(1) uniqueAccum_in_lst)
-    next
-      case False
-      then show ?thesis
-      proof(cases "a = x")
-        case True
-        then show ?thesis 
-          by (simp add: uniqueAccum_in_accum)
-      next
-        case False
-        then show ?thesis
-          apply simp
-          try
-          sorry
-      qed
-    qed
-  qed
-qed
-
-
-lemma uniqueAccum_keeps_elements:
-  shows "x \<in> set (uniqueAccum ys [])
-      \<Longrightarrow> x \<in> set (uniqueAccum ys [a])"
-proof(induction ys)
-  case Nil
-  then show ?case 
-    by simp
-next
-  case (Cons y ys\<^sub>p)
-  then show ?case 
-    apply simp
-  proof(cases "y = a")
-    case True
-    hence ya:"List.insert y [a] = [y]" 
-      by simp
-    hence "x \<in> set (uniqueAccum ys\<^sub>p [y])"
-      using Cons.prems by auto
-    then show "x \<in> set (uniqueAccum ys\<^sub>p (List.insert y [a]))"
-      by (simp add: ya)
-  next
-    case False
-    hence "List.insert y [a] = [y, a]" 
-      by simp
-    hence "uniqueAccum ys\<^sub>p (List.insert y [a]) = uniqueAccum ys\<^sub>p [y, a]"
-      by simp
-    (* have "set (uniqueAccum ys\<^sub>p [y, a]) = set ys\<^sub>p \<union> {y, a}" *)
-    then show ?thesis sorry
-  qed 
-
-(*   proof(cases "x = y")
-    case True
-    then show ?thesis sorry
-  next
-    case False
-    hence "x \<in> ys"
-      sorry
-    then show ?thesis sorry
-  qed *)
-qed
-  oops
-
-(*     assume "x \<in> set ys"
-    then show "x \<in> set (uniqueAccum ys [y])" *)
+  using uniqueAccum_in_accum uniqueAccum_in_lst uniqueAccum_in_one_of by blast
 
 (* https://isabelle.in.tum.de/community/FAQ#There_are_lots_of_arrows_in_Isabelle.2FHOL._What.27s_the_difference_between_-.3E.2C_.3D.3E.2C_--.3E.2C_and_.3D.3D.3E_.3F *)
 
@@ -210,45 +101,7 @@ lemma all_elements_present:
   fixes xs :: "nat list"
   assumes "x \<in> set xs"
   shows "x \<in> set xs \<Longrightarrow> x \<in> set (unique xs)"
-proof(induction xs)
-  case Nil
-  then show ?case
-    by simp
-next
-  case (Cons y ys)
-  then show ?case 
-    (* apply simp_all  *)
-    apply auto
-  proof -
-    assume "x = y"
-    then show "y \<in> set (uniqueAccum ys [y])"
-      (* try *)
-      sorry
-  next
-    assume "x \<in> set ys"
-    then show "x \<in> set (uniqueAccum ys [y])"
-      sorry
-  qed
-  oops
-(*   proof(cases "x = y")
-    case True
-
-    then have "y \<in> set (uniqueAccum ys [y])"
-      try
-(*     then show ?thesis 
-      apply simp_all *) 
-      (* try *)
-      sorry
-  next
-    case False
-    then have "x \<in> set ys" 
-      using Cons.prems by auto
-    then show ?thesis 
-      apply simp_all 
-      (* try *)
-      sorry
-  qed
-  oops *)
+  by (simp add: uniqueAccum_in_lst)
 
 lemma all_elements_present1:
   fixes xs :: "nat list"
