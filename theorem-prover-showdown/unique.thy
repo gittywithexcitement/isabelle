@@ -77,6 +77,11 @@ lemma uniqueAccum_reversible:
       \<Longrightarrow> a \<in> set (uniqueAccum [] (rev xs))"
   by auto
 
+lemma uniqueAccum_set_union:
+  shows "set (uniqueAccum xs ys) = set xs \<union> set ys"
+  apply(induction xs arbitrary: ys)
+  by auto
+
 lemma uniqueAccum_add_to_accum:
   shows "a \<in> set (uniqueAccum xs []) 
   \<Longrightarrow> a \<in> set (uniqueAccum xs [y])"
