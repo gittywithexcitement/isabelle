@@ -121,14 +121,14 @@ proof(induction xs arbitrary: ys)
     qed
   qed
 next
-  case (Cons x xs\<^sub>p)
+  case consxs:(Cons x xs\<^sub>p)
   then show ?case 
   proof(induction ys)
     case Nil
     then show ?case 
       by fastforce
   next
-    case (Cons y ys\<^sub>p)
+    case consys:(Cons y ys\<^sub>p)
     then show ?case
     proof(cases "a = y")
       case True
@@ -139,10 +139,14 @@ next
       then show ?thesis
       proof(cases "a = x")
         case True
-        then show ?thesis sorry
+        then show ?thesis 
+          by (simp add: uniqueAccum_in_accum)
       next
         case False
-        then show ?thesis sorry
+        then show ?thesis
+          apply simp
+          try
+          sorry
       qed
     qed
   qed
