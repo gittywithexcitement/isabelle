@@ -144,7 +144,17 @@ case (Cons x xs\<^sub>p)
       (* "distinct (x # xs) \<longleftrightarrow> x \<notin> set xs \<and> distinct xs" *)
     (* hence "set (uniqueAccum xs\<^sub>p []) = set (uniqueAccum xs\<^sub>p [x])"
       using uniqueAccum_set_union by auto *)
-        
+
+  (* IIUC this won't work because there could be multiple x's in xs\<^sub>p *)
+    (* then obtain ws ys where split:"xs\<^sub>p = ws @ [x] @ ys"
+      using split_list_last by fastforce
+    hence "distinct (uniqueAccum (ws @ [x] @ ys) [])" 
+      using Cons.IH by simp
+    hence "distinct (uniqueAccum (ws @ ys @ [x]) [])" 
+      sorry
+    hence "uniqueAccum xs\<^sub>p [x] = uniqueAccum (ws @ [x] @ ys) [x]" 
+      using split by simp *)
+
     (* We know: distinct (unique xs\<^sub>p) *)
 
     then show "distinct (uniqueAccum xs\<^sub>p []) \<Longrightarrow> distinct (uniqueAccum xs\<^sub>p [x])" 
