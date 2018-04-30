@@ -53,6 +53,7 @@ lemma uniqueAccum_set_true:
   apply(induction xs arbitrary: ys)
   by auto
 
+(*TODO delete unused? *)
 lemma uniqueAccum_add_one:
   "y \<in> set (uniqueAccum [] ys)
   \<Longrightarrow> y \<in> set (uniqueAccum [x] ys)"
