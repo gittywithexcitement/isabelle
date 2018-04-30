@@ -20,6 +20,14 @@ fun uniqueAccum :: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" wher
 fun unique :: "nat list => nat list" where
   "unique xs = uniqueAccum xs []"
 
+fun listElem :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" where
+  "listElem [] a = False" |
+  "listElem (x # xs) a = (if x = a then True else listElem xs a)"
+
+fun tails :: "'a list \<Rightarrow> 'a list list" where
+  "tails [] = []" |
+  "tails (x # xs) = (x # xs) # (tails xs)"
+
 (* Prove: 
 
 All elements of the original list are in the output
